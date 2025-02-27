@@ -1,0 +1,3 @@
+#!/bin/bash 
+
+python3 train_agent.py --agro-file pear_agro.yaml --env-id perennial-lnpkw-v0 --agent-type BC --save-folder data/Pear_Threshold_WK_Rand/ --BC.demo-agent-type PPO --BC.demo-agent-path data/Pear_Threshold_WK_Rand/PPO/perennial-lnpkw-v0__rl_utils__1__1738185049/agent.pt --npk.random-reset --npk.domain-rand --npk.scale 0.03 --npk.intvn-interval 14 --env-reward RewardFertilizationThresholdWrapper --max-n 20 --max-p 20 --max-k 20 --max-w 20

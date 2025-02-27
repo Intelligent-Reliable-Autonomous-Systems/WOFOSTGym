@@ -1,0 +1,538 @@
+npk:
+  wf:
+    NSOILBASE: 10.47038804424519
+    NSOILBASE_FR: 0.027310942725587192
+    PSOILBASE: 9.497506287039917
+    PSOILBASE_FR: 0.025380786672089185
+    KSOILBASE: 10.184083862543678
+    KSOILBASE_FR: 0.025361259528954367
+    NAVAILI: 0.017302586962016628
+    PAVAILI: -0.0959784907625013
+    KAVAILI: 0.06578800584347264
+    NMAX: 45.04695476192547
+    PMAX: 51.7781653679623
+    KMAX: 47.70007973192165
+    BG_N_SUPPLY: 0.011475919849060844
+    BG_P_SUPPLY: 0.010536693404483842
+    BG_K_SUPPLY: 0.010303020996415656
+    RNSOILMAX: 20.0
+    RPSOILMAX: 20.0
+    RKSOILMAX: 20.0
+    RNABSORPTION: 0.8673424114412382
+    RPABSORPTION: 0.9301338683934627
+    RKABSORPTION: 0.8337236152327906
+    RNPKRUNOFF:
+    - 0.0
+    - 0.0
+    - 0.01
+    - 0.0
+    - 0.5
+    - 0.05
+    - 1.0
+    - 0.1
+    - 5.0
+    - 0.4
+    SMFCF: 0.4345235102029369
+    SM0: 0.6216133873129362
+    SMW: 0.29682752271705765
+    CRAIRC: 0.10692817344942257
+    SOPE: 0.5719427202849255
+    KSUB: 0.3550103343632799
+    RDMSOL: 127.53114767285945
+    IFUNRN: -0.020698851830603077
+    SSMAX: 0.07622063942223231
+    SSI: 0.016254574527171745
+    WAV: 1.0763470723709705
+    NOTINF: 0.03850631801555318
+    SMLIM: 0.34486678246809627
+    CO2: 360.09535549872254
+    REFCO2L: 360.0
+    CVL:
+    - 0.6860960081430663
+    CVO:
+    - 0.4746810320490795
+    CVR:
+    - 0.713685647839183
+    CVS:
+    - 0.6994438849438734
+    AMAXTB:
+    - 0.0
+    - 36.0
+    - 1.22
+    - 36.0
+    - 2.0
+    - 12.0
+    EFFTB:
+    - 0.0
+    - 0.4
+    - 40.0
+    - 0.4
+    KDIFTB:
+    - 0.0
+    - 0.9
+    - 2.0
+    - 0.9
+    TMPFTB:
+    - 0.0
+    - 0.0
+    - 10.0
+    - 0.5
+    - 20.0
+    - 1.0
+    - 30.0
+    - 1.0
+    - 40.0
+    - 0.5
+    TMNFTB:
+    - 0.0
+    - 0.0
+    - 3.0
+    - 1.0
+    CO2AMAXTB:
+    - 40.0
+    - 0.0
+    - 360.0
+    - 1.0
+    - 720.0
+    - 1.6
+    - 1000.0
+    - 1.9
+    - 2000.0
+    - 1.9
+    CO2EFFTB:
+    - 40.0
+    - 0.0
+    - 360.0
+    - 1.0
+    - 720.0
+    - 1.11
+    - 1000.0
+    - 1.11
+    - 2000.0
+    - 1.11
+    CFET: 0.9417753512189669
+    DEPNR: 3.262916662519497
+    IOX: 1.0
+    IAIRDU: 0.0
+    CO2TRATB:
+    - 40.0
+    - 0.0
+    - 360.0
+    - 1.0
+    - 720.0
+    - 0.9
+    - 1000.0
+    - 0.9
+    - 2000.0
+    - 0.9
+    RGRLAI: 0.02859861933314262
+    SPAN: 27.77355778592912
+    TBASE: 2.8892570105545103
+    PERDL: 0.027612268864488167
+    SLATB:
+    - 0.0
+    - 0.0035
+    - 1.0
+    - 0.0025
+    - 2.0
+    - 0.0025
+    RDRNS: null
+    NLAI: null
+    NSLA: null
+    RDRN: null
+    NMAXLV_TB:
+    - 0.0
+    - 0.06
+    - 0.4
+    - 0.04
+    - 0.7
+    - 0.03
+    - 1.0
+    - 0.03
+    - 2.0
+    - 0.024
+    - 2.1
+    - 0.024
+    PMAXLV_TB:
+    - 0.0
+    - 0.0093
+    - 0.4
+    - 0.0062
+    - 0.7
+    - 0.0047
+    - 1.0
+    - 0.0047
+    - 2.0
+    - 0.0037
+    - 2.1
+    - 0.0037
+    KMAXLV_TB:
+    - 0.0
+    - 0.1
+    - 0.4
+    - 0.067
+    - 0.7
+    - 0.05
+    - 1.0
+    - 0.05
+    - 2.0
+    - 0.04
+    - 2.1
+    - 0.04
+    NMAXRT_FR: 0.5337944907498804
+    PMAXRT_FR: 0.47828069625764097
+    KMAXRT_FR: 0.519247211937002
+    NMAXST_FR: 0.4596098407893963
+    PMAXST_FR: 0.4620196561213169
+    KMAXST_FR: 0.5066601454206575
+    NRESIDLV: 0.010219636190563168
+    PRESIDLV: 0.0010310484003903109
+    KRESIDLV: 0.012247445401682006
+    NRESIDST: 0.0047679257154418725
+    PRESIDST: 0.000520911877418555
+    KRESIDST: 0.006771312625071943
+    NRESIDRT: 0.004893472183158013
+    PRESIDRT: 0.00048379963461297115
+    KRESIDRT: 0.00724268112756667
+    NSLA_NPK: 0.46589695836455197
+    NLAI_NPK: 0.9488851184003205
+    RDRLV_NPK: 0.04696582361680054
+    FRTB:
+    - 0.0
+    - 0.5
+    - 0.65
+    - 0.5
+    - 1.1
+    - 0.0
+    - 2.0
+    - 0.0
+    FSTB:
+    - 0.0
+    - 0.5
+    - 0.85
+    - 0.5
+    - 0.91
+    - 0.59
+    - 1.0
+    - 0.8
+    - 1.22
+    - 0.28
+    - 1.35
+    - 0.0
+    - 2.0
+    - 0.0
+    FLTB:
+    - 0.0
+    - 0.5
+    - 0.85
+    - 0.5
+    - 0.91
+    - 0.41
+    - 1.0
+    - 0.2
+    - 1.22
+    - 0.0
+    - 1.35
+    - 0.0
+    - 2.0
+    - 0.0
+    FOTB:
+    - 0.0
+    - 0.0
+    - 0.85
+    - 0.0
+    - 0.91
+    - 0.0
+    - 1.0
+    - 0.0
+    - 1.22
+    - 0.72
+    - 1.35
+    - 1.0
+    - 2.0
+    - 1.0
+    NPART: 0.922075028232861
+    NTHRESH: 10.306216650930796
+    PTHRESH: 9.506583205079565
+    KTHRESH: 9.932621545712612
+    VERNSAT: 72.76683674298171
+    VERNBASE: 13.823689470638156
+    VERNRTB:
+    - -8.0
+    - 0.0
+    - -4.0
+    - 0.0
+    - 3.0
+    - 1.0
+    - 10.0
+    - 1.0
+    - 17.0
+    - 0.0
+    - 20.0
+    - 0.0
+    VERNDVS: 0.2736135282977562
+    DTBEM: 5
+    TSUMEM: 130.0
+    TBASEM: 2.711273880261813
+    TEFFMX: 32.752867181285616
+    TSUM1: 1050.0
+    TSUM2: 1000.0
+    TSUM3: 700.0
+    TSUM4: null
+    IDSL: 1.0
+    DLO: 14.31386802362278
+    DLC: 8.187094394999612
+    DVSI: 0.08874961570292483
+    DVSM: 2.0727281196413934
+    DVSEND: 2.9157047403442715
+    DTSMTB:
+    - 0.0
+    - 0.0
+    - 2.0
+    - 0.0
+    - 18.0
+    - 16.0
+    - 40.0
+    - 38.0
+    DORM: null
+    DORMCD: null
+    AGEI: null
+    MLDORM: null
+    DCYCLEMAX: null
+    Q10C: null
+    CSUMDB: null
+    HCINIT: null
+    HCMIN: null
+    HCMAX: null
+    TENDO: null
+    TECO: null
+    ECOBOUND: null
+    ENACCLIM: null
+    ECACCLIM: null
+    ENDEACCLIM: null
+    ECDEACCLIM: null
+    THETA: null
+    Q10: 2.0559684085310095
+    RMR:
+    - 0.010043696643500143
+    RMS:
+    - 0.014743985819971571
+    RML:
+    - 0.027860119724454277
+    RMO:
+    - 0.013067205400919001
+    RFSETB:
+    - 0.0
+    - 1.0
+    - 2.0
+    - 1.0
+    RDI: 10.14039354083576
+    RRI: 1.1852643632309567
+    RDMCR: 164.6512151417768
+    RDRRTB:
+    - 0.0
+    - 0.0
+    - 1.5
+    - 0.0
+    - 1.51
+    - 0.02
+    - 2.0
+    - 0.02
+    - 2.5
+    - 0.04
+    - 2.75
+    - 0.1
+    - 3.0
+    - 0.5
+    RDRROS:
+    - 0.0
+    - 0.02
+    - 0.25
+    - 0.1
+    - 0.999
+    - 0.001
+    - 1.0
+    - 0.0
+    RDRRNPK:
+    - 1.0
+    - 0.0
+    - 1.01
+    - 0.0
+    - 1.1
+    - 0.05
+    - 1.5
+    - 0.1
+    - 2.0
+    - 0.3
+    RDRSTB:
+    - 0.0
+    - 0.0
+    - 1.5
+    - 0.0
+    - 1.51
+    - 0.02
+    - 2.0
+    - 0.02
+    - 2.5
+    - 0.04
+    - 2.75
+    - 0.1
+    - 3.0
+    - 0.5
+    SSATB:
+    - 0.0
+    - 0.0
+    - 2.0
+    - 0.0
+    TDWI:
+    - 5.652459073288609
+    RDRSOB:
+    - 0.0
+    - 0.0
+    - 2.0
+    - 0.0
+    - 2.01
+    - 0.01
+    - 2.5
+    - 0.02
+    - 2.75
+    - 0.05
+    - 3.0
+    - 0.5
+    SPA:
+    - 0.0
+    - 0.0
+    - 1.0
+    - 0.0
+    - 1.5
+    - 0.001
+    - 2.0
+    - 0.002
+    RDRSOF:
+    - 0.0
+    - 0.2
+    - 5.0
+    - 0.05
+    - 7.0
+    - 0.001
+    - 8.0
+    - 0.0
+    NMAXSO: 0.03154440651847716
+    PMAXSO: 0.006139059452828346
+    KMAXSO: 0.009149547822603734
+    NCRIT_FR: 0.9937302403295403
+    PCRIT_FR: 0.9237455437908488
+    KCRIT_FR: 1.00464961069334
+    DVS_NPK_STOP: 1.3433593460158737
+    TCNT: 10.0
+    TCPT: 10.0
+    TCKT: 10.0
+    NFIX_FR: -0.09216244154913587
+    RNUPTAKEMAX: 7.010964245751788
+    RPUPTAKEMAX: 0.8513589167756697
+    RKUPTAKEMAX: 6.8037098881737315
+    NLUE_NPK: 1.1343925096823602
+    NPK_TRANSLRT_FR: 0.4638182951348614
+    DVS_NPK_TRANSL: 0.8273020591389055
+  ag:
+    latitude: 40.0
+    longitude: 5.0
+    year: 1984
+    site_name: oregon
+    site_variation: oregon_1
+    site_start_date: '1985-02-01'
+    site_end_date: '1985-10-01'
+    crop_name: sunflower
+    crop_variety: sunflower_1
+    crop_start_date: '1985-02-01'
+    crop_start_type: sowing
+    crop_end_date: '1985-10-01'
+    crop_end_type: death
+    max_duration: 365
+  seed: 0
+  scale: 0.1
+  output_vars:
+  - FIN
+  - DVS
+  - WSO
+  - NAVAIL
+  - PAVAIL
+  - KAVAIL
+  - SM
+  - TOTN
+  - TOTP
+  - TOTK
+  - TOTIRRIG
+  weather_vars:
+  - IRRAD
+  - TEMP
+  - RAIN
+  intvn_interval: 7
+  forecast_length: 1
+  forecast_noise:
+  - 0
+  - 0.2
+  num_fert: 4
+  num_irrig: 4
+  num_farms: 5
+  random_reset: true
+  train_reset: false
+  domain_rand: true
+  crop_rand: true
+  harvest_effec: 1.0
+  irrig_effec: 0.7
+  n_recovery: 0.7
+  p_recovery: 0.7
+  k_recovery: 0.7
+  fert_amount: 2.0
+  irrig_amount: 0.5
+  assets_fpath: /home/will/Projects/wofost_project/wofost-gym/pcse_gym/pcse_gym/assets/
+env_id: multi-lnpkw-v0
+env_reward: RewardFertilizationCostWrapper
+render_mode: null
+save_folder: data/Sunflower_Multi_Cost/
+config_fpath: null
+data_file: null
+agro_file: sunflower_agro.yaml
+max_n: null
+max_p: null
+max_k: null
+max_w: null
+cost: 2.0
+base_fpath: /home/will/Projects/wofost_project/wofost-gym/
+agro_fpath: env_config/agro/
+crop_fpath: env_config/crop/
+site_fpath: env_config/site/
+unit_fpath: env_config/state_units.yaml
+name_fpath: env_config/state_names.yaml
+range_fpath: env_config/state_ranges.yaml
+PPO:
+  exp_name: rl_utils
+  seed: 1
+  torch_deterministic: true
+  cuda: true
+  wandb_project_name: sunflower_multi_cost
+  wandb_entity: null
+  capture_video: false
+  total_timesteps: 1000000
+  learning_rate: 0.00025
+  num_envs: 1
+  num_steps: 650
+  anneal_lr: true
+  gamma: 0.999
+  gae_lambda: 0.95
+  num_minibatches: 4
+  update_epochs: 8
+  norm_adv: true
+  clip_coef: 0.2
+  clip_vloss: true
+  ent_coef: 0.01
+  vf_coef: 0.5
+  max_grad_norm: 0.5
+  target_kl: null
+  checkpoint_frequency: 500
+  batch_size: 650
+  minibatch_size: 162
+  num_iterations: 1538
+agent_type: PPO
+track: true

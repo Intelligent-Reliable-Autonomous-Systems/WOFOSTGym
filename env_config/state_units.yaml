@@ -1,0 +1,745 @@
+# All units for use in graphing output from the WOFOST Simulator 
+---  
+  #############################################################################**
+  # Weather Variable States
+  #############################################################################**
+  LAT:    'degree'      # Latitude of Location
+  LON:    'degree'      # Longitude of Locaiton
+  ELEV:   'meters'      # Elevation
+  DAY:    'date'        # Day
+  IRRAD:  'J/m2/day'    # Incoming global radiaiton
+  TMIN:   'C'           # Daily minimum temperature
+  TMAX:   'C'           # Daily maximum temperature
+  TEMP:   'C'           # Daily Average Temperatuer
+  VAP:    'hPA'         # Daily mean vapor pressure
+  RAIN:   'cm/day'      # Daily total rainfall 
+  WIND:   'm/sec'       # Daily mean wind speed at 2m height 
+  E0:     'cm/day'      # Daily evaporation rate from open water 
+  ES0:    'cm/day'      # Daily evaporation rate from bare soil (cm/day)
+  ET0:    'cm/day'      # Daily evapotranspiration rate from reference crop (cm/day)
+  DAYS:   '-'           # Days Elapsed
+
+  #############################################################################**
+  # WOFOST States and Rates
+  #############################################################################**
+  # State variables:** (For output to observation space):
+  TAGP:        '|kg ha-1|'       # Total above-ground Production              
+  GASST:       '|kg CH2O ha-1|'  # Total gross assimilation                           
+  MREST:       '|kg CH2O ha-1|'  # Total gross maintenance respiration            
+  CTRAT:       'cm'              # Total crop transpiration accumulated over the crop cycle
+  CEVST:       'cm'              # Total soil evaporation accumulated over the crop cycle             
+  HI:          '-'            # Harvest Index (only calculated during finalize())
+  DOF:         'Date'            # Date representing the day of finish of the crop simulation.
+  FINISH_TYPE: '-'            # String representing the reason for finishing the simulation: maturity, harvest, leave death, etc.
+  FIN:         'bool '
+
+  ## Rate variables:** (For output to observation space):
+  GASS:  '|kg CH2O ha-1 d-1|'   # Assimilation rate corrected for water stress    
+  PGASS: '|kg CH2O ha-1 d-1|'   # Potential assimilation rate                     
+  MRES:  '|kg CH2O ha-1 d-1|'   # Actual maintenance respiration rate, taking into account that MRES <= GASS.       
+  PMRES: '|kg CH2O ha-1 d-1|'   # Potential maintenance respiration rate         
+  ASRC:  '|kg CH2O ha-1 d-1|'   # Net available assimilates (GASS - MRES)   
+  DMI:   '|kg ha-1 d-1|'        # Total dry matter increase, calculated as ASRC times a weighted conversion efficieny.        
+  ADMI:  '|kg ha-1 d-1|'        # Aboveground dry matter increase 
+
+  #############################################################################**
+  # Assimilation States and Rates
+  #############################################################################**
+
+  #############################################################################**
+  # Evapotranspiration States and Rates
+  #############################################################################**
+  #State variables** (For output to observation space):
+  IDWST:   'days'    # Nr of days with water stress.             
+  IDOST:   'days'    # Nr of days with oxygen stress.                
+
+  ## Rate variables** (For output to observation space):
+  EVWMX:  '|cm day-1|'      # Maximum evaporation rate from an open water surface.
+  EVSMX:  '|cm day-1|'      # Maximum evaporation rate from a wet soil surface. 
+  TRAMX:  '|cm day-1|'      # Maximum transpiration rate from the plant canopy   
+  TRA:    '|cm day-1|'      # Actual transpiration rate from the plant canopy
+  IDOS:   'bool'            # Indicates water stress on this day (True|False)  
+  IDWS:   'bool'            # Indicates oxygen stress on this day (True|False)  
+  RFWS:   'fraction'        # Reducation factor for water stress               
+  RFOS:   'fraction'        # Reducation factor for oxygen stress              
+  RFTRA:  'fraction'        # Reduction factor for transpiration (wat & ox)      
+
+  #**############################################################################**
+  # Leaf Dynamics States and Rates
+  #**############################################################################**
+  #**State variables** (For output to observation space):
+
+  LV:       '|kg ha-1|'  # Leaf biomass per leaf class              
+  SLA:      '|ha kg-1|'  # Specific leaf area per leaf class                 
+  LVAGE:    '|d|'        # Leaf age per leaf class                             
+  LVSUM:    '|kg ha-1|'  # Sum of LV                                        
+  LAIEM:    '-'      # LAI at emergence                                   
+  LASUM:    'area'       # Total leaf area as sum of LV*SLA, not including stem and pod area                 
+  LAIEXP:   '-'      # LAI value under theoretical exponential growth    
+  LAIMAX:   '-'      # Maximum LAI reached during growth cycle            
+  LAI:      '-'      # Leaf area index, including stem and pod area       
+  WLV:      '|kg ha-1|'  # Dry weight of living leaves                        
+  DWLV:     '|kg ha-1|'  # Dry weight of dead leaves                          
+  TWLV:     '|kg ha-1|'  # Dry weight of total leaves (living + dead)         
+
+  #**Rate variables** (For output to observation space):
+  GRLV:     '|kg ha-1 d-1|'    # Growth rate leaves                                   
+  DSLV1:    '|kg ha-1 d-1|'    # Death rate leaves due to water stress                 
+  DSLV2:    '|kg ha-1 d-1|'    # Death rate leaves due to self-shading                
+  DSLV3:    '|kg ha-1 d-1|'    # Death rate leaves due to frost kill                   
+  DSLV4:    '|kg ha-1 d-1|'    # Death rate leaves due to nutrient stress           
+  DSLV:     '|kg ha-1 d-1|'    # Maximum of DLSV1, DSLV2, DSLV3                     
+  DALV:     '|kg ha-1 d-1|'    # Death rate leaves due to aging.                   
+  DRLV:     '|kg ha-1 d-1|'    # Death rate leaves as a combination of DSLV and DALV
+  SLAT:     '|ha kg-1|'        # Specific leaf area for current time step, adjusted for source/sink limited leaf expansion rate.
+  FYSAGE:   '-'            # Increase in physiological leaf age             
+  GLAIEX:   '|ha ha-1 d-1|'    # Sink-limited leaf expansion rate (exponential curve)
+  GLASOL:   '|ha ha-1 d-1|'    # Source-limited leaf expansion rate (biomass increase)
+
+  #*############################################################################**
+  # NPK Dynamics States and Rates
+  #*############################################################################**
+  #**State variables** (For output to observation space):
+  NAMOUNTLV:     '|kg N ha-1|'    # Actual N amount in living leaves                  
+  PAMOUNTLV:     '|kg P ha-1|'    # Actual P amount in living leaves                  
+  KAMOUNTLV:     '|kg K ha-1|'    # Actual K amount in living leaves                  
+      
+  NAMOUNTST:     '|kg N ha-1|'    # Actual N amount in living stems                  
+  PAMOUNTST:     '|kg P ha-1|'    # Actual P amount in living stems                   
+  KAMOUNTST:     '|kg K ha-1|'    # Actual K amount in living stems                   
+
+  NAMOUNTSO:     '|kg N ha-1|'    # Actual N amount in living storage organs         
+  PAMOUNTSO:     '|kg P ha-1|'    # Actual P amount in living storage organs          
+  KAMOUNTSO:     '|kg K ha-1|'    # Actual K amount in living storage organs          
+
+  NAMOUNTRT:     '|kg N ha-1|'    # Actual N amount in living roots                   
+  PAMOUNTRT:     '|kg P ha-1|'    # Actual P amount in living roots                   
+  KAMOUNTRT:     '|kg K ha-1|'    # Actual K amount in living roots                  
+
+  NUPTAKE_T:     '|kg N ha-1|'     # total absorbed N amount                            
+  PUPTAKE_T:     '|kg P ha-1|'     # total absorbed P amount                            
+  KUPTAKE_T:     '|kg K ha-1|'     # total absorbed K amount                            
+  NFIX_T:        '|kg N ha-1|'     # total biological fixated N amount                 
+
+  # **Rate variables** (For output to observation space):
+  RNAMOUNTLV:     '|kg N ha-1 d-1|'    # Weight increase (N) in leaves                    
+  RPAMOUNTLV:     '|kg P ha-1 d-1|'    # Weight increase (P) in leaves                   
+  RKAMOUNTLV:     '|kg K ha-1 d-1|'    # Weight increase (K) in leaves                    
+
+  RNAMOUNTST:     '|kg N ha-1 d-1|'    # Weight increase (N) in stems                    
+  RPAMOUNTST:     '|kg P ha-1 d-1|'    # Weight increase (P) in stems                     
+  RKAMOUNTST:     '|kg K ha-1 d-1|'    # Weight increase (K) in stems                     
+      
+  RNAMOUNTRT:     '|kg N ha-1 d-1|'    # Weight increase (N) in roots                     
+  RPAMOUNTRT:     '|kg P ha-1 d-1|'    # Weight increase (P) in roots                     
+  RKAMOUNTRT:     '|kg K ha-1 d-1|'    # Weight increase (K) in roots                    
+
+  RNAMOUNTSO:     '|kg N ha-1 d-1|'    # Weight increase (N) in storage organs            
+  RPAMOUNTSO:     '|kg P ha-1 d-1|'    # Weight increase (P) in storage organs            
+  RKAMOUNTSO:     '|kg K ha-1 d-1|'    # Weight increase (K) in storage organs          
+
+  RNDEATHLV:      '|kg N ha-1 d-1|'    # Rate of N loss in leaves                        
+  RPDEATHLV:      '|kg P ha-1 d-1|'    # Rate of P loss in leaves                         
+  RKDEATHLV:      '|kg K ha-1 d-1|'    # Rate of K loss in leaves                        
+
+  RNDEATHST:      '|kg N ha-1 d-1|'    # Rate of N loss in roots                        
+  RPDEATHST:      '|kg P ha-1 d-1|'    # Rate of P loss in roots                          
+  RKDEATHST:      '|kg K ha-1 d-1|'    # Rate of K loss in roots                         
+
+  RNDEATHRT:      '|kg N ha-1 d-1|'    # Rate of N loss in stems                         
+  RPDEATHRT:      '|kg P ha-1 d-1|'    # Rate of P loss in stems                          
+  RKDEATHRT:      '|kg K ha-1 d-1|'    # Rate of K loss in stems                          
+
+  RNLOSS:         '|kg N ha-1 d-1|'    # N loss due to senescence                         
+  RPLOSS:         '|kg P ha-1 d-1|'    # P loss due to senescence                         
+  RKLOSS:         '|kg K ha-1 d-1|'    # K loss due to senescence                         
+
+  #*############################################################################**
+  # Partitioning States and Rates
+  #*############################################################################**
+  # **State variables** (For output to observation space):
+  FR:        'factor'     # Fraction partitioned to roots.                     
+  FS:        'factor'     # Fraction partitioned to stems.                     
+  FL:        'factor'     # Fraction partitioned to leaves.                   
+  FO:        'factor'     # Fraction partitioned to storage orgains            
+
+  #*############################################################################**
+  # Vernalization States and Rates
+  #*############################################################################**
+  #**State variables** (For output to observation space):
+  VERN:            'days'     # Vernalisation state                              
+  DOV:             'date'     # Day when vernalisation requirements are fulfilled.
+  ISVERNALISED:    'bool'     # Flag indicated that vernalisation requirement has been reached
+
+  # **Rate variables** (For output to observation space):
+  VERNR:    '-'      # Rate of vernalisation           
+  VERNFAC:  'factor'     # Reduction factor on development rate due to vernalisation effect.
+
+  #*############################################################################**
+  # Phenology States and Rates
+  #*############################################################################**
+  #**State variables** (For output to observation space):
+  DVS:      '-'    # Development stage                                
+  TSUM:     '|C| day'  # Temperature sum                                  
+  TSUME:    '|C| day'  # Temperature sum for emergence                      
+  DOS:      'date'     # Day of sowing                                      
+  DOE:      'date'     # Day of emergence                                   
+  DOA:      'date'     # Day of Anthesis                                   
+  DOM:      'date'     # Day of maturity                                   
+  DOH:      'date'     # Day of harvest                                    
+  STAGE:    '-'     # Current phenological stage, can take the folowing values: emerging|vegetative|reproductive|mature
+  DSNG:     'day'      # Days since no crop growth                         
+  DSD:      'day'      # Days since dormancy started                       
+  AGE:      'year'     # Age of the crop in years  
+  DOP:      'date'     # Day of planting
+  DATBE:    'day'      # Number of consecutive days above emergence temperature sum                         
+
+  # **Rate variables** (For output to observation space):
+  DTSUME:   '|C|'      # Increase in temperature sum for emergence         
+  DTSUM:    '|C|'      # Increase in temperature sum for anthesis or maturity
+  DVR:      '|day-1|'  # Development rate   
+  RDEM:     'day'      # Day increase above emergence temperature sum         
+
+  #*############################################################################**  
+  # Cold Hardiness States and Rates
+  #*############################################################################**
+  #**State variables** (For output to observation space):
+  DHSUM:    'C' #Daily heating sum
+  DCSUM:    'C' # Daily chilling sum
+  HC:       'C' # Cold hardiness
+  PREDBB:   'Day' # Predicted bud break
+  LTE50:    'C' # Predicted LTE50 for cold hardiness
+  
+  #  **Rate variables** (For output to observation space):
+  DHR:    'C/day' # Daily heating rate
+  DCR:    'C/day' # Daily chilling rate
+  DACC:   'C/day' # Deacclimation rate
+  ACC:    'C/day' # Acclimation rate
+  HCR:    'C/day' # Change in acclimation 
+
+  #*############################################################################**
+  # Respiration Dynamics States and Rates
+  #*############################################################################**
+  #*Rate variables:** (For output to observation space):
+  PMRES:   '|kg CH2O ha-1 d-1|'    # Potential maintenance respiration rate          
+
+  #*############################################################################**
+  # Root Dynamics States and Rates
+  #*############################################################################**
+  #**State variables** (For output to observation space):
+  RD:       'cm'             # Current rooting depth                        
+  RDM:      'cm'             # Maximum attainable rooting depth at the minimum of the soil and crop maximum rooting depth
+  WRT:      '|kg ha-1|'      # Weight of living roots                            
+  DWRT:     '|kg ha-1|'      # Weight of dead roots                              
+  TWRT:     '|kg ha-1|'      # Total weight of roots                                
+
+  # **Rate variables** (For output to observation space):
+  RR:       'cm'                # Growth rate root depth                            
+  GRRT:     '|kg ha-1 d-1|'     # Growth rate root biomass 
+  DRRT1:    '|kg ha-1 d-1|'     # Death rate of roots due to aging                 
+  DRRT2:    '|kg ha-1 d-1|'     # Death rate of roots due to excess water           
+  DRRT3:    '|kg ha-1 d-1|'     # Death rate of roots due to excess NPK                                 
+  DRRT:     '|kg ha-1 d-1|'     # Death rate root biomass                            
+  GWRT:     '|kg ha-1 d-1|'     # Net change in root biomass                         
+
+  #*############################################################################**
+  # Stem Dynamics States and Rates
+  #*############################################################################**
+  #*State variables** (For output to observation space):
+  SAI:      '-'        # Stem Area Index                                   
+  WST:      '|kg ha-1|'    # Weight of living stems                             
+  DWST:     '|kg ha-1|'    # Weight of dead stems                               
+  TWST:     '|kg ha-1|'    # Total weight of stems                                 
+
+  # *Rate Variables** (For output to observation space):
+  GRST:     '|kg ha-1 d-1|'    # Growth rate stem biomass                          
+  DRST:     '|kg ha-1 d-1|'    # Death rate stem biomass                            
+  GWST:     '|kg ha-1 d-1|'    # Net change in stem biomass                           
+
+  #*############################################################################**
+  # Storage Organs Dynamics States and Rates
+  #*############################################################################**
+  #**State variables** (For output to observation space):
+  PAI:      '-'        # Pod Area Index                                     
+  WSO:      '|kg ha-1|'    # Weight of living storage organs                    
+  DWSO:     '|kg ha-1|'    # Weight of dead storage organs                      
+  TWSO:     '|kg ha-1|'    # Total weight of storage organs                         
+
+  # **Rate variables** (For output to observation space):
+  GRSO:     '|kg ha-1 d-1|'    # Growth rate storage organs                         
+  DRSO:     '|kg ha-1 d-1|'    # Death rate storage organs                          
+  GWSO:     '|kg ha-1 d-1|'    # Net change in storage organ biomass                
+
+
+  #*############################################################################**
+  # NPK Demand Uptake States and Rates
+  #*############################################################################**
+  #**State variables** (For output to observation space):
+  NUPTAKETOTAL:     '|kg N ha-1|'     # Total N uptake by the crop                       
+  PUPTAKETOTAL:     '|kg P ha-1|'     # Total P uptake by the crop                        
+  KUPTAKETOTAL:     '|kg K ha-1|'     # Total K uptake by the crop                       
+  NFIXTOTAL:        '|kg N ha-1|'     # Total N fixated by the crop                         
+
+  NDEMANDST:        '|kg N ha-1|'     # N Demand in living stems                         
+  NDEMANDRT:        '|kg N ha-1|'     # N Demand in living roots                         
+  NDEMANDSO:        '|kg N ha-1|'     # N Demand in storage organs                           
+
+  PDEMANDLV:        '|kg P ha-1|'     # P Demand in living leaves                         
+  PDEMANDST:        '|kg P ha-1|'     # P Demand in living stems                          
+  PDEMANDRT:        '|kg P ha-1|'     # P Demand in living roots                             
+  PDEMANDSO:        '|kg P ha-1|'     # P Demand in storage organs                         
+
+  KDEMANDLV:        '|kg K ha-1|'      # K Demand in living leaves                        
+  KDEMANDST:        '|kg K ha-1|'      # K Demand in living stems                         
+  KDEMANDRT:        '|kg K ha-1|'      # K Demand in living roots                          
+  KDEMANDSO:        '|kg K ha-1|'      # K Demand in storage organs                        
+
+  #**Rate variables** (For output to observation space):
+  RNUPTAKELV:     '|kg N ha-1 d-1|'  # Rate of N uptake in leaves                           
+  RNUPTAKEST:     '|kg N ha-1 d-1|'  # Rate of N uptake in stems                           
+  RNUPTAKERT:     '|kg N ha-1 d-1|'  # Rate of N uptake in roots                            
+  RNUPTAKESO:     '|kg N ha-1 d-1|'  # Rate of N uptake in storage organs                   
+
+  RPUPTAKELV:     '|kg P ha-1 d-1|'  # Rate of P uptake in leaves                           
+  RPUPTAKEST:     '|kg P ha-1 d-1|'  # Rate of P uptake in stems                            
+  RPUPTAKERT:     '|kg P ha-1 d-1|'  # Rate of P uptake in roots                           
+  RPUPTAKESO:     '|kg P ha-1 d-1|'  # Rate of P uptake in storage organs                  
+
+  RKUPTAKELV:     '|kg K ha-1 d-1|'  # Rate of K uptake in leaves                          
+  RKUPTAKEST:     '|kg K ha-1 d-1|'  # Rate of K uptake in stems                           
+  RKUPTAKERT:     '|kg K ha-1 d-1|'  # Rate of K uptake in roots                           
+  RKUPTAKESO:     '|kg K ha-1 d-1|'  # Rate of K uptake in storage organs                   
+
+  RNUPTAKE:       '|kg N ha-1 d-1|'  # Total rate of N uptake                               
+  RPUPTAKE:       '|kg P ha-1 d-1|'  # Total rate of P uptake                               
+  RKUPTAKE:       '|kg K ha-1 d-1|'  # Total rate of K uptake                               
+  RNFIXATION:     '|kg N ha-1 d-1|'  # Rate of N fixation                                   
+
+  NDEMANDLV:      '|kg N ha-1|'      # N Demand in living leaves                            
+  NDEMANDST:      '|kg N ha-1|'      # N Demand in living stems                           
+  NDEMANDRT:      '|kg N ha-1|'      # N Demand in living roots                            
+  NDEMANDSO:      '|kg N ha-1|'      # N Demand in storage organs                          
+
+  PDEMANDLV:      '|kg P ha-1|'      # P Demand in living leaves                           
+  PDEMANDST:      '|kg P ha-1|'      # P Demand in living stems                            
+  PDEMANDRT:      '|kg P ha-1|'      # P Demand in living roots                            
+  PDEMANDSO:      '|kg P ha-1|'      # P Demand in storage organs                          
+
+  KDEMANDLV:      '|kg K ha-1|'      # K Demand in living leaves                         
+  KDEMANDST:      '|kg K ha-1|'      # K Demand in living stems                            
+  KDEMANDRT:      '|kg K ha-1|'      # K Demand in living roots                            
+  KDEMANDSO:      '|kg K ha-1|'      # K Demand in storage organs                          
+
+  NDEMAND:        '|kg N ha-1 d-1|'  # Total crop N demand                                 
+  PDEMAND:        '|kg P ha-1 d-1|'  # Total crop P demand                               
+  KDEMAND:        '|kg K ha-1 d-1|'  # Total crop K demand                                 
+
+  #*############################################################################**
+  # NPK Stress States and Rates
+  #*############################################################################**
+  # **Rate variables** (For output to observation space):
+  NNI:       '-'    # Nitrogen nutrition index                          
+  PNI:       '-'    # Phosphorous nutrition index                      
+  KNI:       '-'    # Potassium nutrition index                         
+  NPKI:      '-'    # Minimum of NNI, PNI, KNI                          
+  RFNPK:     'factor'    # Reduction factor for |CO2| assimlation based on NPKI and the parameter NLUE_NPK
+
+  #*############################################################################**
+  # NPK Dynamics States and Rates
+  #*############################################################################**
+  #**State variables** (For output to observation space):
+  NTRANSLOCATABLELV:     '|kg N ha-1|'   # Translocatable N amount in living leaves               
+  PTRANSLOCATABLELV:     '|kg P ha-1|'   # Translocatable P amount in living leaves               
+  KTRANSLOCATABLELV:     '|kg K ha-1|'   # Translocatable K amount in living leaves               
+  NTRANSLOCATABLEST:     '|kg N ha-1|'   # Translocatable N amount in living stems                
+  PTRANSLOCATABLEST:     '|kg P ha-1|'   # Translocatable P amount in living stems                
+  KTRANSLOCATABLEST:     '|kg K ha-1|'   # Translocatable K amount in living stems                
+  NTRANSLOCATABLERT:     '|kg N ha-1|'   # Translocatable N amount in living roots              
+  PTRANSLOCATABLERT:     '|kg P ha-1|'   # Translocatable P amount in living roots               
+  KTRANSLOCATABLERT:     '|kg K ha-1|'   # Translocatable K amount in living roots             
+  NTRANSLOCATABLE:       '[kg N ha-1]'   # Total N amount that can be translocated to the storage organs
+  PTRANSLOCATABLE:       '[kg P ha-1]'   # Total P amount that can be translocated to the storage organs
+  KTRANSLOCATABLE:       '[kg K ha-1]'   # Total K amount that can be translocated to the storage organs
+
+  # **Rate variables** (For output to observation space):
+  RNTRANSLOCATIONLV:     '|kg ha-1 d-1|'     # Weight increase (N) in leaves                    
+  RPTRANSLOCATIONLV:     '|kg ha-1 d-1|'     # Weight increase (P) in leaves                   
+  RKTRANSLOCATIONLV:     '|kg ha-1 d-1|'     # Weight increase (K) in leaves                    
+  RNTRANSLOCATIONST:     '|kg ha-1 d-1|'     # Weight increase (N) in stems                     
+  RPTRANSLOCATIONST:     '|kg ha-1 d-1|'     # Weight increase (P) in stems                     
+  RKTRANSLOCATIONST:     '|kg ha-1 d-1|'     # Weight increase (K) in stems                      
+  RNTRANSLOCATIONRT:     '|kg ha-1 d-1|'     # Weight increase (N) in roots                      
+  RPTRANSLOCATIONRT:     '|kg ha-1 d-1|'     # Weight increase (P) in roots                      
+  RKTRANSLOCATIONRT:     '|kg ha-1 d-1|'     # Weight increase (K) in roots                      
+
+  #*############################################################################**
+  # NPK Soil Dynamics States and Rates
+  #*############################################################################**
+  #**State variables** (For output to observation space):
+  NSOIL:       '[kg ha-1]'      # total mineral soil N available at start of growth period
+  PSOIL:       '[kg ha-1]'      # total mineral soil P available at start of growth period
+  KSOIL:       '[kg ha-1]'      # total mineral soil K available at start of growth period
+  NAVAIL:      '|kg ha-1|'      # Total mineral N from soil and fertiliser          
+  PAVAIL:      '|kg ha-1|'      # Total mineral P from soil and fertiliser           
+  KAVAIL:      '|kg ha-1|'      # Total mineral K from soil and fertiliser          
+  TOTN:        '|kg ha-1|'      # Total mineral N applied by fertilization         
+  TOTP:        '|kg ha-1|'      # Total mineral P applied by fertilization          
+  TOTK:        '|kg ha-1|'      # Total mineral K applied by fertilization 
+  SURFACE_N:   '|kg ha-1|'      # Mineral N on surface layer                     
+  SURFACE_P:   '|kg ha-1|'      # Mineral P on surface layer                     
+  SURFACE_K:   '|kg ha-1|'      # Mineral K on surface layer                     
+  TOTN_RUNOFF: '|kg ha-1|'      # Total surface N runoff                        
+  TOTP_RUNOFF: '|kg ha-1|'      # Total surface N runoff                         
+  TOTK_RUNOFF: '|kg ha-1|'      # Total surface N runoff                              
+
+  #*Rate variables** (For output to observation space):
+  RNSOIL:           '|kg ha-1 d-1|'    # Rate of change on total soil mineral N           
+  RPSOIL:           '|kg ha-1 d-1|'    # Rate of change on total soil mineral P           
+  RKSOIL:           '|kg ha-1 d-1|'    # Rate of change on total soil mineral K          
+
+  RNAVAIL:          '|kg ha-1 d-1|'    # Total change in N availability                  
+  RPAVAIL:          '|kg ha-1 d-1|'    # Total change in P availability                    
+  RKAVAIL:          '|kg ha-1 d-1|'    # Total change in K availability                   
+
+  FERT_N_SUPPLY:    '|kg ha-1 d-1|'    # Rate of supply of fertilizer N                              
+  FERT_P_SUPPLY:    '|kg ha-1 d-1|'    # Rate of Supply of fertilizer P                    
+  FERT_K_SUPPLY:    '|kg ha-1 d-1|'    # Rate of Supply of fertilizer K   
+
+  RRUNOFF_N:        '|kg ha-1 d-1|'    # Rate of N runoff                                
+  RRUNOFF_P:        '|kg ha-1 d-1|'    # Rate of P runoff                                 
+  RRUNOFF_K:        '|kg ha-1 d-1|'    # Rate of K runoff                                  
+
+  RNSUBSOIL:        '|kg ha-1 d-1|'    # Rate of N from surface to subsoil                
+  RPSUBSOIL:        '|kg ha-1 d-1|'    # Rate of N from surface to subsoil                
+  RKSUBSOIL:        '|kg ha-1 d-1|'    # Rate of N from surface to subsoil                                
+
+  #*############################################################################**
+  # Soil Dynamics States and Rates
+  #*############################################################################**
+  #**State variables:** (For output to observation space):
+  SM:        '-'     # Volumetric moisture content in root zone          
+  SS:        'cm'        # Surface storage (layer of water on surface)     
+  SSI:       'cm'        # Initial surface storage                           
+  WC:        'cm'        # Amount of water in root zone                     
+  WI:        'cm'        # Initial amount of water in the root zone         
+  WLOW:      'cm'        # Amount of water in the subsoil (between current rooting depth and maximum rootable depth)
+  WLOWI:     'cm'        # Initial amount of water in the subsoil                
+  WWLOW:     'cm'        # Total amount of water in the  soil profile WWLOW = WLOW + W
+  WTRAT:     'cm'        # Total water lost as transpiration as calculated by the water balance. This can be different from the CTRAT variable which only countt transpiration for a crop cycle.
+  EVST:      'cm'        # Total evaporation from the soil surface          
+  EVWT:      'cm'        # Total evaporation from a water surface           
+  TSR:       'cm'        # Total surface runoff                             
+  RAINT:     'cm'        # Total amount of rainfall (eff + non-eff)          
+  WART:      'cm'        # Amount of water added to root zone by increase of root growth
+  TOTINF:    'cm'        # Total amount of infiltration                      
+  TOTIRRIG:  'cm'        # Total amount of irrigation                       
+  TOTIRR:    'cm'        # Total amount of effective irrigation              
+  PERCT:     'cm'        # Total amount of water percolating from rooted zone to subsoil
+  LOSST:     'cm'        # Total amount of water lost to deeper soil       
+  DSOS:      'days'      # Days since oxygen stress, accumulates the number of consecutive days of oxygen stress
+  WBALRT:    'cm'        # Checksum for root zone waterbalance              
+  WBALTT:    'cm'        # Checksum for total waterbalance                  
+
+  # **Rate variables:** (For output to observation space):
+  EVS:         '|cmday-1|'    # Actual evaporation rate from soil                  
+  EVW:         '|cmday-1|'    # Actual evaporation rate from water surface        
+  WTRA:        '|cmday-1|'    # Actual transpiration rate from plant canopy, is directly derived from the variable "TRA" in the evapotranspiration module
+  RAIN_INF:    '|cmday-1|'    # Infiltrating rainfall rate for current day        
+  RAIN_NOTINF: '|cmday-1|'    # Non-infiltrating rainfall rate for current day     
+  RIN:         '|cmday-1|'    # Infiltration rate for current day                  
+  RIRR:        '|cmday-1|'    # Effective irrigation rate for current day, computed as irrigation amount * efficiency.
+  PERC:        '|cmday-1|'    # Percolation rate to non-rooted zone                
+  LOSS:        '|cmday-1|'    # Rate of water loss to deeper soil                  
+  DW:          '|cmday-1|'    # Change in amount of water in rooted zone as a result of infiltration, transpiration and evaporation.
+  DWLOW:       '|cmday-1|'    # Change in amount of water in subsoil              
+  DTSR:        '|cmday-1|'    # Change in surface runoff                          
+  DSS:         '|cmday-1|'    # Change in surface storage        
+
+  #*############################################################################**
+  # WOFOST Parameters
+  #*############################################################################**
+  #*Simulation parameters:** (To be provided in cropdata dictionary):
+  CVL:      'factor'     # Conversion factor for assimilates to leaves      
+  CVO:      'factor'     # Conversion factor for assimilates to storage organs
+  CVR:      'factor'     # Conversion factor for assimilates to roots       
+  CVS:      'factor'     # Conversion factor for assimilates to stems       
+
+  #*############################################################################**
+  # Assimilation Parameters
+  #*############################################################################**
+  #*Simulation parameters** (To be provided in cropdata dictionary):
+  AMAXTB:     '|kg ha-1 hr-1|'                # Max leaf |CO2| assim. rate as a function of of DVS
+  EFFTB:      '|kg ha-1 hr-1 /(J m-2 s-1)|'   # Light use effic. single leaf as a function of daily mean temperature
+  KDIFTB:     'factor'                        # Extinction coefficient for diffuse visible as function of DVS
+  TMPFTB:     'factor'                        # Reduction factor of AMAX as function of daily mean temperature.
+  TNPFTB:     'factor'                        # Reduction factor of AMAX as function of daily minimum temperature.
+  CO2AMAXTB:  'factor'                        # Correction factor for AMAX given atmospheric CO2 concentration.
+  CO2EFFTB:   'factor'                        # Correction factor for EFF given atmospheric CO2 concentration.
+  CO2:        'ppm'                           # Atmopheric CO2 concentration                  
+
+  #*############################################################################**
+  # Evapotranspiration Parameters
+  #*############################################################################**
+  #*Simulation parameters** (To be provided in cropdata dictionary):
+  CFET:     'factor'    # Correction factor for potential transpiration rate.
+  DEPNR:    'days'      # Dependency number for crop sensitivity to soil moisture stress.
+  KDIFTB:   'factor'    # Extinction coefficient for diffuse visible as function of DVS.
+  IOX:      'bool'      # Switch oxygen stress on (1) or off (0)       
+  IAIRDU:   'bool'      # Switch airducts on (1) or off (0)              
+  CRAIRC:   '-'     # Critical air content for root aeration         
+  SM0:      '-'     # Soil porosity                                  
+  SMW:      '-'     # Volumetric soil moisture content at wilting point
+  SMFCF:    '-'     # Volumetric soil moisture content at field capacity
+  SM0:      '-'     # Soil porosity                                 
+  CO2:      'ppm'       # Atmospheric CO2 concentration             
+  CO2TRATB: 'factor'    # Reduction factor for TRAMX as function of atmospheric CO2 concentration        
+
+  #*############################################################################**
+  # Leaf Dynamics Parameters
+  #*############################################################################**
+  #*Simulation parameters** (provide in cropdata dictionary)
+  RGRLAI:   'ha ha-1 d-1'    # Maximum relative increase in LAI.              
+  SPAN:     'days'           # Life span of leaves growing at 35 Celsius  
+  TBASE:    '|C|'            # Lower threshold temp for ageing of leaves  
+  PERDL:    'factor'         # Max relative death rate of leaves due to water stress
+  TDWI:     '|ha kg-1|'      # Initial total crop dry weight 
+  KDIFTB:   'factor'         # Extinction coefficient for diffuse visible light as function of DVS
+  SLATB:    '|ha kg-1|'      # Specific leaf area as a function of DVS 
+  RDRNS:    'factor'         # max. relative death rate of leaves due to nutrient NPK stress
+  NLAI:     'factor'         # coefficient for the reduction due to nutrient NPK stress of the LAI increase (during juvenile phase).
+  NSLA:     'factor'         # Coefficient for the effect of nutrient NPK stress on SLA reduction
+  RDRNS:    'factor'         # Max. relative death rate of leaves due to nutrient NPK stress
+
+  #*############################################################################**
+  # NPK Dynamics Parameters
+  #*############################################################################**
+  #**Simulation parameters** (To be provided in cropdata dictionary):
+  NMAXLV_TB:      'kg N kg-1 dry biomass'   #  Maximum N concentration in leaves as function of DVS
+  PMAXLV_TB:      'kg P kg-1 dry biomass'   # Maximum P concentration in leaves as function of DVS
+  KMAXLV_TB:      'kg K kg-1 dry biomass'   # Maximum K concentration in leaves as function of DVS
+
+  NMAXRT_FR:      'factor'                  # Maximum N concentration in roots as fraction of maximum N concentration in leaves
+  PMAXRT_FR:      'factor'                  # Maximum P concentration in roots as fraction of maximum P concentration in leaves
+  KMAXRT_FR:      'factor'                  # Maximum K concentration in roots as fraction of maximum K concentration in leaves
+  NMAXST_FR:      'factor'                  # Maximum N concentration in stems as fraction of maximum N concentration in leaves
+  PMAXST_FR:      'factor'                  # Maximum P concentration in stems as fraction of maximum P concentration in leaves
+  KMAXST_FR:      'factor'                  # Maximum K concentration in stems as fraction of maximum K concentration in leaves
+
+  NRESIDLV:       'kg N kg-1 dry biomass'   # Residual N fraction in leaves               
+  PRESIDLV:       'kg P kg-1 dry biomass'   # Residual P fraction in leaves                
+  KRESIDLV:       'kg K kg-1 dry biomass'   # Residual K fraction in leav
+
+  NRESIDRT:       'kg N kg-1 dry biomass'   # Residual N fraction in roots                       
+  PRESIDRT:       'kg P kg-1 dry biomass'   # Residual P fraction in roots                       
+  KRESIDR:        'kg K kg-1 dry biomass'   # Residual K fraction in roots                       
+
+  NRESIDST:       'kg N kg-1 dry biomass'   # Residual N fraction in stems                 
+  PRESIDST:       'kg P kg-1 dry biomass'   # Residual P fraction in stems                 
+  KRESIDST:       'kg K kg-1 dry biomass'   # Residual K fraction in stems
+
+  #*############################################################################**
+  # Partioning Parameters
+  #*############################################################################**
+  #*Simulation parameters** (To be provided in cropdata dictionary):
+  FRTB:     'factor'     # Partitioning to roots as a function of development stage.
+  FSTB:     'factor'     # Partitioning to stems as a function of development stage.
+  FLTB:     'factor'     # Partitioning to leaves as a function of development stage.
+  FOTB:     'factor'     # Partitioning to starge organs as a function of development stage.
+  NPART:    'factor'     # Coefficient for the effect of N stress on leaf biomass allocation
+  NTHRESH:  'kg ha-1'    # Threshold above which surface nitrogen induces stress
+  PTHRESH:  'kg ha-1'    # Threshold above which surface phosphorous induces stress
+  KTHRESH:  'kg ha-1'    #Threshold above which surface potassium induces stress
+
+  #*############################################################################**
+  # Vernalization Parameters
+  #*############################################################################**
+  #*Simulation parameters** (To be provided in cropdata dictionary):
+  VERNSAT:  'days'     # Saturated vernalisation requirements 
+  VERNBASE: 'days'     # Base vernalisation requirements 
+  VERNRTB:  'factor'   # Rate of vernalisation as a function of daily mean temperature.
+  VERNDVS:  '-'    # Critical development stage after which the effect of vernalisation is halted
+
+  #*############################################################################**
+  # Phenology Parameters
+  #*############################################################################**
+  #**Simulation parameters** (To be provided in cropdata dictionary):
+  DTBEM:    'day'        # Number of consecutive days above emergence temperature sum required to germinate
+  TSUMEM:   '|C| day'    # Temperature sum from sowing to emergence      
+  TBASEM:   '|C|'        # Base temperature for emergence                 
+  TEFFMX:   '|C|'        # Maximum effective temperature for emergence    
+  TSUM1:    '|C| day'    # Temperature sum from emergence to anthesis     
+  TSUM2:    '|C| day'    # Temperature sum from anthesis to maturity     
+  IDSL:     '-'      # Switch for phenological development options temperature only (IDSL=0), including daylength (IDSL=1) and including vernalization (IDSL>=2)
+  DLO:      'hr'         # Optimal daylength for phenological development
+  DLC:      'hr'         # Critical daylength for phenological development
+  DVSI:     '-'       # Initial development stage at emergence. Usually this is zero, but it can be higher for crops that are transplanted (e.g. paddy rice)
+  DVSEND:   '-'       # Final development stage                       
+  DTSMTB:   'C'          # Daily increase in temperature sum as a function of daily mean temperature.
+  DORM:     'day'        # Dormancy threshold after which the plant enters dormancy 
+  DORMCD: 'day'          # The number of days a plant will stay dormant
+  AGEI:   'year'         # The initial age of the crop in years       
+  MLDORM: 'hour'         # The daylight threshold below which the crop goes dormant
+
+  #*############################################################################**
+  # Respiration Parameters
+  #*############################################################################**
+  #*Simulation parameters** (To be provided in cropdata dictionary):
+  Q10:      'factor'                  # Relative increase in maintenance repiration rate with each 10 degrees increase in temperature
+  RMR:      '|kg CH2O kg-1 d-1|'      # Relative maintenance respiration rate for roots                                       
+  RMS:      '|kg CH2O kg-1 d-1|'      # Relative maintenance respiration rate for stems                                        
+  RML:      '|kg CH2O kg-1 d-1|'      # Relative maintenance respiration rate for leaves                                        
+  RMO:      '|kg CH2O kg-1 d-1|'      # Relative maintenance respiration rate for storage organs                                
+
+  #*############################################################################**
+  # Root Dynamics Parameters
+  #*############################################################################**
+  #*Simulation parameters** (To be provided in cropdata dictionary):
+  RDI:      'cm'             # Initial rooting depth                          
+  RRI:      '|cm day-1|'     # Daily increase in rooting depth               
+  RDMCR:    'cm'             # Maximum rooting depth of the crop             
+  RDMSOL:   'cm'             # Maximum rooting depth of the soil             
+  TDWI:     '|ha kg-1|'      # Initial total crop dry weight 
+  IAIRDU:   'bool'           # Presence of air ducts in the root (1) or not (0)
+  RDRRTB:   'factor'         # Relative death rate of roots as a function of development stage
+  RDRROS:   'factor'         # Relative death rate of roots as a function of oxygen stress (water logging)
+  RDRRNPK:  'factor'         # Relative rate of root death due to NPK excess
+
+  #*############################################################################**
+  # Stem Dynamics Parameters
+  #*############################################################################**
+  #*Simulation parameters** (To be provided in cropdata dictionary):
+  TDWI:     '|ha kg-1|'      # Initial total crop dry weight 
+  RDRSTB:   'factor'         # Relative death rate of stems as a function of development stage
+  SSATB:    '|ha kg-1|'      # Specific Stem Area as a function of development stage
+
+  #*############################################################################**
+  # Storage Organs Dynamics Parameters
+  #*############################################################################**
+  #*Simulation parameters** (To be provided in cropdata dictionary):
+  TDWI:     '|ha kg-1|'      # Initial total crop dry weight                 
+  SPA:      '|ha kg-1|'      # Specific Pod Area       
+  RDRSOB:   'factor'         # Relative Death rate of storage organs as function of DVS
+  RDRSOF:   'factor'         # Relative death rate of storage organs as function of temperature                       
+
+  #*############################################################################**
+  # NPK Demand Uptake Parameters
+  #*############################################################################**
+  #**Simulation parameters** (To be provided in cropdata dictionary):
+  NMAXLV_TB:      'kg N kg-1 dry biomass'   #  Maximum N concentration in leaves as function of DVS
+  PMAXLV_TB:      'kg P kg-1 dry biomass'   # Maximum P concentration in leaves as function of DVS
+  KMAXLV_TB:      'kg K kg-1 dry biomass'   # Maximum K concentration in leaves as function of DVS
+
+  NMAXRT_FR:      'factor'                  # Maximum N concentration in roots as fraction of maximum N concentration in leaves
+  PMAXRT_FR:      'factor'                  # Maximum P concentration in roots as fraction of maximum P concentration in leaves
+  KMAXRT_FR:      'factor'                  # Maximum K concentration in roots as fraction of maximum K concentration in leaves
+  NMAXST_FR:      'factor'                  # Maximum N concentration in stems as fraction of maximum N concentration in leaves
+  PMAXST_FR:      'factor'                  # Maximum P concentration in stems as fraction of maximum P concentration in leaves
+  KMAXST_FR:      'factor'                  # Maximum K concentration in stems as fraction of maximum K concentration in leaves
+
+  NMAXSO:         'kg N kg-1 dry biomass'   # Maximum N concentration in storage organs     
+  PMAXSO:         'kg P kg-1 dry biomass'   # Maximum P concentration in storage organs     
+  KMAXSO:         'kg K kg-1 dry biomass'   # Maximum K concentration in storage organs     
+
+  NCRIT_FR:       'factor'                  # Critical N concentration as fraction of maximum N concentration for vegetative plant organs as a whole (leaves + stems)
+  PCRIT_FR:       'factor'                  # Critical P concentration as fraction of maximum P concentration for vegetative plant organs as a whole (leaves + stems)
+  KCRIT_FR:       'factor'                  # Critical K concentration as fraction of maximum K concentration for vegetative plant organs as a whole (leaves + stems)
+
+  TCNT:           'days'                    # Time coefficient for N translation to storage organs
+  TCPT:           'days'                    # Time coefficient for P translation to storage organs
+  TCKT:           'days'                    # Time coefficient for K translation to storage organs
+
+  NFIX_FR:        'kg N kg-1 dry biomass'   # fraction of crop nitrogen uptake by biological fixation
+  RNUPTAKEMAX:    '|kg N ha-1 d-1|'         # Maximum rate of N uptake                      
+  RPUPTAKEMAX:    '|kg P ha-1 d-1|'         # Maximum rate of P uptake                      
+  RKUPTAKEMAX:    '|kg K ha-1 d-1|'         # Maximum rate of K uptake                      
+
+  #*############################################################################**
+  # NPK Stress Parameters
+  #*############################################################################**
+  #*Simulation parameters** (To be provided in cropdata dictionary):
+  NMAXLV_TB:      'kg N kg-1 dry biomass'   # Maximum N concentration in leaves as function of DVS
+  PMAXLV_TB:      'kg P kg-1 dry biomass'   # Maximum P concentration in leaves as function of DVS
+  KMAXLV_TB:      'kg K kg-1 dry biomass'   # Maximum K concentration in leaves as function of DVS
+
+  NMAXRT_FR:      'factor'                  # Maximum N concentration in roots as fraction of maximum N concentration in leaves
+  PMAXRT_FR:      'factor'                  # Maximum P concentration in roots as fraction of maximum P concentration in leaves
+  KMAXRT_FR:      'factor'                  # Maximum K concentration in roots as fraction of maximum K concentration in leaves
+
+  NMAXST_FR:      'factor'                  # Maximum N concentration in stems as fraction of maximum N concentration in leaves
+  PMAXST_FR:      'factor'                  # Maximum P concentration in stems as fraction of maximum P concentration in leaves
+  KMAXST_FR:      'factor'                  # Maximum K concentration in stems as fraction of maximum K concentration in leaves
+
+  NCRIT_FR:       'factor'                  # Critical N concentration as fraction of maximum N concentration for vegetative plant organs as a whole (leaves + stems)
+  PCRIT_FR:       'factor'                  # Critical P concentration as fraction of maximum P concentration for vegetative plant organs as a whole (leaves + stems)
+  KCRIT_FR:       'factor'                  # Critical K concentration as fraction of maximum L concentration for vegetative plant organs as a whole (leaves + stems)
+  NRESIDLV:       'kg N kg-1 dry biomass'   # Residual N fraction in leaves               
+  PRESIDLV:       'kg P kg-1 dry biomass'   # Residual P fraction in leaves                
+  KRESIDLV:       'kg K kg-1 dry biomass'   # Residual K fraction in leaves               
+
+  NRESIDST:       'kg N kg-1 dry biomass'   # Residual N fraction in stems                 
+  PRESIDST:       'kg P kg-1 dry biomass'   # Residual P fraction in stems                 
+  KRESIDST:       'kg K kg-1 dry biomass'   # Residual K fraction in stems                
+
+  NLUE_NPK:       'factor'                # Coefficient for the reduction of RUE due to nutrient (N-P-K) stress
+
+  #*############################################################################**
+  # NPK Translocation Parameters
+  #*############################################################################**
+  #**Simulation parameters** (To be provided in cropdata dictionary):
+  NRESIDLV:          'kg N kg-1 dry biomass'   # Residual N fraction in leaves                
+  PRESIDLV:          'kg P kg-1 dry biomass'   # Residual P fraction in leaves                 
+  KRESIDLV:          'kg K kg-1 dry biomass'   # Residual K fraction in leaves                
+
+  NRESIDST:          'kg N kg-1 dry biomass'   # Residual N fraction in stems                 
+  PRESIDST:          'kg P kg-1 dry biomass'   # Residual P fraction in stems               
+  KRESIDST:          'kg K kg-1 dry biomass'   # Residual K fraction in stems                  
+
+  NPK_TRANSLRT_FR:   'factor'                  # NPK translocation from roots as a fraction of resp. total NPK amounts translocated from leaves and stems
+
+  #*############################################################################**
+  # NPK Soil Parameters
+  #*############################################################################**
+  #*Simulation parameters** (To be provided in cropdata dictionary):
+  NSOILBASE:     '|kg ha-1|'        # Base soil supply of N available through mineralisation
+  NSOILBASE_FR:  'factor'           # Fraction of base soil N that comes available every day
+  PSOILBASE:     '|kg ha-1|'        # Base soil supply of N available through mineralisation
+  PSOILBASE_FR:  'factor'           # Fraction of base soil N that comes available every day
+  KSOILBASE:     '|kg ha-1|'        # Base soil supply of N available through mineralisation
+  KSOILBASE_FR:  'factor'           # Fraction of base soil N that comes available every day
+  NAVAILI:       '|kg ha-1|'        # Initial N available in the N pool           
+  PAVAILI:       '|kg ha-1|'        # Initial P available in the P pool            
+  KAVAILI:       '|kg ha-1|'        # Initial K available in the K pool   
+  NMAX:          '|kg ha-1|'        # Maximum N available in the N pool                    
+  PMAX:          '|kg ha-1|'        # Maximum P available in the N pool                    
+  KMAX:          '|kg ha-1|'        # Maximum K available in the N pool                            
+  BG_N_SUPPLY:   '|kg ha-1 d-1|'    # Background supply of N through atmospheric deposition.
+  BG_P_SUPPLY:   '|kg ha-1 d-1|'    # Background supply of P through atmospheric deposition.
+  BG_K_SUPPLY:   '|kg ha-1 d-1|'    # Background supply of K through atmospheric deposition.
+  RNSOILMAX:     '|kg ha-1 d-1|'    # Maximum rate of surface N to subsoil           
+  RPSOILMAX:     '|kg ha-1 d-1|'    # Maximum rate of surface P to subsoil           
+  RKSOILMAX:     '|kg ha-1 d-1|'    # Maximum rate of surface K to subsoil           
+  RNABSORPTION:  'factor'           # Relative rate of N absorption from surface to subsoil
+  RPABSORPTION:  'factor'           # Relative rate of P absorption from surface to subsoil
+  RKABSORPTION:  'factor'           # Relative rate of K absorption from surface to subsoil
+  RNPKRUNOFF:    'factor'           # Relative rate of nutrient runoff
+
+
+  #*############################################################################**
+  # Soil Dynamics Parameters
+  #*############################################################################**
+  #*Simulation parameters** (To be provided in cropdata dictionary):
+  SMFCF:     '-'       # Field capacity of the soil                       
+  SM0:       '-'       # Porosity of the soil                             
+  SMW:       '-'       # Wilting point of the soil                        
+  CRAIRC:    '-'       # Soil critical air content (waterlogging)         
+  SOPE:      '|cmday-1|'   # maximum percolation rate root zone              
+  KSUB:      '|cmday-1|'   # maximum percolation rate subsoil                
+  RDMSOL:    'cm'          # Soil rootable depth                            
+  IFUNRN:    'bool'        # Indicates whether non-infiltrating fraction of rain is a function of storm size (1) or not (0)                                      
+  SSMAX:     'cm'          # Maximum surface storage                          
+  SSI:       'cm'          # Initial surface storage                          
+  WAV:       'cm'          # Initial amount of water in total soil profile
+  NOTINF:    'factor'      # Maximum fraction of rain not-infiltrating into the soil
+  SMLIM:     '-'       # Initial maximum moisture content in initial rooting depth zone.
+
+

@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pcse_gym"
+version = "1.0.0"
+dependencies = [
+  "pcse",
+  "gymnasium",
+  "numpy",
+  "pandas",
+  "pyyaml",
+  "pygame",
+  "matplotlib",
+]
+requires-python = ">=3.10"
+authors = [
+  {name = "Will Solow", email = "soloww@oregonstate.edu"},
+]
+maintainers = [
+  {name = "Will Solow", email = "soloww@oregonstate.edu"}
+]
+description = "Gym wrapper for the PCSE environment"
+readme = "README.md"
+license = {file = "LICENSE.md"}
+keywords = ["pcse", "gym", "gymnasium"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python"
+]
+
+[project.urls]
+Homepage = "https://github.com/wsolow/pcse_gym"
+Documentation = "https://github.com/wsolow/pcse_gym"
+Repository = "https://github.com/wsolow/pcse_gym"
+"Bug Tracker" = "https://github.com/wsolow/pcse_gym"
+Changelog = "https://github.com/wsolow/pcse_gym"
+

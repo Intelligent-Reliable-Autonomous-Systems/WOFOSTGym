@@ -1,0 +1,28 @@
+available_crops:
+  - barley
+  - cassava
+  - chickpea
+  - cotton
+  - cowpea
+  - fababean
+  - grape
+  - groundnut
+  - jujube
+  - maize
+  - millet
+  - mungbean
+  - pear
+  - pigeonpea
+  - potato
+  - rapeseed
+  - rice
+  - sorghum
+  - soybean
+  - sugarbeet
+  - sugarcane
+  - sunflower
+  - sweetpotato
+  - tobacco
+  - wheat
+  - seed_onion
+

@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "wofost-gym"
+version = "1.0.0"
+dependencies = [
+  "tyro",
+  "requests",
+  "matplotlib",
+  "omegaconf",
+  "torch",
+  "tensorboard",
+  "stable_baselines3",
+]
+requires-python = ">=3.10"
+authors = [
+  {name = "Will Solow", email = "soloww@oregonstate.edu"},
+]
+maintainers = [
+  {name = "Will Solow", email = "soloww@oregonstate.edu"}
+]
+description = "Modified PCSE directory"
+readme = "README.md"
+license = {file = "LICENSE.md"}
+keywords = ["Crop", "Model", "WOFOST"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python"
+]
+
+[project.urls]
+Homepage = "https://github.com/Intelligent-Reliable-Autonomous-Systems/WOFOST-Gym"
+Documentation = "https://github.com/Intelligent-Reliable-Autonomous-Systems/WOFOST-Gym"
+Repository = "https://github.com/Intelligent-Reliable-Autonomous-Systems/WOFOST-Gym"
+"Bug Tracker" = "https://github.com/Intelligent-Reliable-Autonomous-Systems/WOFOST-Gym"
+Changelog = "https://github.com/Intelligent-Reliable-Autonomous-Systems/WOFOST-Gym"

@@ -1,0 +1,456 @@
+# All units for use in graphing output from the WOFOST Simulator 
+---  
+  #############################################################################**
+  # Weather Variable States
+  #############################################################################**
+  LAT:    [-90, 90]     # Latitude of Location
+  LON:    [-180,180]    # Longitude of Locaiton
+  ELEV:   [0,4000]      # Elevation
+  DAY:    [0, 365]       # Day
+  IRRAD:  [100000, 30000000]    # Incoming global radiaiton
+  TMIN:   [-20, 40]           # Daily minimum temperature
+  TMAX:   [-20, 40]           # Daily maximum temperature
+  TEMP:   [-20, 40]           # Daily Average Temperatuer
+  VAP:    [950, 1050]         # Daily mean vapor pressure
+  RAIN:   [0, 3]      # Daily total rainfall 
+  WIND:   [0,20]       # Daily mean wind speed at 2m height 
+  E0:     [0, 2]      # Daily evaporation rate from open water 
+  ES0:    [0,2]      # Daily evaporation rate from bare soil (cm/day)
+  ET0:    [0,2]      # Daily evapotranspiration rate from reference crop (cm/day)
+  DAYS:   [0,365]           # Days Elapsed
+
+  #############################################################################**
+  # WOFOST States and Rates
+  #############################################################################**
+  # State variables:** (For output to observation space):
+  TAGP:        [0,900]       # Total above-ground Production              
+  GASST:       [0,5000]  # Total gross assimilation                           
+  MREST:       [0,2000]  # Total gross maintenance respiration            
+  CTRAT:       [0,5]              # Total crop transpiration accumulated over the crop cycle
+  CEVST:       [0,30]              # Total soil evaporation accumulated over the crop cycle             
+  HI:          [0,1]            # Harvest Index (only calculated during finalize())
+  DOF:         [0,1]            # Date representing the day of finish of the crop simulation.
+  FINISH_TYPE: [0,1]            # String representing the reason for finishing the simulation: maturity, harvest, leave death, etc.
+  FIN:         [0,1]
+
+  ## Rate variables:** (For output to observation space):
+  GASS:  [0,100]   # Assimilation rate corrected for water stress    
+  PGASS: [0,100]   # Potential assimilation rate                     
+  MRES:  [0,50]   # Actual maintenance respiration rate, taking into account that MRES <= GASS.       
+  PMRES: [0,50]   # Potential maintenance respiration rate         
+  ASRC:  [0,50]   # Net available assimilates (GASS - MRES)   
+  DMI:   [0,50]        # Total dry matter increase, calculated as ASRC times a weighted conversion efficieny.        
+  ADMI:  [0,50]        # Aboveground dry matter increase 
+
+  #############################################################################**
+  # Assimilation States and Rates
+  #############################################################################**
+
+  #############################################################################**
+  # Evapotranspiration States and Rates
+  #############################################################################**
+  #State variables** (For output to observation space):
+  IDWST:   [0,20]    # Nr of days with water stress.             
+  IDOST:   [0,20]    # Nr of days with oxygen stress.                
+
+  ## Rate variables** (For output to observation space):
+  EVWMX:  [0,2]      # Maximum evaporation rate from an open water surface.
+  EVSMX:  [0,2]      # Maximum evaporation rate from a wet soil surface. 
+  TRAMX:  [0,2]      # Maximum transpiration rate from the plant canopy   
+  TRA:    [0,2]     # Actual transpiration rate from the plant canopy
+  IDOS:   [0,1]            # Indicates water stress on this day (True|False)  
+  IDWS:   [0,1]            # Indicates oxygen stress on this day (True|False)  
+  RFWS:   [0,1]        # Reducation factor for water stress               
+  RFOS:   [0,1]        # Reducation factor for oxygen stress              
+  RFTRA:  [0,1]        # Reduction factor for transpiration (wat & ox)      
+
+  #**############################################################################**
+  # Leaf Dynamics States and Rates
+  #**############################################################################**
+  #**State variables** (For output to observation space):
+
+  LV:       [0,20]  # Leaf biomass per leaf class              
+  SLA:      [0,1]  # Specific leaf area per leaf class                 
+  LVAGE:    [0,20]        # Leaf age per leaf class                             
+  LVSUM:    [0,1]  # Sum of LV                                        
+  LAIEM:    [0,2]      # LAI at emergence                                   
+  LASUM:    [0,2]       # Total leaf area as sum of LV*SLA, not including stem and pod area                 
+  LAIEXP:   [0,10]     # LAI value under theoretical exponential growth    
+  LAIMAX:   [0,2]      # Maximum LAI reached during growth cycle            
+  LAI:      [0,2]      # Leaf area index, including stem and pod area       
+  WLV:      [0,500]  # Dry weight of living leaves                        
+  DWLV:     [0,500]  # Dry weight of dead leaves                          
+  TWLV:     [0,500]  # Dry weight of total leaves (living + dead)         
+
+  #**Rate variables** (For output to observation space):
+  GRLV:     [0,20]    # Growth rate leaves                                   
+  DSLV1:    [0,20]    # Death rate leaves due to water stress                 
+  DSLV2:    [0,20]    # Death rate leaves due to self-shading                
+  DSLV3:    [0,20]    # Death rate leaves due to frost kill                   
+  DSLV4:    [0,20]    # Death rate leaves due to nutrient stress           
+  DSLV:     [0,20]    # Maximum of DLSV1, DSLV2, DSLV3                     
+  DALV:     [0,20]    # Death rate leaves due to aging.                   
+  DRLV:     [0,20]    # Death rate leaves as a combination of DSLV and DALV
+  SLAT:     [0,1]        # Specific leaf area for current time step, adjusted for source/sink limited leaf expansion rate.
+  FYSAGE:   [0,2]            # Increase in physiological leaf age             
+  GLAIEX:   [0,2]    # Sink-limited leaf expansion rate (exponential curve)
+  GLASOL:   [0,2]    # Source-limited leaf expansion rate (biomass increase)
+
+  #*############################################################################**
+  # NPK Dynamics States and Rates
+  #*############################################################################**
+  #**STATE VARIABLES** (For output to observation space):
+  NAMOUNTLV:     [0,10]    # Actual N amount in living leaves                  
+  PAMOUNTLV:     [0,10]    # Actual P amount in living leaves                  
+  KAMOUNTLV:     [0,10]    # Actual K amount in living leaves                  
+      
+  NAMOUNTST:     [0,10]    # Actual N amount in living stems                  
+  PAMOUNTST:     [0,10]    # Actual P amount in living stems                   
+  KAMOUNTST:     [0,10]    # Actual K amount in living stems                   
+
+  NAMOUNTSO:     [0,10]    # Actual N amount in living storage organs         
+  PAMOUNTSO:     [0,10]    # Actual P amount in living storage organs          
+  KAMOUNTSO:     [0,10]    # Actual K amount in living storage organs          
+
+  NAMOUNTRT:     [0,10]    # Actual N amount in living roots                   
+  PAMOUNTRT:     [0,10]    # Actual P amount in living roots                   
+  KAMOUNTRT:     [0,10]    # Actual K amount in living roots                  
+
+  NUPTAKE_T:     [0,10]     # total absorbed N amount                            
+  PUPTAKE_T:     [0,10]     # total absorbed P amount                            
+  KUPTAKE_T:     [0,10]     # total absorbed K amount                            
+  NFIX_T:        [0,10]     # total biological fixated N amount                 
+
+  # **RATE VARIABLES** (For output to observation space):
+  RNAMOUNTLV:     [-1,1]    # Weight increase (N) in leaves                    
+  RPAMOUNTLV:     [-1,1]    # Weight increase (P) in leaves                   
+  RKAMOUNTLV:     [-1,1]    # Weight increase (K) in leaves                    
+
+  RNAMOUNTST:     [-1,1]    # Weight increase (N) in stems                    
+  RPAMOUNTST:     [-1,1]    # Weight increase (P) in stems                     
+  RKAMOUNTST:     [-1,1]    # Weight increase (K) in stems                     
+      
+  RNAMOUNTRT:     [-1,1]    # Weight increase (N) in roots                     
+  RPAMOUNTRT:     [-1,1]    # Weight increase (P) in roots                     
+  RKAMOUNTRT:     [-1,1]    # Weight increase (K) in roots                    
+
+  RNAMOUNTSO:     [-1,1]    # Weight increase (N) in storage organs            
+  RPAMOUNTSO:     [-1,1]    # Weight increase (P) in storage organs            
+  RKAMOUNTSO:     [-1,1]    # Weight increase (K) in storage organs          
+
+  RNDEATHLV:      [0,1]    # Rate of N loss in leaves                        
+  RPDEATHLV:      [0,1]    # Rate of P loss in leaves                         
+  RKDEATHLV:      [0,1]    # Rate of K loss in leaves                        
+
+  RNDEATHST:      [0,1]    # Rate of N loss in roots                        
+  RPDEATHST:      [0,1]    # Rate of P loss in roots                          
+  RKDEATHST:      [0,1]   # Rate of K loss in roots                         
+
+  RNDEATHRT:      [0,1]    # Rate of N loss in stems                         
+  RPDEATHRT:      [0,1]    # Rate of P loss in stems                          
+  RKDEATHRT:      [0,1]    # Rate of K loss in stems                          
+
+  RNLOSS:         [0,1]    # N loss due to senescence                         
+  RPLOSS:         [0,1]    # P loss due to senescence                         
+  RKLOSS:         [0,1]    # K loss due to senescence                         
+
+  #*############################################################################**
+  # Partitioning States and Rates
+  #*############################################################################**
+  # **State variables** (For output to observation space):
+  FR:        [0,1]     # Fraction partitioned to roots.                     
+  FS:        [0,1]     # Fraction partitioned to stems.                     
+  FL:        [0,1]     # Fraction partitioned to leaves.                   
+  FO:        [0,1]     # Fraction partitioned to storage orgains            
+
+  #*############################################################################**
+  # Vernalization States and Rates
+  #*############################################################################**
+  #**State variables** (For output to observation space):
+  VERN:            [0,20]     # Vernalisation state                              
+  DOV:             [0,1]     # Day when vernalisation requirements are fulfilled.
+  ISVERNALISED:    [0,1]     # Flag indicated that vernalisation requirement has been reached
+
+  # **Rate variables** (For output to observation space):
+  VERNR:    [0,1]      # Rate of vernalisation           
+  VERNFAC:  [0,1]     # Reduction factor on development rate due to vernalisation effect.
+
+  #*############################################################################**
+  # Phenology States and Rates
+  #*############################################################################**
+  #**State variables** (For output to observation space):
+  DVS:      [-.1, 4]    # Development stage                                
+  TSUM:     [0,5000]  # Temperature sum                                  
+  TSUME:    [0,500]  # Temperature sum for emergence                      
+  DOS:      [0,1]     # Day of sowing                                      
+  DOE:      [0,1]     # Day of emergence                                   
+  DOA:      [0,1]     # Day of Anthesis                                   
+  DOM:      [0,1]     # Day of maturity                                   
+  DOH:      [0,1]     # Day of harvest                                    
+  STAGE:    [0,1]     # Current phenological stage, can take the folowing values: emerging|vegetative|reproductive|mature
+  DSNG:     [0,100]      # Days since no crop growth                         
+  DSD:      [0,100]      # Days since dormancy started                       
+  AGE:      [0,15]     # Age of the crop in years  
+  DOP:      [0,1]     # Day of planting
+  DATBE:    [0,20]      # Number of consecutive days above emergence temperature sum                         
+
+  # **Rate variables** (For output to observation space):
+  DTSUME:   [0,20]      # Increase in temperature sum for emergence         
+  DTSUM:    [0,50]      # Increase in temperature sum for anthesis or maturity
+  DVR:      [0,1]  # Development rate   
+  RDEM:     [0,15]      # Day increase above emergence temperature sum         
+
+  #*############################################################################**  
+  # Cold Hardiness States and Rates
+  #*############################################################################**
+  #**State variables** (For output to observation space):
+  DHSUM:    [0,30] #Daily heating sum
+  DCSUM:    [0,30] # Daily chilling sum
+  HC:       [-20,0] # Cold hardiness
+  PREDBB:   [0,10] # Predicted bud break
+  LTE50:    [-20,0] # Predicted LTE50 for cold hardiness
+  
+  #  **Rate variables** (For output to observation space):
+  DHR:    [0,10] # Daily heating rate
+  DCR:    [0,10] # Daily chilling rate
+  DACC:   [0,10] # Deacclimation rate
+  ACC:    [0,10] # Acclimation rate
+  HCR:    [0,10] # Change in acclimation 
+
+  #*############################################################################**
+  # Respiration Dynamics States and Rates
+  #*############################################################################**
+  #*Rate variables:** (For output to observation space):
+  PMRES:   [0,50]    # Potential maintenance respiration rate          
+
+  #*############################################################################**
+  # Root Dynamics States and Rates
+  #*############################################################################**
+  #**State variables** (For output to observation space):
+  RD:       [0,200]             # Current rooting depth                        
+  RDM:      [0,200]            # Maximum attainable rooting depth at the minimum of the soil and crop maximum rooting depth
+  WRT:      [0,800]      # Weight of living roots                            
+  DWRT:     [0,800]      # Weight of dead roots                              
+  TWRT:     [0,800]      # Total weight of roots                                
+
+  # **Rate variables** (For output to observation space):
+  RR:       [0,5]               # Growth rate root depth                            
+  GRRT:     [0,20]     # Growth rate root biomass 
+  DRRT1:    [0,20]     # Death rate of roots due to aging                 
+  DRRT2:    [0,20]     # Death rate of roots due to excess water           
+  DRRT3:    [0,20]     # Death rate of roots due to excess NPK                                 
+  DRRT:     [0,20]     # Death rate root biomass                            
+  GWRT:     [0,20]     # Net change in root biomass                         
+
+  #*############################################################################**
+  # Stem Dynamics States and Rates
+  #*############################################################################**
+  #*State variables** (For output to observation space):
+  SAI:      [0,1]        # Stem Area Index                                   
+  WST:      [0,500]    # Weight of living stems                             
+  DWST:     [0,500]    # Weight of dead stems                               
+  TWST:     [0,500]    # Total weight of stems                                 
+
+  # *Rate Variables** (For output to observation space):
+  GRST:     [0,20]    # Growth rate stem biomass                          
+  DRST:     [0,20]    # Death rate stem biomass                            
+  GWST:     [-20,20]    # Net change in stem biomass                           
+
+  #*############################################################################**
+  # Storage Organs Dynamics States and Rates
+  #*############################################################################**
+  #**State variables** (For output to observation space):
+  PAI:      [0,1]        # Pod Area Index                                     
+  WSO:      [0,5000]    # Weight of living storage organs                    
+  DWSO:     [0,5000]    # Weight of dead storage organs                      
+  TWSO:     [0,5000]    # Total weight of storage organs                         
+
+  # **Rate variables** (For output to observation space):
+  GRSO:     [0,50]    # Growth rate storage organs                         
+  DRSO:     [0,50]    # Death rate storage organs                          
+  GWSO:     [0,50]    # Net change in storage organ biomass                
+
+
+  #*############################################################################**
+  # NPK Demand Uptake States and Rates
+  #*############################################################################**
+  #**STATE VARIABLES** (For output to observation space):
+  NUPTAKETOTAL:     [0,50]     # Total N uptake by the crop                       
+  PUPTAKETOTAL:     [0,50]     # Total P uptake by the crop                        
+  KUPTAKETOTAL:     [0,50]     # Total K uptake by the crop                       
+  NFIXTOTAL:        [0,50]     # Total N fixated by the crop                         
+
+  NDEMANDST:        [0,50]     # N Demand in living stems                         
+  NDEMANDRT:        [0,50]     # N Demand in living roots                         
+  NDEMANDSO:        [0,50]     # N Demand in storage organs                           
+
+  PDEMANDLV:        [0,50]     # P Demand in living leaves                         
+  PDEMANDST:        [0,50]     # P Demand in living stems                          
+  PDEMANDRT:        [0,50]     # P Demand in living roots                             
+  PDEMANDSO:        [0,50]     # P Demand in storage organs                         
+
+  KDEMANDLV:        [0,50]      # K Demand in living leaves                        
+  KDEMANDST:        [0,50]      # K Demand in living stems                         
+  KDEMANDRT:        [0,50]      # K Demand in living roots                          
+  KDEMANDSO:        [0,50]      # K Demand in storage organs                        
+
+  #**RATE VARIABLES** (For output to observation space):
+  RNUPTAKELV:     [0,2]  # Rate of N uptake in leaves                           
+  RNUPTAKEST:     [0,2]  # Rate of N uptake in stems                           
+  RNUPTAKERT:     [0,2]  # Rate of N uptake in roots                            
+  RNUPTAKESO:     [0,2]  # Rate of N uptake in storage organs                   
+
+  RPUTAKELV:     [0,2]  # Rate of P uptake in leaves                           
+  RPUTAKEST:     [0,2]  # Rate of P uptake in stems                            
+  RPUTAKERT:     [0,2]  # Rate of P uptake in roots                           
+  RPUTAKESO:     [0,2]  # Rate of P uptake in storage organs                  
+
+  RKUPTAKELV:     [0,2]  # Rate of K uptake in leaves                          
+  RKUPTAKEST:     [0,2]  # Rate of K uptake in stems                           
+  RKUPTAKERT:     [0,2]  # Rate of K uptake in roots                           
+  RKUPTAKESO:     [0,2]  # Rate of K uptake in storage organs                   
+
+  RNUPTAKE:       [0,2]  # Total rate of N uptake                               
+  RPUTAKE:        [0,2]  # Total rate of P uptake                               
+  RKUPTAKE:       [0,2]  # Total rate of K uptake                               
+  RNFIXATION:     [0,1]  # Rate of N fixation                                   
+
+  NDEMANDLV:      [0,50]      # N Demand in living leaves                            
+  NDEMANDST:      [0,50]      # N Demand in living stems                           
+  NDEMANDRT:      [0,50]      # N Demand in living roots                            
+  NDEMANDSO:      [0,50]      # N Demand in storage organs                          
+
+  PDEMANDLV:      [0,50]      # P Demand in living leaves                           
+  PDEMANDST:      [0,50]      # P Demand in living stems                            
+  PDEMANDRT:      [0,50]      # P Demand in living roots                            
+  PDEMANDSO:      [0,50]      # P Demand in storage organs                          
+
+  KDEMANDLV:      [0,50]      # K Demand in living leaves                         
+  KDEMANDST:      [0,50]      # K Demand in living stems                            
+  KDEMANDRT:      [0,50]      # K Demand in living roots                            
+  KDEMANDSO:      [0,50]      # K Demand in storage organs                          
+
+  NDEMAND:        [0,50]  # Total crop N demand                                 
+  PDEMAND:        [0,50]  # Total crop P demand                               
+  KDEMAND:        [0,50]  # Total crop K demand                                 
+
+  #*############################################################################**
+  # NPK Stress States and Rates
+  #*############################################################################**
+  # **Rate variables** (For output to observation space):
+  NNI:       [0,1]    # Nitrogen nutrition index                          
+  PNI:       [0,1]    # Phosphorous nutrition index                      
+  KNI:       [0,1]    # Potassium nutrition index                         
+  NPKI:      [0,1]    # Minimum of NNI, PNI, KNI                          
+  RFNPK:     [0,1]    # Reduction factor for |CO2| assimlation based on NPKI and the parameter NLUE_NPK
+
+  #*############################################################################**
+  # NPK Dynamics States and Rates
+  #*############################################################################**
+  #**State variables** (For output to observation space):
+  NTRANSLOCATABLELV:     [0,50]   # Translocatable N amount in living leaves               
+  PTRANSLOCATABLELV:     [0,50]   # Translocatable P amount in living leaves               
+  KTRANSLOCATABLELV:     [0,50]   # Translocatable K amount in living leaves               
+  NTRANSLOCATABLEST:     [0,50]   # Translocatable N amount in living stems                
+  PTRANSLOCATABLEST:     [0,50]   # Translocatable P amount in living stems                
+  KTRANSLOCATABLEST:     [0,50]   # Translocatable K amount in living stems                
+  NTRANSLOCATABLERT:     [0,50]   # Translocatable N amount in living roots              
+  PTRANSLOCATABLERT:     [0,50]   # Translocatable P amount in living roots               
+  KTRANSLOCATABLERT:     [0,50]   # Translocatable K amount in living roots             
+  NTRANSLOCATABLE:       [0,50]   # Total N amount that can be translocated to the storage organs
+  PTRANSLOCATABLE:       [0,50]   # Total P amount that can be translocated to the storage organs
+  KTRANSLOCATABLE:       [0,50]   # Total K amount that can be translocated to the storage organs
+
+  # **Rate variables** (For output to observation space):
+  RNTRANSLOCATIONLV:    [0,2]     # Weight increase (N) in leaves                    
+  RPTRANSLOCATIONLV:    [0,2]     # Weight increase (P) in leaves                   
+  RKTRANSLOCATIONLV:    [0,2]     # Weight increase (K) in leaves                    
+  RNTRANSLOCATIONST:    [0,2]     # Weight increase (N) in stems                     
+  RPTRANSLOCATIONST:    [0,2]     # Weight increase (P) in stems                     
+  RKTRANSLOCATIONST:    [0,2]     # Weight increase (K) in stems                      
+  RNTRANSLOCATIONRT:    [0,2]     # Weight increase (N) in roots                      
+  RPTRANSLOCATIONRT:    [0,2]     # Weight increase (P) in roots                      
+  RKTRANSLOCATIONRT:    [0,2]     # Weight increase (K) in roots                      
+
+  #*############################################################################**
+  # NPK Soil Dynamics States and Rates
+  #*############################################################################**
+  #**State variables** (For output to observation space):
+  NSOIL:       [0,20]      # total mineral soil N available at start of growth period
+  PSOIL:       [0,20]      # total mineral soil P available at start of growth period
+  KSOIL:       [0,20]      # total mineral soil K available at start of growth period
+  NAVAIL:      [0,20]      # Total mineral N from soil and fertiliser          
+  PAVAIL:      [0,20]      # Total mineral P from soil and fertiliser           
+  KAVAIL:      [0,20]      # Total mineral K from soil and fertiliser          
+  TOTN:        [0,100]      # Total mineral N applied by fertilization         
+  TOTP:        [0,100]      # Total mineral P applied by fertilization          
+  TOTK:        [0,100]      # Total mineral K applied by fertilization 
+  SURFACE_N:   [0,20]      # Mineral N on surface layer                     
+  SURFACE_P:   [0,20]      # Mineral P on surface layer                     
+  SURFACE_K:   [0,20]      # Mineral K on surface layer                     
+  TOTN_RUNOFF: [0,20]      # Total surface N runoff                        
+  TOTP_RUNOFF: [0,20]      # Total surface N runoff                         
+  TOTK_RUNOFF: [0,20]      # Total surface N runoff                              
+
+  #*Rate variables** (For output to observation space):
+  RNSOIL:           [-5,5]    # Rate of change on total soil mineral N           
+  RPSOIL:           [-5,5]    # Rate of change on total soil mineral P           
+  RKSOIL:           [-5,5]    # Rate of change on total soil mineral K          
+
+  RNAVAIL:          [-5,5]    # Total change in N availability                  
+  RPAVAIL:          [-5,5]    # Total change in P availability                    
+  RKAVAIL:          [-5,5]    # Total change in K availability                   
+
+  FERT_N_SUPPLY:    [0,10]    # Rate of supply of fertilizer N                              
+  FERT_P_SUPPLY:    [0,10]    # Rate of Supply of fertilizer P                    
+  FERT_K_SUPPLY:    [0,10]    # Rate of Supply of fertilizer K   
+
+  RRUNOFF_N:        [0,10]    # Rate of N runoff                                
+  RRUNOFF_P:        [0,10]    # Rate of P runoff                                 
+  RRUNOFF_K:        [0,10]    # Rate of K runoff                                  
+
+  RNSUBSOIL:        [0,10]    # Rate of N from surface to subsoil                
+  RPSUBSOIL:        [0,10]    # Rate of N from surface to subsoil                
+  RKSUBSOIL:        [0,10]    # Rate of N from surface to subsoil                                
+
+  #*############################################################################**
+  # Soil Dynamics States and Rates
+  #*############################################################################**
+  #**State variables:** (For output to observation space):
+  SM:        [0,1]     # Volumetric moisture content in root zone          
+  SS:        [0,5]        # Surface storage (layer of water on surface)     
+  SSI:       [0,5]        # Initial surface storage                           
+  WC:        [0,100]        # Amount of water in root zone                     
+  WI:        [0,100]        # Initial amount of water in the root zone         
+  WLOW:      [0,100]        # Amount of water in the subsoil (between current rooting depth and maximum rootable depth)
+  WLOWI:     [0,100]        # Initial amount of water in the subsoil                
+  WWLOW:     [0,100]        # Total amount of water in the  soil profile WWLOW = WLOW + W
+  WTRAT:     [0,50]        # Total water lost as transpiration as calculated by the water balance. This can be different from the CTRAT variable which only countt transpiration for a crop cycle.
+  EVST:      [0,50]        # Total evaporation from the soil surface          
+  EVWT:      [0,50]        # Total evaporation from a water surface           
+  TSR:       [0,50]        # Total surface runoff                             
+  RAINT:     [0,50]        # Total amount of rainfall (eff + non-eff)          
+  WART:      [0,50]        # Amount of water added to root zone by increase of root growth
+  TOTINF:    [0,50]        # Total amount of infiltration                      
+  TOTIRRIG:  [0,50]        # Total amount of irrigation                       
+  TOTIRR:    [0,50]        # Total amount of effective irrigation              
+  PERCT:     [0,50]        # Total amount of water percolating from rooted zone to subsoil
+  LOSST:     [0,50]        # Total amount of water lost to deeper soil       
+  DSOS:      [0,20]      # Days since oxygen stress, accumulates the number of consecutive days of oxygen stress
+  WBALRT:    [0,1]        # Checksum for root zone waterbalance              
+  WBALTT:    [0,1]        # Checksum for total waterbalance                  
+
+  # **Rate variables:** (For output to observation space):
+  EVS:         [0,10]    # Actual evaporation rate from soil                  
+  EVW:         [0,10]    # Actual evaporation rate from water surface        
+  WTRA:        [0,10]    # Actual transpiration rate from plant canopy, is directly derived from the variable "TRA" in the evapotranspiration module
+  RAIN_INF:    [0,10]    # Infiltrating rainfall rate for current day        
+  RAIN_NOTINF: [0,10]    # Non-infiltrating rainfall rate for current day     
+  RIN:         [0,10]    # Infiltration rate for current day                  
+  RIRR:        [0,10]    # Effective irrigation rate for current day, computed as irrigation amount * efficiency.
+  PERC:        [0,10]    # Percolation rate to non-rooted zone                
+  LOSS:        [0,10]    # Rate of water loss to deeper soil                  
+  DW:          [-10,10]    # Change in amount of water in rooted zone as a result of infiltration, transpiration and evaporation.
+  DWLOW:       [-10,10]    # Change in amount of water in subsoil              
+  DTSR:        [-10,10]    # Change in surface runoff                          
+  DSS:         [-10,10]    # Change in surface storage        

@@ -1,0 +1,264 @@
+# Site/Soil parameter file for use with the PCSE/WISS implementations of the WOFOST
+# crop simulation model
+#
+# Creation date: 2024-08-26
+#
+# Contact: Will Solow (soloww@oregonstate.edu)
+#          Oregon State University, Department of EECS
+#          Corvallis, OR, 97330
+#
+# More information: - http://pcse.readthedocs.io
+#                   - http://www.wageningenur.nl/wofost
+#                   - https://github.com/ajwdewit/WOFOST_crop_parameters
+#
+
+Version: 1.0.0
+Metadata: &meta
+   Creator: Will Solow
+   Contributor: 
+   Contact: soloww@oregonstate.edu
+   Publisher: Oregon State Department of EECS
+   Title: Parameter sets for the WOFOST7.2/WOFOST8.0 model for simulating an Oregon Farm
+   Date: 2024-08-26
+   Language: EN
+   Format: YAML
+   Subject: WOFOST parameters for Oregon Site
+   Description: This file provides parameters for one or more Oregon Site variations
+   Identifier:
+   Relation:
+   Source: 
+   Type: Report
+   Coverage:
+     Region:
+   Rights: 
+   Keyword:
+SiteParameters:
+
+   EcoTypes:
+     oregon: &oregon
+       #
+       # NPK SOIL DYNAMICS
+       # 
+       RNPKRUNOFF:
+       - [0.00, 0.00,
+          0.01, 0.00,
+          0.50, 0.05,
+          1.00, 0.10,
+          5.00, 0.40]
+       RNSOILMAX:
+       - 20
+       - max rate of surface N to subsoil absorption
+       - [kg ha-1 d-1]
+       RPSOILMAX:
+       - 20
+       - max rate of surface P to subsoil absorption
+       - [kg ha-1 d-1]
+       RKSOILMAX:
+       - 20
+       - max rate of surface K to subsoil absorption
+       - [kg ha-1 d-1]
+       RNABSORPTION:
+       - .9
+       - relative rate of surface N to subsoil
+       - ['-']
+       RPABSORPTION:
+       - .9
+       - relative rate of surface P to subsoil
+       - ['-']
+       RKABSORPTION:
+       - .9
+       - relative rate of surface K to subsoil
+       - ['-']
+       BG_N_SUPPLY:
+       - .011
+       - background supply of N through atmospheric deposition
+       - ['kg ha-1 d-1']
+       BG_P_SUPPLY:
+       - .011
+       - background supply of P through atmospheric deposition
+       - ['kg ha-1 d-1']
+       BG_K_SUPPLY:
+       - .011
+       - background supply of K through atmospheric deposition
+       - ['kg ha-1 d-1']
+       NAVAILI:
+       - 0.0
+       - initial N available in the N pool     
+       - ['kg ha-1']
+       PAVAILI:
+       - 0.0
+       - initial P available in the P pool     
+       - ['kg ha-1']
+       KAVAILI:
+       - 0.0
+       - initial K available in the K pool     
+       - ['kg ha-1']
+       NMAX:
+       - 50.
+       - maximum N available in the N pool
+       - ['kg ha-1']
+       PMAX:
+       - 50.
+       - maximum P available in the P pool
+       - ['kg ha-1']
+       KMAX:
+       - 50.
+       - maximum K available in the K pool
+       - ['kg ha-1']
+       NSOILBASE:
+       - 10.0
+       - base soil supply of N available through mineralisation
+       - ['kg ha-1']
+       NSOILBASE_FR:
+       - 0.025
+       - Fraction of base soil N that comes available every day
+       - ['-']
+       PSOILBASE:
+       - 10.0
+       - base soil supply of P available through mineralisation
+       - ['kg ha-1']
+       PSOILBASE_FR:
+       - 0.025
+       - Fraction of base soil P that comes available every day
+       - ['-']
+       KSOILBASE:
+       - 10.0
+       - base soil supply of K available through mineralisation
+       - ['kg ha-1']
+       KSOILBASE_FR:
+       - 0.025
+       - Fraction of base soil K that comes available every day
+       - ['-'] 
+       #
+       # WATER BALANCE
+       # 
+       SMFCF:
+       - 0.460 
+       - soil moisture content at field capacity
+       - ['cm3/cm3']
+       SM0:
+       - 0.570 
+       - soil moisture content at saturation
+       - ['cm3/cm3']  
+       SMW:
+       - 0.300 
+       - soil moisture content at wilting point
+       - ['cm3/cm3']
+       CRAIRC:
+       - 0.100 
+       - critical soil air content for aeration
+       - ['cm3/cm3']
+       SOPE:
+       - 0.55
+       - maximum percolation rate root zone  
+       - ['cmday-1']
+       KSUB:
+       - .37
+       - maximum percolation rate subsoil  
+       - ['cmday-1']
+       RDMSOL: 
+       - 120.0 
+       - soil maximum rootable depth
+       - ['cm']
+       IFUNRN: 
+       - 0.0
+       - indicates whether non-infiltrating fraction of rain is a function of storm size (1) or not (0)
+       - ['-']
+       SSMAX: 
+       - 0.0
+       - maximum surface storage
+       - ['cm']
+       SSI:
+       - 0.0
+       - initial surface storage   
+       - ['cm']
+       WAV:
+       - 1.0
+       - initial amount of water in total soil profile
+       - ['cm']
+       NOTINF:
+       - 0.0
+       - maximum fraction of rain not-infiltrating into the soil
+       - ['-']
+       SMLIM:     
+       - 0.33
+       - initial maximum moisture content in initial root zone
+       - ['-']
+       #
+       # EVAPOTRANSPIRATION
+       # 
+       CO2:
+       - 360.0
+       - atmospheric CO2 concentration
+       - ['ppm']
+   Variations:
+      oregon_1:
+        <<: *oregon
+        Metadata:
+           <<: *meta
+        CO2:
+        - 360.0
+        - atmospheric CO2 concentration
+        - ['ppm']
+      
+      oregon_2:
+         <<: *oregon
+         Metadata:
+           <<: *meta
+         CO2: 
+         - 340.0
+         - atmospheric CO2 concentration
+         - ['ppm']
+
+         SMFCF:
+         - 0.530 
+         - soil moisture content at field capacity
+         - ['cm3/cm3']
+
+         RDMSOL: 
+         - 170.0 
+         - soil maximum rootable depth
+         - ['cm']
+
+      oregon_3:
+         <<: *oregon
+         Metadata:
+            <<: *meta
+         RNABSORPTION:
+         - .1
+         - relative rate of surface N to subsoil
+         - ['-']
+         RPABSORPTION:
+         - .1
+         - relative rate of surface P to subsoil
+         - ['-']
+         RKABSORPTION:
+         - .1
+         - relative rate of surface K to subsoil
+         - ['-']
+         RNSOILMAX:
+         - 10
+         - max rate of surface N to subsoil absorption
+         - [kg ha-1 d-1]
+         RPSOILMAX:
+         - 10
+         - max rate of surface P to subsoil absorption
+         - [kg ha-1 d-1]
+         RKSOILMAX:
+         - 10
+         - max rate of surface K to subsoil absorption
+         - [kg ha-1 d-1]
+
+
+
+
+
+         
+
+   
+
+
+
+
+
+

@@ -72,6 +72,10 @@ needed to run all scripts in the agaid_crop_simulator package
 
 ## Executing Programs
 
+See our documentation:
+
+https://intelligent-reliable-autonomous-systems.github.io/WOFOST-Docs/
+
 After following the above installation instructions: 
 1. Navigate to the base directory ../wofost-gym/
 2. Run the testing domain with: python3 test_wofost.py --save-folder logs/test/. This will generate a sample output using default configurations 

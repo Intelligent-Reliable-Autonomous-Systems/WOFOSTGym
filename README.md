@@ -5,6 +5,14 @@ Will Solow (soloww@oregonstate.edu) with use-case questions and bug reports.
 
 This is the WOFOSTGym Crop Simulator for the joint [AgAid](https://agaid.org/) Project between Oregon State University (OSU) and Washington State University (WSU). 
 
+See our documentation:
+
+https://intelligent-reliable-autonomous-systems.github.io/WOFOSTGym-Docs/
+
+See our website:
+
+https://intelligent-reliable-autonomous-systems.github.io/WOFOSTGym-Site/
+
 ### Citing
 ```bibtex
 @article{solow_wofostgym_2025,
@@ -71,10 +79,6 @@ These commands will install all the required packages into the conda environment
 needed to run all scripts in the agaid_crop_simulator package
 
 ## Executing Programs
-
-See our documentation:
-
-https://intelligent-reliable-autonomous-systems.github.io/WOFOST-Docs/
 
 After following the above installation instructions: 
 1. Navigate to the base directory ../wofost-gym/

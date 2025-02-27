@@ -3,8 +3,19 @@
 DISCLAIMER: This repository is still actively under development. Please email 
 Will Solow (soloww@oregonstate.edu) with use-case questions and bug reports. 
 
-This is the AgAid Crop Simulator for the joint [AgAid](https://agaid.org/) Project between Oregon State 
-University (OSU) and Washington State University (WSU). 
+This is the WOFOSTGym Crop Simulator for the joint [AgAid](https://agaid.org/) Project between Oregon State University (OSU) and Washington State University (WSU). 
+
+### Citing
+
+@article{solow_wofostgym_2025,
+      title={WOFOSTGym: A Crop Simulator for Learning Annual and Perennial Crop Management Strategies}, 
+      author={William Solow and Sandhya Saisubramanian and Alan Fern},
+      year={2025},
+      eprint={2502.19308},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2502.19308}, 
+}
 
 ## Description
 
@@ -116,6 +127,8 @@ Email soloww@oregonstate.edu with any further questions
 Will Solow (soloww@oregonstate.edu) - Principle Developer
 
 Dr. Sandhya Saisubramanian (sandhya.sai@oregonstate.edu) - Project Lead
+
+Dr. Alan Fern (alan.fern@oregonstate.edu) - Project Lead
 
 ## Version History
 

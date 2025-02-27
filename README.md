@@ -49,19 +49,23 @@ RL algorithms in the agricultural setting that is easy to use and customize.
 
 * This project is entirely self contained and built to run with Python 3.10.9
 * Install using miniconda3 
-* NOTE: This repository contains git submodules that must be installed using --recurse-submodules (see below)
 
 ### Installing
 
 Recommended Installation Method:
 
 1. Navigate to desired installation directory
-2. git clone --recurse-submodules git@github.com:Intelligent-Reliable-Autonomous-Systems/WOFOST-Gym.git
+2. git clone git@github.com:Intelligent-Reliable-Autonomous-Systems/WOFOSTGym.git
 3. conda create -n <conda env name> python=3.10.9
 4. conda activate <conda env name>
 5. pip install -e pcse
 6. pip install -e pcse_gym
 7. pip install -r requirements.txt
+
+For Gail/BC experiments: 
+
+8. pip install -e imitation 
+9. pip install -e stable-baselines3
 
 These commands will install all the required packages into the conda environment
 needed to run all scripts in the agaid_crop_simulator package

@@ -16,6 +16,7 @@ This is the WOFOSTGym Crop Simulator for the joint [AgAid](https://agaid.org/) P
       primaryClass={cs.AI},
       url={https://arxiv.org/abs/2502.19308}, 
 }
+```
 
 ## Description
 

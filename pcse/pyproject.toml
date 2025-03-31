@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "imitation"
+name = "pcse"
 version = "1.0.0"
 dependencies = [
   "traitlets_pcse",

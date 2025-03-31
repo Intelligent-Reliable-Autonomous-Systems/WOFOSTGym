@@ -55,7 +55,7 @@ RL algorithms in the agricultural setting that is easy to use and customize.
 
 ### Dependencies
 
-* This project is entirely self contained and built to run with Python 3.10.9
+* This project is entirely self contained and built to run with Python 3.12
 * Install using miniconda3 
 
 ### Installing
@@ -64,7 +64,7 @@ Recommended Installation Method:
 
 1. Navigate to desired installation directory
 2. git clone git@github.com:Intelligent-Reliable-Autonomous-Systems/WOFOSTGym.git
-3. conda create -n <conda env name> python=3.10.9
+3. conda create -n <conda env name> python=3.12
 4. conda activate <conda env name>
 5. pip install -e pcse
 6. pip install -e pcse_gym

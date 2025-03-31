@@ -6,7 +6,7 @@ can learn to apply Nitrogen, Phosphorous, and Potassium, as described in
 ['ARXIV PAPER HERE'] by Will Solow and Dr. Sandhya Saisubramanian 
 
 ### Installation
-The code has been tested using python 3.10.9.
+The code has been tested using python 3.12.
 
 This repository requires a modified version of the Python Crop Simulation Environment. 
 Install it here:

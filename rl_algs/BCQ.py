@@ -14,7 +14,7 @@ from stable_baselines3.common.buffers import ReplayBuffer
 import torch.optim as optim
 import torch.nn.functional as F
 
-from .rl_utils import make_env, load_data_to_buffer, RL_Args, Agent, setup
+from .rl_utils import load_data_to_buffer, RL_Args, Agent, setup
 
 
 @dataclass
@@ -92,7 +92,7 @@ class BCQ(nn.Module, Agent):
         q, imt, i = self.forward(state)
         imt = imt.exp()
         imt = (imt/imt.max(-1, keepdim=True)[0] > 0.3).float()
-        # Use large negative number to mask actions from argmax
+
         return int((imt * q + (1. - imt) * -1e8).argmax(-1))
 
     def select_action(self, args, device, state):
@@ -106,7 +106,7 @@ class BCQ(nn.Module, Agent):
                 q, imt, i = self.forward(state)
                 imt = imt.exp()
                 imt = (imt/imt.max(1, keepdim=True)[0] > args.bcq_threshold).float()
-                # Use large negative number to mask actions from argmax
+
                 return int((imt * q + (1. - imt) * -1e8).argmax(1))
         else:
             return np.random.randint(self.env.single_action_space.n)
@@ -130,6 +130,9 @@ def eval_policy(policy, eval_env, args, device, eval_episodes=10):
     return avg_reward
 
 def train(kwargs):
+    """
+    BCQ Training function
+    """
     args = kwargs.BCQ
 
     assert args.num_envs == 1, "vectorized envs are not supported at the moment"
@@ -137,13 +140,11 @@ def train(kwargs):
 
     writer, device, envs = setup(kwargs, args, run_name)
     
-    # Initialize agent
     q_network = BCQ(envs).to(device)
     optimizer = optim.Adam(q_network.parameters(), lr=args.learning_rate)
     target_network = BCQ(envs).to(device)
     target_network.load_state_dict(q_network.state_dict())
     
-    # Load data to buffer
     rb = ReplayBuffer(
         args.buffer_size,
         envs.single_observation_space,
@@ -157,52 +158,42 @@ def train(kwargs):
 
     for global_step in range(args.max_timesteps): 
         
-        # Save the agent
         if global_step % args.checkpoint_frequency == 0:
             torch.save(q_network.state_dict(), f"{kwargs.save_folder}{run_name}/agent.pt")
-            # Save to W&B if using
             if kwargs.track:
                 wandb.save(f"{wandb.run.dir}/agent.pt", policy="now")
         
-        # Sample replay buffer
         data = rb.sample(args.batch_size)
 
-        # Compute the target Q value
         with torch.no_grad():
             q, imt, i = q_network(data.next_observations)
             imt = imt.exp()
             imt = (imt/imt.max(1, keepdim=True)[0] > args.bcq_threshold).float()
 
-            # Use large negative number to mask actions from argmax
             next_action = (imt * q + (1 - imt) * -1e8).argmax(1, keepdim=True)
 
             q, imt, i = target_network(data.next_observations)
             target_Q = data.rewards + data.dones * args.gamma * q.gather(1, next_action).reshape(-1, 1)
 
-        # Get current Q estimate
         current_Q, imt, i = q_network(data.observations)
         current_Q = current_Q.gather(1, data.actions)
 
-        # Compute Q loss
         q_loss = F.smooth_l1_loss(current_Q, target_Q)
         i_loss = F.nll_loss(imt, data.actions.reshape(-1))
 
         Q_loss = q_loss + i_loss + 1e-2 * i.pow(2).mean()
 
-        # Optimize the Q
         optimizer.zero_grad()
         Q_loss.backward()
         optimizer.step()
 
-        # Update target network by polyak or full copy every X iterations.
         if args.polyak_target_update:
             for param, target_param in zip(q_network.parameters(), target_network.parameters()):
                 target_param.data.copy_(args.tau * param.data + (1 - args.tau) * target_param.data)
         else:
             if global_step % args.target_update_frequency == 0:
                 target_network.load_state_dict(q_network.state_dict())
-
-        # Log losses     
+  
         if global_step % args.eval_freq == 0:
             writer.add_scalar("losses/q_loss", q_loss, global_step)
             writer.add_scalar("losses/i_loss", i_loss, global_step)

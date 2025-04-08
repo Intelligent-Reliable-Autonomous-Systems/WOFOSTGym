@@ -1,7 +1,9 @@
 """Main API for simulating crop growth NPK fertilization and irrigation actions
 and the inclusion of planting and harvesting of the crop.
 
-Used for single year perennial crop simulations.
+Used for single year planting perennial crop simulations.
+
+Written by Will Solow, 2024
 """
 import gymnasium as gym
 
@@ -91,7 +93,7 @@ class Perennial_Plant_Limited_NPKW_Env(Plant_NPK_Env, LNPKW):
         # Fertilizaiton action, correct for 2 crop specific actions (harvest/plant) and null action
         if action >= 3:
             action -= 3
-            # Nitrogen fertilization
+  
             if action // self.num_fert == 0:
                 n_amount = self.fert_amount * ((action % self.num_fert) + 1) 
                 self.model._send_signal(signal=pcse.signals.apply_npk, \
@@ -106,20 +108,6 @@ class Perennial_Plant_Limited_NPKW_Env(Plant_NPK_Env, LNPKW):
                                         K_amount=k_amount, K_recovery=self.k_recovery)
                 
         return (p_act, h_act, n_amount, p_amount, k_amount, i_amount)
-
-        self.log['growth'][self.date] = growth
-        self.log['plant'][self.date] = action[0]
-        self.log['harvest'][self.date] = action[1]
-        self.log['nitrogen'][self.date - datetime.timedelta(self.intervention_interval)] = \
-            action[2]
-        self.log['phosphorous'][self.date - datetime.timedelta(self.intervention_interval)] = \
-            action[3]
-        self.log['potassium'][self.date - datetime.timedelta(self.intervention_interval)] = \
-            action[4]
-        self.log['irrigation'][self.date - datetime.timedelta(self.intervention_interval)] = \
-            action[5]
-        self.log['reward'][self.date] = reward
-        self.log['day'][self.date] = self.date  
 
 class Perennial_Plant_PP_Env(Plant_NPK_Env, PP):
     """Simulates crop growth under abundant NPK and water
@@ -237,7 +225,6 @@ class Perennial_Plant_Limited_NPK_Env(Plant_NPK_Env, LNPK):
         # Fertilizaiton action, correct for 2 crop specific actions (harvest/plant) and null action
         if action >= 3:
             action -= 3
-            # Nitrogen fertilization
             if action // self.num_fert == 0:
                 n_amount = self.fert_amount * ((action % self.num_fert) + 1) 
                 self.model._send_signal(signal=pcse.signals.apply_npk, \
@@ -311,7 +298,6 @@ class Perennial_Plant_Limited_N_Env(Plant_NPK_Env, LN):
         # Fertilizaiton action, correct for 2 crop specific actions (harvest/plant) and null action
         if action >= 3:
             action -= 3
-            # Nitrogen fertilization
             if action // self.num_fert == 0:
                 n_amount = self.fert_amount * ((action % self.num_fert) + 1) 
                 self.model._send_signal(signal=pcse.signals.apply_npk, \
@@ -386,7 +372,6 @@ class Perennial_Plant_Limited_NW_Env(Plant_NPK_Env, LNW):
         # Fertilizaiton action, correct for 2 crop specific actions (harvest/plant) and null action
         if action >= 3:
             action -= 3
-            # Nitrogen fertilization
             if action // self.num_fert == 0:
                 n_amount = self.fert_amount * ((action % self.num_fert) + 1) 
                 self.model._send_signal(signal=pcse.signals.apply_npk, \
@@ -456,8 +441,6 @@ class Perennial_Plant_Limited_W_Env(Plant_NPK_Env, LW):
             self.model._send_signal(signal=pcse.signals.irrigate, amount=i_amount, \
                                     efficiency=self.irrig_effec)
             return (p_act, h_act, 0, 0, 0, i_amount)
-        
-
-                
+            
         return (p_act, h_act, 0, 0, 0, i_amount)
    

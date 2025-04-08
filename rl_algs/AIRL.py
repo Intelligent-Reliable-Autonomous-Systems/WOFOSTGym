@@ -1,5 +1,10 @@
+"""
+Code to train an AIRL agent
+
+Written by Will Solow, 2025
+"""
+
 import numpy as np
-import gymnasium as gym
 from stable_baselines3 import PPO
 from stable_baselines3.ppo import MlpPolicy
 
@@ -7,7 +12,7 @@ from imitation.algorithms.adversarial.airl import AIRL as AIRL_ALG
 from imitation.rewards.reward_nets import BasicShapedRewardNet
 from imitation.util.networks import RunningNorm
 
-from .rl_utils import RL_Args, Agent, setup, eval_policy, make_demonstrations
+from .rl_utils import RL_Args, setup, make_demonstrations
 from typing import Optional
 from dataclasses import dataclass
 import utils
@@ -106,6 +111,9 @@ class AIRL(nn.Module):
 
 
 def train(kwargs):
+    """
+    AIRL Training Function
+    """
 
     args = kwargs.AIRL
     run_name = f"AIRL/{kwargs.env_id}__{args.exp_name}__{args.seed}__{int(time.time())}"
@@ -119,8 +127,7 @@ def train(kwargs):
             )
 
     agent = AIRL(envs, reward_net=reward_net, demo_batch_size=args.demo_batch_size, gen_replay_buffer_capacity=args.gen_replay_buffer_capacity, n_disc_updates_per_round=args.n_disc_updates_per_round)
-    # Initialize demonstration agent
-    # Get the agent constructor from RL_Algs
+
     try:
         ag_constr = utils.get_valid_agents()[args.demo_agent_type]
         policy = ag_constr(envs)

@@ -16,17 +16,16 @@ from typing import Optional
 from omegaconf import OmegaConf
 from omegaconf.dictconfig import DictConfig
 from omegaconf.listconfig import ListConfig
-import os, sys
-from typing import Optional, List, get_origin
-from pcse_gym.envs.wofost_base import Plant_NPK_Env, Harvest_NPK_Env, Multi_NPK_Env
-
-import pcse_gym.wrappers.wrappers as wrappers
+import os
+from typing import Optional, List
 from pcse_gym.args import NPK_Args, WOFOST_Args, Agro_Args
 import copy
 import datetime
 from inspect import getmembers, isclass, isfunction, getmodule
-import pcse_gym
-import pcse_gym.policies as policies
+
+
+from pcse_gym.envs.wofost_base import Plant_NPK_Env, Harvest_NPK_Env, Multi_NPK_Env
+import pcse_gym.wrappers.wrappers as wrappers
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -106,88 +105,13 @@ COLORS = [
     "#0000ff",  # Blue
     "#daa520",  # Goldenrod 
     "#4B0082", # Dark violet
-    #"#7700ff",  # Violet
-    
-
     "#008000",  # Dark Green
     "#ff00ff",  # Magenta
     "#00ff00",  # Green
-    
     "#00ffff",  # Cyan
-    
-   
-    
     "#ff7700",  # Orange
-    
-    
-    
-    
     "#000000",  # Black
 ]
-
-COLORS2 = [
- "#FF69B4",
- "#0080ff",
-"#FFD54F"
-]
-
-BARCOLORS = [
-    "#00008B",  # Dark Blue
-    "#006400",  # Dark Green
-    "#4B0082",  # Dark Purpl
-]
-
-BARCOLORS2 = [
-    "#ADD8E6",  # Light Blue
-    "#90EE90",  # Light Green
-    "#D8BFD8"   # Light Purple
-]
-
-LIGHTER_COLORS = [
-    "#808080",  # Light Gray (lighter Black)
-    "#ff8080",  # Light Red
-    "#8080ff",  # Light Blue
-    "#ffdd99",  # Light Goldenrod
-    "#ffbb80",  # Light Orange
-    "#80ff80",  # Light Green
-    "#bb80ff",  # Light Violet
-    "#80ffff",  # Light Cyan
-    "#ff80ff",  # Light Magenta
-    "#40a040",  # Light Dark Green
-]
-
-FERT_COLORS = [[
-    "g",   #  Green
-    "m", #  Magenta
-    "y",  #  Yellow (Olive)
-    "b",    #  Blue
-                ],
-                [ 
-    "#006600",   # Dark Green
-    "#800080", # Dark Magenta
-    "#808000",  # Dark Yellow (Olive)
-    "#000080",    # Dark Blue
-   ]]
-LINE_STYLES = ['-', '--', '-.', ':', '-']
-
-MARKERS = [
-    '<'	,
-'o',
-'s'	,
-'v'	,
-'x'	,	
-'*'	,
-','	,
-'>'	,
-'^'	,
-	
-
-'D'	,
-'d'	,
-'p'	,	
-'h',
-'+',
-'.']
 
 def wrap_env_reward(env: gym.Env, args):
     """
@@ -215,11 +139,11 @@ def make_gym_env(args, run_name=None):
     assert args.save_folder is not None, "Specify `save_folder` to save config file."
     assert isinstance(args.save_folder, str), f"`args.save_folder` must be of type `str` but is of type `{type(args.save_folder)}`."
     assert args.save_folder.endswith("/"), f"Folder args.save_folder `{args.save_folder}` must end with `/`"
+    
     # If valid config file, load env from that configuration
     if args.config_fpath:  
         assert os.path.isfile(f"{os.getcwd()}/{args.config_fpath}"), f"Configuration file `{args.config_fpath} does not exist"
 
-        # Load and correct configuration
         config = OmegaConf.load(f"{os.getcwd()}/{args.config_fpath}")
         
         valid_keys = {field.name for field in type(args).__dataclass_fields__.values()}
@@ -232,12 +156,11 @@ def make_gym_env(args, run_name=None):
         env = gym.make(env_id, **env_kwargs).unwrapped 
 
         config = OmegaConf.structured(args)
-        # Only save config for the current RL Alg
+
         if hasattr(args, "agent_type"):
             if args.agent_type: 
                 config = OmegaConf.create({k: v for k,v in config.items() \
                                         if k not in [a for a in list(get_valid_agents().keys()) if a != args.agent_type]})
-        # Save configuration
         os.makedirs(args.save_folder, exist_ok=True)
 
         if isinstance(env, Multi_NPK_Env):
@@ -268,7 +191,6 @@ def make_gym_env(args, run_name=None):
 
             config = OmegaConf.merge(config, {"npk": {"wf": wf_config, "ag":agro_config}})
 
-            # Save configuration
             if run_name is None:
                 save_file = f"{args.save_folder}config.yaml"
             else:
@@ -291,7 +213,6 @@ def make_gym_envs(args, config_fpaths, run_name=None):
     for i, path in enumerate(config_fpaths):
         assert os.path.isfile(f"{os.getcwd()}/{path}"), f"Configuration file `{path} does not exist"
 
-        # Load and correct configuration
         config = OmegaConf.load(f"{os.getcwd()}/{path}")
         
         valid_keys = {field.name for field in type(args).__dataclass_fields__.values()}
@@ -301,7 +222,6 @@ def make_gym_envs(args, config_fpaths, run_name=None):
 
         envs.append(gym.make(env_id, **env_kwargs).unwrapped)
 
-        # Save configuration
         os.makedirs(args.save_folder, exist_ok=True)
         if run_name is None:
             save_file = f"{args.save_folder}config.yaml"
@@ -472,15 +392,13 @@ def get_valid_agents():
     """
     path = f"{os.getcwd()}/rl_algs"
 
-    # First get all the modules. Each agent is contained in a module
     modules = {}
     for x in [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]:
        name = f"rl_algs.{os.path.splitext(os.path.basename(x))[0]}"
        modules = dict(modules, **dict(getmembers( __import__(name))))
-    # Filter out sys modules
+
     modules = {k: v for k, v in modules.items() if isinstance(v, type(__import__('sys')))}
     
-    # Then, get the classes in each module, filtering out dataclasses
     constr = {}
     for m in modules.values():
         classes = {
@@ -498,15 +416,13 @@ def get_valid_trainers():
     """
     path = f"{os.getcwd()}/rl_algs"
 
-    # First get all the modules. Each agent is contained in a module
     modules = {}
     for x in [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]:
        name = f"rl_algs.{os.path.splitext(os.path.basename(x))[0]}"
        modules = dict(modules, **dict(getmembers( __import__(name))))
-    # Filter out sys modules
+
     modules = {k: v for k, v in modules.items() if isinstance(v, type(__import__('sys')))}
     
-    # Then, get the classes in each module, filtering out dataclasses
     trainer = {}
     for m in modules.values():
         classes = {
@@ -585,7 +501,6 @@ def action_to_numpy(env, act):
         if len(np.nonzero(act_vals)[0]) > 1:
             msg = "More than one non-zero action value for policy"
             raise Exception(msg)
-        # If no actions specified, assume that we mean the null action
         if len(np.nonzero(act_vals)[0]) == 0:
             return np.array([0])
     else:
@@ -607,7 +522,6 @@ def action_to_numpy(env, act):
 
     # Planting Single Year environments
     if isinstance(env.unwrapped, Plant_NPK_Env):
-        # Check for planting and harvesting actions
         if not "plant" in act.keys():
             msg = "\'plant\' not included in action dictionary keys"
             raise Exception(msg)
@@ -618,7 +532,6 @@ def action_to_numpy(env, act):
             msg = "Incorrect action dictionary specification"
             raise Exception(msg)
         
-        # Set the offsets to support converting to the correct action
         offsets = [1,1,env.unwrapped.num_fert,env.unwrapped.num_fert,env.unwrapped.num_fert,env.unwrapped.num_irrig]
         act_values = [act["plant"],act["harvest"],act["n"],act["p"],act["k"],act["irrig"]]
         offset_flags = np.zeros(env.unwrapped.NUM_ACT)
@@ -626,7 +539,6 @@ def action_to_numpy(env, act):
 
     # Harvesting Single Year environments
     elif isinstance(env.unwrapped, Harvest_NPK_Env):
-        # Check for harvesting actions
         if not "harvest" in act.keys():
             msg = "\'harvest\' not included in action dictionary keys"
             raise Exception(msg)
@@ -634,7 +546,6 @@ def action_to_numpy(env, act):
             msg = "Incorrect action dictionary specification"
             raise Exception(msg)
         
-        # Set the offsets to support converting to the correct action
         offsets = [1,env.unwrapped.num_fert,env.unwrapped.num_fert,env.unwrapped.num_fert,env.unwrapped.num_irrig]
         act_values = [act["harvest"],act["n"],act["p"],act["k"],act["irrig"]]
         offset_flags = np.zeros(env.unwrapped.NUM_ACT)
@@ -645,10 +556,11 @@ def action_to_numpy(env, act):
         if len(act.keys()) != env.unwrapped.NUM_ACT:
             msg = "Incorrect action dictionary specification"
             raise Exception(msg)
-        # Set the offsets to support converting to the correct action
+
         offsets = [env.unwrapped.num_fert,env.unwrapped.num_fert,env.unwrapped.num_fert,env.unwrapped.num_irrig]
         act_values = [act["n"],act["p"],act["k"],act["irrig"]]
         offset_flags = np.zeros(env.env.unwrapped.NUM_ACT)
         offset_flags[:np.nonzero(act_values)[0][0]] = 1
-        
+    
+    # Cast action to numpy array based on offsets computed above
     return np.array([np.sum(offsets*offset_flags) + act_values[np.nonzero(act_values)[0][0]]])

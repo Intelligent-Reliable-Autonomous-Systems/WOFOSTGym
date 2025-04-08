@@ -1,12 +1,13 @@
 """Main API for the WOFOST Gym environment. All other environments inherit
-from the NPK_Env Gym Environment"""
+from the NPK_Env Gym Environment
+
+Written by Will Solow, 2024"""
 
 import os
 import datetime
 from datetime import date
 from collections import deque
 import numpy as np
-import pandas as pd
 import yaml, copy
 import gymnasium as gym
 
@@ -58,7 +59,7 @@ class NPK_Env(gym.Env):
         self.unit_fpath = unit_fpath
         self.range_fpath = range_fpath
         self.render_mode = render_mode
-        self.config=config
+        self.config = config
 
         self.ploader = utils.ParamLoader(base_fpath, name_fpath, unit_fpath, range_fpath)
         # Arguments
@@ -104,13 +105,11 @@ class NPK_Env(gym.Env):
         else:
             self.train_weather_data = self._get_train_weather_data()
 
-        # Check that the configuration is valid
         self._validate()
 
         # Initialize crop engine
         self.model = Wofost8Engine(self.parameterprovider, self.weatherdataprovider,
                                          self.agromanagement, config=self.config)
-        #print('Successfully initialized WOFOST Engine. Ready to run simulation...')
         
         if self.crop_rand:
             self.domain_randomization_uniform(self.scale)
@@ -194,12 +193,11 @@ class NPK_Env(gym.Env):
                 msg = f"Specified year {self.year} outside of range {self.WEATHER_YEARS}"
                 raise exc.ResetException(msg)   
         else:
-            # Reset to random year if random-reset. Useful for RL algorithms 
             if self.random_reset:
                 self.year = self.np_random.choice(self.train_weather_data) 
             if self.train_reset:
                 self.year = self.np_random.choice(self.TRAIN_YEARS)
-            # Set parameters to some randomization 
+
             if self.domain_rand:
                 self.domain_randomization_normal(self.scale)
 
@@ -214,21 +212,16 @@ class NPK_Env(gym.Env):
                 raise exc.ResetException(msg)
             
             # Reset weather 
-            # Only do so if location has changed
             self.weatherdataprovider = NASAPowerWeatherDataProvider(*self.location)
         
-        # Change the current start and end date to specified year
         self.site_start_date = self.site_start_date.replace(year=self.year)
         self.site_end_date = self.site_start_date + self.max_site_duration
 
-        # Correct for if crop start date is in a different year
         self.crop_start_date = self.crop_start_date.replace(year=self.year+self.year_difference)
         self.crop_end_date = self.crop_start_date + self.max_crop_duration
         
-        # Change to the new year specified by self.year
         self.date = self.site_start_date
 
-        # Update agromanagement dictionary
         self.agromanagement['CropCalendar']['crop_start_date'] = self.crop_start_date
         self.agromanagement['CropCalendar']['crop_end_date'] = self.crop_end_date
         self.agromanagement['SiteCalendar']['site_start_date'] = self.site_start_date
@@ -239,10 +232,9 @@ class NPK_Env(gym.Env):
         utils.set_params(self, self.wofost_params)
         
         # Reset model
-        # self.model.reset()
         self.model = Wofost8Engine(self.parameterprovider, self.weatherdataprovider,
                                          self.agromanagement, config=self.config)
-        # Generate initial output
+        
         output = self._run_simulation()
         observation = self._process_output(output)
 
@@ -260,7 +252,6 @@ class NPK_Env(gym.Env):
         crop_kv = {k:v for k, v in self.parameterprovider._cropdata.items() if isinstance(v, float)}
         site_kv = {k:v for k,v in self.parameterprovider._sitedata.items() if isinstance(v, float)}
 
-        # Add a small amount of noise to the parameters on the scale of the parameters
         for k, v in crop_kv.items():
             x = 1 if v == 0 else v
             self.parameterprovider.set_override(k, v+np.random.uniform(low=-x*scale,high=x*scale), check=False)
@@ -275,7 +266,6 @@ class NPK_Env(gym.Env):
         crop_kv = {k:v for k, v in self.parameterprovider._cropdata.items() if isinstance(v, float)}
         site_kv = {k:v for k,v in self.parameterprovider._sitedata.items() if isinstance(v, float)}
 
-        # Add a small amount of noise to the parameters on the scale of the parameters
         for k, v in crop_kv.items():
             x = 1 if v == 0 else v
             self.parameterprovider.set_override(k, v + x*np.random.normal(scale=scale), check=False)
@@ -296,18 +286,17 @@ class NPK_Env(gym.Env):
         if isinstance(action, dict):
             msg = f"Action must be of type `int` but is of type `dict`. Wrap environment in `pcse_gym.wrappers.NPKDictActionWrapper` before proceeding."
             raise Exception(msg)
-        # Send action signal to model and run model
+
         act_tuple = self._take_action(action)
         output = self._run_simulation()
         observation = self._process_output(output)
         
         reward = self._get_reward(output, act_tuple) 
         
-        # Terminate based on crop finishing
         termination = output[-1]['FIN'] == 1.0 or output[-1]['FIN'] is None
         if output[-1]['FIN'] is None:
             observation = np.nan_to_num(observation)
-        # Truncate based on site end date
+
         truncation = self.date >= self.site_end_date
 
         self._log(output[-1]['WSO'], act_tuple, reward)
@@ -324,11 +313,10 @@ class NPK_Env(gym.Env):
             msg = "Configuration Not Specified. Please use model"
             raise exc.WOFOSTGymError(msg)
         
-        # Check that WSO is present
         if 'WSO' not in self.output_vars:
             msg = 'Crop State \'WSO\' variable must be in output variables'
             raise exc.WOFOSTGymError(msg)
-        # Check that DOF is present
+
         if 'FIN' not in self.output_vars:
             msg = 'Crop State \'FIN\' variable must be in output variables'
             raise exc.WOFOSTGymError(msg)
@@ -430,11 +418,9 @@ class NPK_Env(gym.Env):
         noise_scale = np.linspace(start=self.forecast_noise[0], \
                                   stop=self.forecast_noise[1], num=self.forecast_length)
         
-        # For every day in the forecasting window
         for i in range(0, self.forecast_length):
             weather = self._get_weather_day(date + datetime.timedelta(i) )
 
-            # Add random noise to weather prediction
             weather += np.random.normal(size=len(weather)) * weather * noise_scale[i] 
             weather_vars.append(weather)
 
@@ -447,7 +433,6 @@ class NPK_Env(gym.Env):
         Args:
             date: datetime - day which to get weather information
         """
-        # Get the index of the current year from which to draw weather
         site_start_ind = np.argwhere(self.train_weather_data == self.site_start_date.year).flatten()[0]
         try: 
             weather_year_ind = (site_start_ind+date.year-self.site_start_date.year) % len(self.train_weather_data)
@@ -466,20 +451,14 @@ class NPK_Env(gym.Env):
             output: dictionary of model output variables
         """
 
-        # Current day crop observation
-        #print(self.output_vars)
-
         crop_observation = np.zeros(len(self.output_vars))
         for i,k in enumerate(self.output_vars):
             crop_observation[i] = output[-1][k]
-        #crop_observation = np.array([v for k, v in output[-1].items() if k in self.output_vars])
-        #print(crop_observation)
+
         self.date = output[-1]["day"]
 
-        # Observed weather through the specified forecast
         weather_observation = self._get_weather(self.date)
 
-        # Count the number of days elapsed - for time-based policies
         days_elapsed = self.date - self.site_start_date
 
         observation = np.concatenate([crop_observation, weather_observation.flatten(), [days_elapsed.days]])
@@ -496,10 +475,7 @@ class NPK_Env(gym.Env):
         """Run the WOFOST model for the specified number of days
         """
         self.model.run(days=self.intervention_interval)
-        # Fill missing values with nans - arises when crop has not been
-        # planted yet. 
-        #with pd.option_context("future.no_silent_downcasting", True):
-        #    output = output.fillna(value=np.nan).infer_objects(copy=False)
+
         return self.model.get_output()
 
     def _take_action(self, action: int):
@@ -750,12 +726,11 @@ class Multi_NPK_Env(gym.Env):
                 msg = f"Specified year {self.year} outside of range {self.WEATHER_YEARS}"
                 raise exc.ResetException(msg)   
         else:
-            # Reset to random year if random-reset. Useful for RL algorithms 
             if self.random_reset:
                 self.year = self.np_random.choice(self.train_weather_data) 
             if self.train_reset:
                 self.year = self.np_random.choice(self.TRAIN_YEARS)
-            # Set parameters to some randomization 
+
             if self.domain_rand:
                 self.domain_randomization(self.scale)
 
@@ -770,21 +745,16 @@ class Multi_NPK_Env(gym.Env):
                 raise exc.ResetException(msg)
             
             # Reset weather 
-            # Only do so if location has changed
             self.weatherdataprovider = NASAPowerWeatherDataProvider(*self.location)
         
-        # Change the current start and end date to specified year
         self.site_start_date = self.site_start_date.replace(year=self.year)
         self.site_end_date = self.site_start_date + self.max_site_duration
 
-        # Correct for if crop start date is in a different year
         self.crop_start_date = self.crop_start_date.replace(year=self.year+self.year_difference)
         self.crop_end_date = self.crop_start_date + self.max_crop_duration
-        
-        # Change to the new year specified by self.year
+
         self.date = self.site_start_date
 
-        # Update agromanagement dictionary
         self.agromanagement['CropCalendar']['crop_start_date'] = self.crop_start_date
         self.agromanagement['CropCalendar']['crop_end_date'] = self.crop_end_date
         self.agromanagement['SiteCalendar']['site_start_date'] = self.site_start_date
@@ -794,10 +764,9 @@ class Multi_NPK_Env(gym.Env):
         utils.set_params(self, self.wofost_params)
         
         # Reset model
-        # self.model.reset()
         self.models = [Wofost8Engine(self.parameterproviders[i], self.weatherdataprovider,
                                          self.agromanagement, config=self.config) for i in range(self.num_farms)]
-        # Generate initial output
+        
         output = self._run_simulation()
         observation = self._process_output(output)
         self.state = observation
@@ -816,7 +785,7 @@ class Multi_NPK_Env(gym.Env):
         
         self.cropdata = []
         self.sitedata = []
-        # Add a small amount of noise to the parameters on the scale of the parameters
+
         for i in range(self.num_farms):
             self.cropdata.append({})
             self.sitedata.append({})
@@ -833,7 +802,7 @@ class Multi_NPK_Env(gym.Env):
         """
         Apply a small randomization to the site and crop parameters
         """
-        # Add a small amount of noise to the parameters on the scale of the parameters
+
         for i in range(self.num_farms):
             for k, v in self.cropdata[i].items():
                 x = 1 if v == 0 else v
@@ -855,18 +824,18 @@ class Multi_NPK_Env(gym.Env):
         if isinstance(action, dict):
             msg = f"Action must be of type `int` but is of type `dict`. Wrap environment in `pcse_gym.wrappers.NPKDictActionWrapper` before proceeding."
             raise Exception(msg)
-        # Send action signal to model and run model
+
         act_tuple = self._take_action(action)
         output = self._run_simulation()
         observation = self._process_output(output)
         
         reward = self._get_reward(output, act_tuple) 
         
-        # Terminate based on crop finishing
+
         termination = np.prod([output[i][-1]['FIN'] == 1.0 or output[i][-1]['FIN'] is None for i in range(self.num_farms)])
         if np.any([output[i][-1]['FIN'] is None for i in range(self.num_farms)]):
             observation = np.nan_to_num(observation)
-        # Truncate based on site end date
+
         truncation = self.date >= self.site_end_date
 
         self._log([output[i][-1]['WSO'] for i in range(self.num_farms)], act_tuple, reward)
@@ -878,16 +847,17 @@ class Multi_NPK_Env(gym.Env):
         return observation, reward, termination, truncation, self.log
     
     def _validate(self):
-        """Validate that the configuration is correct """
+        """
+        Validate that the configuration is correct 
+        """
         if self.config is None:
             msg = "Configuration Not Specified. Please use model"
             raise exc.WOFOSTGymError(msg)
         
-        # Check that WSO is present
         if 'WSO' not in self.output_vars:
             msg = 'Crop State \'WSO\' variable must be in output variables'
             raise exc.WOFOSTGymError(msg)
-        # Check that DOF is present
+
         if 'FIN' not in self.output_vars:
             msg = 'Crop State \'FIN\' variable must be in output variables'
             raise exc.WOFOSTGymError(msg)
@@ -989,11 +959,9 @@ class Multi_NPK_Env(gym.Env):
         noise_scale = np.linspace(start=self.forecast_noise[0], \
                                   stop=self.forecast_noise[1], num=self.forecast_length)
         
-        # For every day in the forecasting window
         for i in range(0, self.forecast_length):
             weather = self._get_weather_day(date + datetime.timedelta(i) )
 
-            # Add random noise to weather prediction
             weather += np.random.normal(size=len(weather)) * weather * noise_scale[i] 
             weather_vars.append(weather)
 
@@ -1006,7 +974,7 @@ class Multi_NPK_Env(gym.Env):
         Args:
             date: datetime - day which to get weather information
         """
-        # Get the index of the current year from which to draw weather
+
         site_start_ind = np.argwhere(self.train_weather_data == self.site_start_date.year).flatten()[0]
         weather_year_ind = (site_start_ind+date.year-self.site_start_date.year) % len(self.train_weather_data)
         weatherdatacontainer = self.weatherdataprovider( 
@@ -1022,7 +990,6 @@ class Multi_NPK_Env(gym.Env):
             output: dictionary of model output variables
         """
 
-        # Current day crop observation
         crop_observation = np.zeros(self.num_farms*len(self.individual_vars)+len(self.shared_vars))
         for i in range(self.num_farms):
             for j,k in enumerate(self.individual_vars):
@@ -1031,10 +998,8 @@ class Multi_NPK_Env(gym.Env):
             crop_observation[self.num_farms*len(self.individual_vars)+i] = output[-1][-1][k]
         self.date = output[0][-1]["day"]
 
-        # Observed weather through the specified forecast
         weather_observation = self._get_weather(self.date)
 
-        # Count the number of days elapsed - for time-based policies
         days_elapsed = self.date - self.site_start_date
 
         observation = np.concatenate([crop_observation, weather_observation.flatten(), [days_elapsed.days]])
@@ -1153,7 +1118,6 @@ class Plant_NPK_Env(NPK_Env):
         super().__init__(args, base_fpath, agro_fpath, site_fpath, crop_fpath, \
                          config=config)
 
-        # Get specific crop names from agromanagement
         self.crop_name = self.agromanagement['CropCalendar']['crop_name']
         self.crop_variety = self.agromanagement['CropCalendar']['crop_variety']
         self.crop_start_type = self.agromanagement['CropCalendar']['crop_start_type']
@@ -1220,7 +1184,6 @@ class Harvest_NPK_Env(NPK_Env):
         super().__init__(args, base_fpath, agro_fpath, site_fpath, crop_fpath, \
                          config=config)
 
-        # Get specific crop names from agromanagement
         self.crop_name = self.agromanagement['CropCalendar']['crop_name']
         self.crop_variety = self.agromanagement['CropCalendar']['crop_variety']
         self.crop_start_type = self.agromanagement['CropCalendar']['crop_start_type']

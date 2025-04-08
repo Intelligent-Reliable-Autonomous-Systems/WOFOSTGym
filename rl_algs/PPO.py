@@ -18,7 +18,6 @@ from .rl_utils import RL_Args, Agent, setup, eval_policy
 
 @dataclass
 class Args(RL_Args):
-    # Algorithm specific arguments
     total_timesteps: int = 1000000
     """total timesteps of the experiments"""
     learning_rate: float = 2.5e-4
@@ -54,7 +53,6 @@ class Args(RL_Args):
     checkpoint_frequency: int = 500
     """How often to save the agent during training"""
 
-    # to be filled in runtime
     batch_size: int = 0
     """the batch size (computed in runtime)"""
     minibatch_size: int = 0
@@ -119,6 +117,10 @@ class PPO(nn.Module, Agent):
         return action, probs.log_prob(action), probs.entropy(), self.critic(x)
 
 def train(kwargs):
+    """
+    PPO Training Function
+    """
+
     args = kwargs.PPO
     run_name = f"PPO/{kwargs.env_id}__{args.exp_name}__{args.seed}__{int(time.time())}"
     args.batch_size = int(args.num_envs * args.num_steps)
@@ -130,7 +132,6 @@ def train(kwargs):
     agent = PPO(envs).to(device)
     optimizer = optim.Adam(agent.parameters(), lr=args.learning_rate, eps=1e-5)
 
-    # ALGO Logic: Storage setup
     obs = torch.zeros((args.num_steps, args.num_envs) + envs.single_observation_space.shape).to(device)
     actions = torch.zeros((args.num_steps, args.num_envs) + envs.single_action_space.shape).to(device)
     logprobs = torch.zeros((args.num_steps, args.num_envs)).to(device)
@@ -138,21 +139,18 @@ def train(kwargs):
     dones = torch.zeros((args.num_steps, args.num_envs)).to(device)
     values = torch.zeros((args.num_steps, args.num_envs)).to(device)
 
-    # TRY NOT TO MODIFY: start the game
     global_step = 0
     start_time = time.time()
     next_obs, _ = envs.reset(seed=args.seed)
     next_obs = torch.Tensor(next_obs).to(device)
     next_done = torch.zeros(args.num_envs).to(device)
+
     for iteration in range(1, args.num_iterations + 1):
-        # Save the agent
         if global_step % args.checkpoint_frequency == 0:
             torch.save(agent.state_dict(), f"{kwargs.save_folder}{run_name}/agent.pt")
-            # Save to W&B if using
             if kwargs.track:
                 wandb.save(f"{wandb.run.dir}/agent.pt", policy="now")
 
-        # Annealing the rate if instructed to do so.
         if args.anneal_lr:
             frac = 1.0 - (iteration - 1.0) / args.num_iterations
             lrnow = frac * args.learning_rate
@@ -162,14 +160,12 @@ def train(kwargs):
             global_step += args.num_envs
             obs[step] = next_obs
             dones[step] = next_done
-
-            # ALGO LOGIC: action logic
             with torch.no_grad():
                 action, logprob, _, value = agent.get_action_and_value(next_obs)
                 values[step] = value.flatten()
             actions[step] = action
             logprobs[step] = logprob
-            # TRY NOT TO MODIFY: execute the game and log data.
+
             next_obs, reward, terminations, truncations, infos = envs.step(action.cpu().numpy())
 
             next_done = np.logical_or(terminations, truncations)
@@ -184,7 +180,6 @@ def train(kwargs):
             if global_step % args.checkpoint_frequency == 0:
                 writer.add_scalar("charts/average_reward", eval_policy(agent, envs, kwargs, device), global_step)
 
-        # bootstrap value if not done
         with torch.no_grad():
             next_value = agent.get_value(next_obs).reshape(1, -1)
             advantages = torch.zeros_like(rewards).to(device)
@@ -200,7 +195,6 @@ def train(kwargs):
                 advantages[t] = lastgaelam = delta + args.gamma * args.gae_lambda * nextnonterminal * lastgaelam
             returns = advantages + values
 
-        # flatten the batch
         b_obs = obs.reshape((-1,) + envs.single_observation_space.shape)
         b_logprobs = logprobs.reshape(-1)
         b_actions = actions.reshape((-1,) + envs.single_action_space.shape)
@@ -208,7 +202,6 @@ def train(kwargs):
         b_returns = returns.reshape(-1)
         b_values = values.reshape(-1)
 
-        # Optimizing the policy and value network
         b_inds = np.arange(args.batch_size)
         clipfracs = []
         for epoch in range(args.update_epochs):
@@ -231,12 +224,10 @@ def train(kwargs):
                 if args.norm_adv:
                     mb_advantages = (mb_advantages - mb_advantages.mean()) / (mb_advantages.std() + 1e-8)
 
-                # Policy loss
                 pg_loss1 = -mb_advantages * ratio
                 pg_loss2 = -mb_advantages * torch.clamp(ratio, 1 - args.clip_coef, 1 + args.clip_coef)
                 pg_loss = torch.max(pg_loss1, pg_loss2).mean()
 
-                # Value loss
                 newvalue = newvalue.view(-1)
                 if args.clip_vloss:
                     v_loss_unclipped = (newvalue - b_returns[mb_inds]) ** 2
@@ -266,7 +257,6 @@ def train(kwargs):
         var_y = np.var(y_true)
         explained_var = np.nan if var_y == 0 else 1 - np.var(y_true - y_pred) / var_y
 
-        # TRY NOT TO MODIFY: record rewards for plotting purposes
         writer.add_scalar("charts/learning_rate", optimizer.param_groups[0]["lr"], global_step)
         writer.add_scalar("losses/value_loss", v_loss.item(), global_step)
         writer.add_scalar("losses/policy_loss", pg_loss.item(), global_step)

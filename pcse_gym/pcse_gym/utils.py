@@ -22,27 +22,16 @@ def make_config(soil: BaseSoilModuleWrapper=SoilModuleWrapper_LNPKW, crop: BaseC
     Args:
         None
     """
-
-    # Module to be used for water balance
     SOIL = soil
-
-    # Module to be used for the crop simulation itself
     CROP = crop
-
-    # Module to use for AgroManagement actions
     AGROMANAGEMENT = agro
 
     # interval for OUTPUT signals, either "daily"|"dekadal"|"monthly"
-    # For daily output you change the number of days between successive
-    # outputs using OUTPUT_INTERVAL_DAYS. For dekadal and monthly
-    # output this is ignored.
     OUTPUT_INTERVAL = "daily"
     OUTPUT_INTERVAL_DAYS = 1
-    # Weekday: Monday is 0 and Sunday is 6
     OUTPUT_WEEKDAY = 0
 
     # variables to save at OUTPUT signals
-    # Set to an empty list if you do not want any OUTPUT
     OUTPUT_VARS = [ 
         # WOFOST STATES 
         "TAGP", "GASST", "MREST", "CTRAT", "CEVST", "HI", "DOF", "FINISH_TYPE", "FIN",
@@ -137,11 +126,9 @@ def make_config(soil: BaseSoilModuleWrapper=SoilModuleWrapper_LNPKW, crop: BaseC
         ]
 
     # Summary variables to save at CROP_FINISH signals
-    # Set to an empty list if you do not want any SUMMARY_OUTPUT
     SUMMARY_OUTPUT_VARS = OUTPUT_VARS
 
     # Summary variables to save at TERMINATE signals
-    # Set to an empty list if you do not want any TERMINAL_OUTPUT
     TERMINAL_OUTPUT_VARS = OUTPUT_VARS
 
     return {'SOIL': SOIL, 'CROP': CROP, 'AGROMANAGEMENT': AGROMANAGEMENT, 'OUTPUT_INTERVAL': OUTPUT_INTERVAL, \
@@ -264,7 +251,6 @@ def set_params(env: gym.Env, args: WOFOST_Args):
     """Initial maximum moisture content in initial rooting depth zone"""
     if args.SMLIM is not None:
         env.parameterprovider.set_override("SMLIM", args.SMLIM, check=False)
-
 
     # WOFOST Parameters
     """Conversion factor for assimilates to leaves"""

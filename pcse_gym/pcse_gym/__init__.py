@@ -1,11 +1,11 @@
-"""Entry point for pcse_gym package. Handles imports and Gym Environment
+"""
+Entry point for pcse_gym package. Handles imports and Gym Environment
 registration.
+
+Written by Will Solow, 2024
 """
 
 from gymnasium.envs.registration import register
-from pcse_gym import args
-from pcse_gym import utils
-from pcse_gym import exceptions
 
 # Default Annual Environments
 register(

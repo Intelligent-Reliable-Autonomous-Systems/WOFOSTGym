@@ -4,6 +4,9 @@ Agents Supported:
  - SAC
  - DQN
  - BCQ
+ - AIRL
+ - GAIL
+ - BC
 
 Written by: Will Solow, 2024
 
@@ -54,7 +57,6 @@ if __name__ == "__main__":
     
     args = tyro.cli(AgentArgs)
 
-    # Get the agent trainer from RL_Algs
     try:
         ag_trainer = utils.get_valid_trainers()[args.agent_type]
     except:

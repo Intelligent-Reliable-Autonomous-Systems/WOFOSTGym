@@ -6,7 +6,7 @@ Written by Will Solow, 2024
 To run: python3 vis_data.py --data-file <file-name> --plt <plot-type> --fig-folder <save folder>
 """
 
-import tyro, yaml, os
+import tyro, os
 from dataclasses import dataclass
 from typing import Optional
 import utils
@@ -47,12 +47,10 @@ def plot_output(args:utils.Args, output_vars:np.ndarray|list=None, obs:np.ndarra
 
     ploader = ParamLoader(args.base_fpath, args.name_fpath, args.unit_fpath, args.range_fpath)
 
-    # Set color cycle
     plt.rcParams['axes.prop_cycle'] = plt.cycler(color=utils.COLORS)
 
     for i,v in enumerate(output_vars):
         
-        # Plot figures
         fig, ax = plt.subplots(1, figsize=figsize)
         ax.plot(obs[:,i], label=f"{v}")
         ax.set_xlabel("Days Elapsed")
@@ -67,7 +65,6 @@ def plot_output(args:utils.Args, output_vars:np.ndarray|list=None, obs:np.ndarra
             os.makedirs(f"{args.base_fpath}{args.save_folder}", exist_ok=True)
             plt.savefig(f"{args.save_folder}{v}.png", bbox_inches='tight')
 
-        # Save if has attribute
         if hasattr(args, "fig_folder"):
             if args.fig_folder is not None:
                 assert isinstance(args.fig_folder, str), f"Folder args.fig_folder `{args.fig_folder}` must be of type `str`"
@@ -93,7 +90,6 @@ def plot_output(args:utils.Args, output_vars:np.ndarray|list=None, obs:np.ndarra
             os.makedirs(f"{args.base_fpath}{args.save_folder}", exist_ok=True)
             plt.savefig(f"{args.save_folder}rewards.png", bbox_inches='tight')
 
-        # Save if has attribute
         if hasattr(args, "fig_folder"):
             if args.fig_folder is not None:
                 assert isinstance(args.fig_folder, str), f"Folder args.fig_folder `{args.fig_folder}` must be of type `str`"
@@ -111,7 +107,6 @@ def plot_policy(args:utils.Args, output_vars:np.ndarray|list=None, obs:np.ndarra
     Plot the total growth of the crop and the respective actions taken
     """
 
-    """Assert all necessary params are present"""
     assert "twinax_varname" in kwargs, f"Keyword argument `twinax_varname` not present in `kwargs`"
 
     twinax_varname = kwargs["twinax_varname"]
@@ -179,7 +174,6 @@ def plot_policy(args:utils.Args, output_vars:np.ndarray|list=None, obs:np.ndarra
     hands = [n,p,k,w, wso[0]]
     plt.legend(handles=hands)
 
-    # Save if has attribute
     if hasattr(args, "fig_folder"):
         if args.fig_folder is not None:
             assert isinstance(args.fig_folder, str), f"Folder args.fig_folder `{args.fig_folder}` must be of type `str`"
@@ -198,7 +192,6 @@ def plot_policy_multiple(args:utils.Args, output_vars:np.ndarray|list=None, obs:
     Plot the output of multiple years/policies: the total growth of the crop and the respective actions taken
     """
 
-    """Assert all necessary params are present"""
     assert "twinax_varname" in kwargs, f"Keyword argument `twinax_varname` not present in `kwargs`"
 
     twinax_varname = kwargs["twinax_varname"]
@@ -288,7 +281,6 @@ def plot_policy_multiple(args:utils.Args, output_vars:np.ndarray|list=None, obs:
 
     ax.set_xlim(0, len(split_obs[i][:,np.argwhere(output_vars==twinax_varname).flatten()[0]])-1)
 
-    # Save if has attribute
     if hasattr(args, "fig_folder"):
         if args.fig_folder is not None:
             assert isinstance(args.fig_folder, str), f"Folder args.fig_folder `{args.fig_folder}` must be of type `str`"
@@ -337,7 +329,6 @@ def plot_policy_matrix(args:utils.Args, output_vars:np.ndarray|list=None, obs:np
     ax.set_ylabel("Farms")
     ax.set_xlabel("Policies")
 
-    # Save if has attribute
     if hasattr(args, "fig_folder"):
         if args.fig_folder is not None:
             assert isinstance(args.fig_folder, str), f"Folder args.fig_folder `{args.fig_folder}` must be of type `str`"

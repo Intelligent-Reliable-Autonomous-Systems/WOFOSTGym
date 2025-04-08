@@ -1,6 +1,9 @@
-"""Args configurations file includes: 
+"""
+Args configurations file includes: 
     - PCSE configuration file for WOFOST 8.0 Water and NPK limited Production
     - WOFOST Gym parameter configurations
+
+Written by Will Solow, 2024
 """
 
 from dataclasses import dataclass, field
@@ -92,7 +95,6 @@ class WOFOST_Args:
     CO2: Optional[float] = None  
     """Reference CO2 Rate"""
     REFCO2L: Optional[float] = None
-
 
     # WOFOST Parameters
     """Conversion factor for assimilates to leaves"""

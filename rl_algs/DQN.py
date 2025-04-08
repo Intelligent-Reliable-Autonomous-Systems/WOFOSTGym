@@ -4,7 +4,6 @@ Docs: https://docs.cleanrl.dev/rl-algorithms/dqn/#dqnpy
 Modified by: Will Solow, 2024
 """
 
-# docs and experiment results can be found at 
 import random
 import time
 from dataclasses import dataclass
@@ -20,7 +19,6 @@ from .rl_utils import RL_Args, Agent, setup, eval_policy
 
 @dataclass
 class Args(RL_Args):
-    # Algorithm specific arguments
     total_timesteps: int = 1000000
     """total timesteps of the experiments"""
     learning_rate: float = 2.5e-4
@@ -50,7 +48,6 @@ class Args(RL_Args):
     checkpoint_frequency: int = 500
     """How often to save the agent during training"""
 
-# ALGO LOGIC: initialize agent here:
 class DQN(nn.Module, Agent):
     def __init__(self, env, state_fpath:str=None, **kwargs):
         super().__init__()
@@ -85,8 +82,10 @@ def linear_schedule(start_e: float, end_e: float, duration: int, t: int):
     slope = (end_e - start_e) / duration
     return max(slope * t + start_e, end_e)
 
-
 def train(kwargs):
+    """
+    DQN Training Function
+    """
     args = kwargs.DQN
     assert args.num_envs == 1, "vectorized envs are not supported at the moment"
     run_name = f"DQN/{kwargs.env_id}__{args.exp_name}__{args.seed}__{int(time.time())}"
@@ -107,19 +106,15 @@ def train(kwargs):
     )
     start_time = time.time()
 
-    # TRY NOT TO MODIFY: start the game
     obs, _ = envs.reset(seed=args.seed)
     for global_step in range(args.total_timesteps):
 
-        # Save the agent
         if global_step % args.checkpoint_frequency == 0:
             torch.save(q_network.state_dict(), f"{kwargs.save_folder}{run_name}/agent.pt")
-            # Save to W&B if using
             if kwargs.track:
                 wandb.save(f"{wandb.run.dir}/agent.pt", policy="now")
 
 
-        # ALGO LOGIC: put action logic here
         epsilon = linear_schedule(args.start_e, args.end_e, args.exploration_fraction * args.total_timesteps, global_step)
         if random.random() < epsilon:
             actions = np.array([envs.single_action_space.sample() for _ in range(envs.num_envs)])
@@ -127,10 +122,8 @@ def train(kwargs):
             q_values = q_network(torch.Tensor(obs).to(device))
             actions = torch.argmax(q_values, dim=1).cpu().numpy()
 
-        # TRY NOT TO MODIFY: execute the game and log data.
         next_obs, rewards, terminations, truncations, infos = envs.step(actions)
 
-        # TRY NOT TO MODIFY: record rewards for plotting purposes
         if "final_info" in infos:
             for info in infos["final_info"]:
                 if info and "episode" in info:
@@ -138,12 +131,8 @@ def train(kwargs):
                     writer.add_scalar("charts/episodic_return", info["episode"]["r"], global_step)
                     writer.add_scalar("charts/episodic_length", info["episode"]["l"], global_step)
 
-        # TRY NOT TO MODIFY: save data to reply buffer; handle `final_observation`
+
         real_next_obs = next_obs.copy()
-        '''for idx, trunc in enumerate(truncations):
-            if trunc:
-                print(infos.keys())
-                real_next_obs[idx] = infos["final_observation"][idx]'''
         rb.add(obs, real_next_obs, actions, rewards, terminations, infos)
 
         # TRY NOT TO MODIFY: CRUCIAL step easy to overlook
@@ -152,7 +141,6 @@ def train(kwargs):
         if global_step % args.checkpoint_frequency == 0:
             writer.add_scalar("charts/average_reward", eval_policy(q_network, envs, kwargs, device), global_step)
 
-        # ALGO LOGIC: training.
         if global_step > args.learning_starts:
             if global_step % args.train_frequency == 0:
                 data = rb.sample(args.batch_size)
@@ -168,13 +156,10 @@ def train(kwargs):
                     print("SPS:", int(global_step / (time.time() - start_time)))
                     writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
             
-
-                # optimize the model
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
-
-            # update target network
+                
             if global_step % args.target_network_frequency == 0:
                 for target_network_param, q_network_param in zip(target_network.parameters(), q_network.parameters()):
                     target_network_param.data.copy_(

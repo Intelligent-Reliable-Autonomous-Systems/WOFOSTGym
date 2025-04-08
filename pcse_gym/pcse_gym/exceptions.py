@@ -1,4 +1,8 @@
-"""Handles all exceptions in the WOFOST Gym Package"""
+"""
+Handles all exceptions in the WOFOST Gym Package
+
+Written by Will Solow, 2024
+"""
 
 class WOFOSTGymError(Exception):
     """Top Level WOFOST Gym Exception"""

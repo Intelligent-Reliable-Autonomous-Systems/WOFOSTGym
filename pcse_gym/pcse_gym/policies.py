@@ -455,7 +455,7 @@ class Below_W(Policy):
 
 class BiWeekly_NW(Policy):
     """
-    Policy applying a small amount of Nitrogen at a given interval
+    Policy applying a small amount of Nitrogen and water at a biweekly
     """
     required_vars = ["DAYS"]
 
@@ -494,7 +494,7 @@ class BiWeekly_NW(Policy):
 
 class Monthly_NW(Policy):
     """
-    Policy applying a small amount of Nitrogen at a given interval
+    Policy applying a small amount of Nitrogen and water every month
     """
     required_vars = ["DAYS"]
 
@@ -528,4 +528,4 @@ class Monthly_NW(Policy):
         """
         Returns a human readable string
         """
-        return f"BiWeekly NW"
+        return f"Montly NW"

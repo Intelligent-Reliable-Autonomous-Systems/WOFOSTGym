@@ -1,18 +1,19 @@
+"""
+Code to train GAIL Agent
+
+Written by Will Solow, 2025
+"""
+
 import numpy as np
 import gymnasium as gym
 from stable_baselines3 import PPO
-from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.ppo import MlpPolicy
 
 from imitation.algorithms.adversarial.gail import GAIL as GAIL_ALG
-from imitation.data import rollout
-from imitation.data.wrappers import RolloutInfoWrapper
-from imitation.policies.serialize import load_policy
 from imitation.rewards.reward_nets import BasicRewardNet
 from imitation.util.networks import RunningNorm
-from imitation.util.util import make_vec_env
 
-from .rl_utils import RL_Args, Agent, setup, eval_policy, make_demonstrations
+from .rl_utils import RL_Args, setup, make_demonstrations
 from typing import Optional
 from dataclasses import dataclass
 import utils
@@ -44,7 +45,6 @@ class GAIL(nn.Module):
     def __init__(self, envs, state_fpath:str=None, **kwargs):
         super().__init__()
         self.env = envs
-
         
         self.agent  = PPO(
             env=envs,
@@ -96,7 +96,7 @@ class GAIL(nn.Module):
         """
         Train the agent
         """
-        self.gail_trainer.train(train_steps)  # Train for 800_000 steps to match expert.
+        self.gail_trainer.train(train_steps)
         self.policy = self.gail_trainer.gen_algo.policy
 
     def get_action(self, x):
@@ -109,7 +109,9 @@ class GAIL(nn.Module):
 
 
 def train(kwargs):
-
+    """
+    GAIL Training Function
+    """
     args = kwargs.GAIL
     run_name = f"GAIL/{kwargs.env_id}__{args.exp_name}__{args.seed}__{int(time.time())}"
     
@@ -122,8 +124,7 @@ def train(kwargs):
             )
 
     agent = GAIL(envs, reward_net=reward_net, demo_batch_size=args.demo_batch_size, gen_replay_buffer_capacity=args.gen_replay_buffer_capacity, n_disc_updates_per_round=args.n_disc_updates_per_round)
-    # Initialize demonstration agent
-    # Get the agent constructor from RL_Algs
+    
     try:
         ag_constr = utils.get_valid_agents()[args.demo_agent_type]
         policy = ag_constr(envs)

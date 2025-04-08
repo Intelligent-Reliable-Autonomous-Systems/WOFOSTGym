@@ -2,6 +2,8 @@
 application.
 
 Used for perennial crop simulations.
+
+Written by Will Solow, 2025
 """
 
 import gymnasium as gym

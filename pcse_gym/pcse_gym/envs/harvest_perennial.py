@@ -1,7 +1,9 @@
 """Main API for simulating crop growth NPK fertilization and irrigation actions
 and the inclusion of planting and harvesting of the crop.
 
-Used for single year annual crop simulations.
+Used for single year harvesting perennial crop simulations.
+
+Written by Will Solow, 2025
 """
 import gymnasium as gym
 
@@ -79,7 +81,6 @@ class Perennial_Harvest_Limited_NPKW_Env(Harvest_NPK_Env, LNPKW):
         # Fertilizaiton action, correct for 2 crop specific actions (harvest/plant) and null action
         if action >= 3:
             action -= 2
-            # Nitrogen fertilization
             if action // self.num_fert == 0:
                 n_amount = self.fert_amount * ((action % self.num_fert) + 1) 
                 self.model._send_signal(signal=pcse.signals.apply_npk, \
@@ -187,7 +188,6 @@ class Perennial_Harvest_Limited_NPK_Env(Harvest_NPK_Env, LNPK):
         # Fertilizaiton action, correct for 2 crop specific actions (harvest/plant) and null action
         if action >= 2:
             action -= 2
-            # Nitrogen fertilization
             if action // self.num_fert == 0:
                 n_amount = self.fert_amount * ((action % self.num_fert) + 1) 
                 self.model._send_signal(signal=pcse.signals.apply_npk, \
@@ -249,7 +249,6 @@ class Perennial_Harvest_Limited_N_Env(Harvest_NPK_Env, LN):
         # Fertilizaiton action, correct for 2 crop specific actions (harvest/plant) and null action
         if action >= 2:
             action -= 2
-            # Nitrogen fertilization
             if action // self.num_fert == 0:
                 n_amount = self.fert_amount * ((action % self.num_fert) + 1) 
                 self.model._send_signal(signal=pcse.signals.apply_npk, \

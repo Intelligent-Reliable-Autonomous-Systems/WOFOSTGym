@@ -1,11 +1,13 @@
 """
 Utility functions for RL algorithms
+
+Written by Will Solow, 2025
 """
 import sys
 from pathlib import Path
 import gymnasium as gym
 import numpy as np
-from pcse_gym.envs.wofost_base import NPK_Env, Plant_NPK_Env, Harvest_NPK_Env
+from pcse_gym.envs.wofost_base import Plant_NPK_Env, Harvest_NPK_Env
 from dataclasses import dataclass
 import os
 from typing import Optional
@@ -22,7 +24,6 @@ import utils
 
 @dataclass 
 class RL_Args:
-    # Experiment configuration
     exp_name: str = os.path.basename(__file__)[: -len(".py")]
     """the name of this experiment"""
     seed: int = 1
@@ -91,7 +92,6 @@ def setup(kwargs, args, run_name):
         "|param|value|\n|-|-|\n%s" % ("\n".join([f"|{key}|{value}|" for key, value in vars(args).items()])),
     )
 
-    # TRY NOT TO MODIFY: seeding
     random.seed(args.seed)
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
@@ -99,7 +99,6 @@ def setup(kwargs, args, run_name):
 
     device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
 
-    # env setup
     envs = gym.vector.SyncVectorEnv(
         [make_env(kwargs, i, args.capture_video, run_name) for i in range(args.num_envs)],
     )
@@ -173,7 +172,6 @@ def load_data_to_buffer(env, data_path:str, buffer, remove_keys=True):
     assert isinstance(data_path, str), f"data_path must be of type `str` but is of type {type(data_path)}"
     assert data_path.endswith(".npz"), f"File must end with `.npz` format"
 
-    # Load data in .npz format
     data = np.load(data_path, allow_pickle=True)
     obs = data['obs']
     next_obs = data['next_obs']
@@ -183,7 +181,6 @@ def load_data_to_buffer(env, data_path:str, buffer, remove_keys=True):
 
     assert len(obs[0]) == len(buffer.observation_space.sample()), f"Invalid data for configuration! Data observations do not match the observations required for algorithm. Update Environment configuration using `--npk-args.output-vars` and `--npk-args.weather-vars`"
 
-    # Convert observations to lists
     if remove_keys:
         for i in range(len(obs)):
             if isinstance(obs[i], dict):
@@ -221,7 +218,6 @@ def convert_action(env, act: dict):
         if len(np.nonzero(act_vals)[0]) > 1:
             msg = "More than one non-zero action value for policy"
             raise Exception(msg)
-        # If no actions specified, assume that we mean the null action
         if len(np.nonzero(act_vals)[0]) == 0:
             return np.array([0])
     
@@ -240,7 +236,6 @@ def convert_action(env, act: dict):
 
     # Planting Single Year environments
     if isinstance(env.unwrapped, Plant_NPK_Env):
-        # Check for planting and harvesting actions
         if not "plant" in act.keys():
             msg = "\'plant\' not included in action dictionary keys"
             raise Exception(msg)
@@ -251,13 +246,11 @@ def convert_action(env, act: dict):
             msg = "Incorrect action dictionary specification"
             raise Exception(msg)
         
-        # Set the offsets to support converting to the correct action
         offsets = [1,1,env.unwrapped.num_fert,env.unwrapped.num_fert,env.unwrapped.num_fert,env.unwrapped.num_irrig]
         act_values = [act["plant"],act["harvest"],act["n"],act["p"],act["k"],act["irrig"]]
         offset_flags = np.zeros(env.unwrapped.NUM_ACT)
         offset_flags[:np.nonzero(act_values)[0][0]] = 1
 
-    # Harvesting Single Year environments
     elif isinstance(env.unwrapped, Harvest_NPK_Env):
         # Check for harvesting actions
         if not "harvest" in act.keys():
@@ -273,7 +266,6 @@ def convert_action(env, act: dict):
         offset_flags = np.zeros(env.unwrapped.NUM_ACT)
         offset_flags[:np.nonzero(act_values)[0][0]] = 1
 
-    # Default environments
     else: 
         if len(act.keys()) != env.unwrapped.NUM_ACT:
             msg = "Incorrect action dictionary specification"
@@ -288,6 +280,9 @@ def convert_action(env, act: dict):
 
 
 def make_demonstrations(expert, env, min_episodes=50):
+    """
+    Make demonstrations for IRL algorithms
+    """
     rollouts = rollout.rollout(
     expert,
     env,

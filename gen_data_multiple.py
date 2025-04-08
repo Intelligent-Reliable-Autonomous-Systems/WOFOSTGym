@@ -12,11 +12,12 @@ To run: python3 gen_data.py --save-folder <Location to save folder> --data-file 
 import gymnasium as gym
 import numpy as np
 import pcse_gym
-import pandas as pd
 import torch
-import os
 
 import tyro
+from dataclasses import dataclass
+from typing import Optional
+
 import utils
 import pcse_gym.policies as policies
 from rl_algs.rl_utils import make_env_pass, Agent
@@ -24,8 +25,10 @@ from rl_algs.PPO import PPO
 from rl_algs.DQN import DQN
 from rl_algs.SAC import SAC
 from rl_algs.BCQ import BCQ
-from dataclasses import dataclass
-from typing import Optional
+from rl_algs.AIRL import AIRL
+from rl_algs.BC import BC
+from rl_algs.GAIL import GAIL
+
 
 @dataclass
 class DataArgs(utils.Args):
@@ -69,17 +72,13 @@ def npz_multiple(envs, args, pols, pols_kwargs):
     assert isinstance(args.data_file, str), f"File args.data_file `{args.data_file}` must be of type `str`"
     assert len(pols) == len(pols_kwargs), f"Length of Policies and Policy kwargs do not match."
 
-    # Set the location of the weather data 
     years = np.arange(start=args.year_low,stop=args.year_high+1,step=1)
     latitudes = np.arange(start=args.lat_low,stop=args.lat_high+.5,step=.5)
     longitudes = np.arange(start=args.lon_low,stop=args.lon_high+.5,step=.5)
 
     lat_long = [(i,j) for i in latitudes for j in longitudes]
-    
-    # Create all the location-year pairs 
     loc_yr = [[loc, yr] for yr in years for loc in lat_long]
 
-    # Go through every year possibility
     obs_arr = [[[] for _ in range(len(pols))] for _ in range(len(envs))]
     next_obs_arr = [[[] for _ in range(len(pols))] for _ in range(len(envs))]
     action_arr = [[[] for i in range(len(pols))] for _ in range(len(envs))]
@@ -89,12 +88,10 @@ def npz_multiple(envs, args, pols, pols_kwargs):
     for i, env in enumerate(envs):
         for j, pol_constr in enumerate(pols):
 
-            # Wrap environment as needed for pre specified policy
             if issubclass(pol_constr, pcse_gym.policies.Policy):
                 base_env = env
                 env = pcse_gym.wrappers.NPKDictObservationWrapper(env)
                 env = pcse_gym.wrappers.NPKDictActionWrapper(env)
-            # Otherwise wrap with sync vector env
             elif issubclass(pol_constr, Agent):
                 base_env = env 
                 env = gym.vector.SyncVectorEnv([make_env_pass(env) for _ in range(1)],)
@@ -102,7 +99,6 @@ def npz_multiple(envs, args, pols, pols_kwargs):
             pol = pol_constr(env, **pols_kwargs[j])
 
             for pair in loc_yr:
-                # Reset Gym environment to desired location and year 
                 if isinstance(env, gym.vector.SyncVectorEnv):
                     ob_tens = []
                     for _, single_env in enumerate(env.envs):
@@ -114,11 +110,12 @@ def npz_multiple(envs, args, pols, pols_kwargs):
 
                 done = False
                 while not done:
-                    # Cast to tensor for PyTorch compatability
                     if isinstance(pol, Agent) and isinstance(obs, np.ndarray):
                         obs = torch.from_numpy(obs).float()
+
                     action = pol.get_action(obs)
                     next_obs, reward, done, trunc, _ = env.step(action)
+
                     obs_arr[i][j].append(utils.obs_to_numpy(obs))
                     next_obs_arr[i][j].append(utils.obs_to_numpy(next_obs))
                     action_arr[i][j].append(utils.action_to_numpy(env, action))
@@ -130,7 +127,6 @@ def npz_multiple(envs, args, pols, pols_kwargs):
                         obs, _ = env.reset()
                         break   
            
-            # Unwrap environment
             if isinstance(pol, pcse_gym.policies.Policy):
                 env = base_env
             elif isinstance(pol, Agent):
@@ -155,7 +151,6 @@ if __name__ == "__main__":
     config_fpaths = ["data/Jujube_Threshold_WK_Rand/config.yaml"]
     envs = utils.make_gym_envs(args, config_fpaths=config_fpaths)
 
-    # Wrap environment with necessary wrappers
     envs = [utils.wrap_env_reward(env, args) for env in envs]
     for env in envs:
         env.random_reset = False
@@ -174,7 +169,8 @@ if __name__ == "__main__":
                 {"state_fpath":"data/Potato_Limited_WK_Rand/PPO/lnpkw-v0__rl_utils__1__1738213411/agent.pt"}, # No total N/NAvail
                 {"state_fpath":"data/Potato_Limited_WK_Rand/PPO/lnpkw-v0__rl_utils__1__1738213417/agent.pt"}, #No total N/Rain 
                 ]'''
-    # Generate multiple batches of data
+
+
     npz_multiple(envs, args, pols, pols_kwargs)
 
 

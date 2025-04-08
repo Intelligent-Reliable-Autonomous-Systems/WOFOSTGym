@@ -66,14 +66,14 @@ Recommended Installation Method:
 2. git clone git@github.com:Intelligent-Reliable-Autonomous-Systems/WOFOSTGym.git
 3. conda create -n <conda env name> python=3.12
 4. conda activate <conda env name>
-5. pip install -e pcse
+5. pip install -e pcse -e pcse_gym
 6. pip install -e pcse_gym
-7. pip install -r requirements.txt
+7. pip install tyro torch omegaconf wandb tensorboard
 
 For Gail/BC experiments: 
 
-8. pip install -e imitation 
-9. pip install -e stable-baselines3
+8. pip install -e imitation -e stable-baselines3
+9. pip install tqdm huggingface_sb3
 
 These commands will install all the required packages into the conda environment
 needed to run all scripts in the agaid_crop_simulator package
@@ -82,7 +82,7 @@ needed to run all scripts in the agaid_crop_simulator package
 
 After following the above installation instructions: 
 1. Navigate to the base directory ../wofost-gym/
-2. Run the testing domain with: python3 test_wofost.py --save-folder logs/test/. This will generate a sample output using default configurations 
+2. Run the testing domain with: python3 test_wofost.py --save-folder test/ --date-file test. This will generate a sample output using default configurations 
 3. This may take a few seconds initially to configure the weather directory
 
 ### Use Cases:
@@ -92,13 +92,13 @@ After following the above installation instructions:
         - `python3 gen_data.py --save-folder <Location> --data-file <Filename> --policy-name <Name of Policy>`
     2. To generate data with a trained RL Agent based policy:
         - `python3 gen_data.py --save-folder <Location> --data-file <Filename> --agent-type <PPO | DQN | etc> --agent-path <Location/agent_name.pt>`
-    3. NOTE: Use `--load-config-fpath` <Relative Path to Config> to load an environment configuration from a config.yaml file. If `None`, the default configuration will be used.
+    3. NOTE: Use `--config-fpath` <Relative Path to Config> to load an environment configuration from a config.yaml file. If `None`, the default configuration will be used.
 
 * To train an RL Agent: 
     1. `python3 train_agent.py --save-folder <Location> --agent-type <PPO | DQN | etc>`
     2. Use `--<Agent_Type: PPO|DQN|etc>.<Agent_Specific_Args>` to specify algorithm specific arguments
     3. To track using Weights and Biases add `--<Agent_Type: PPO|DQN|etc>.track`
-    3. NOTE: Use `--load-config-fpath` <Relative Path to Config> to load an environment configuration from a config.yaml file. If `None`, the default configuration will be used. This works for loading previous Agent Configurations as well
+    3. NOTE: Use `--config-fpath` <Relative Path to Config> to load an environment configuration from a config.yaml file. If `None`, the default configuration will be used. This works for loading previous Agent Configurations as well
 
 ## Help
 
@@ -147,6 +147,8 @@ Dr. Alan Fern (alan.fern@oregonstate.edu) - Project Lead
 
 * 1.0.0
     * Initial Release
+* 1.1.0
+    * Upgraded to Python 3.12, many small fixes in documentation
 
 ## License
 

@@ -1,12 +1,14 @@
-"""Core API for environment wrappers for handcrafted policies and varying rewards."""
+"""
+Core API for environment wrappers for handcrafted policies and varying rewards
+
+Written by Will Solow, 2024
+"""
 
 import numpy as np
 import gymnasium as gym
 from gymnasium.spaces import Dict, Discrete, Box
 from abc import abstractmethod, ABC
 import torch
-
-from pcse_gym.utils import ParamLoader
 
 from pcse_gym.envs.wofost_base import NPK_Env, Plant_NPK_Env, Harvest_NPK_Env, Multi_NPK_Env
 from pcse_gym.envs.wofost_base import LNPKW, LNPK, PP, LNW, LN, LW
@@ -240,7 +242,7 @@ class NPKDictActionWrapper(gym.ActionWrapper):
             if len(np.nonzero(act_vals)[0]) > 1:
                 msg = "More than one non-zero action value for policy"
                 raise exc.ActionException(msg)
-            # If no actions specified, assume that we mean the null action
+
             if len(np.nonzero(act_vals)[0]) == 0:
                 return 0
         
@@ -259,7 +261,7 @@ class NPKDictActionWrapper(gym.ActionWrapper):
 
         # Planting Single Year environments
         if isinstance(self.env.unwrapped, Plant_NPK_Env):
-            # Check for planting and harvesting actions
+
             if not "plant" in act.keys():
                 msg = "\'plant\' not included in action dictionary keys"
                 raise exc.ActionException(msg)
@@ -269,8 +271,7 @@ class NPKDictActionWrapper(gym.ActionWrapper):
             if len(act.keys()) != self.env.unwrapped.NUM_ACT:
                 msg = "Incorrect action dictionary specification"
                 raise exc.ActionException(msg)
-            
-            # Set the offsets to support converting to the correct action
+
             offsets = [1,1,self.num_fert,self.num_fert,self.num_fert,self.num_irrig]
             act_values = [act["plant"],act["harvest"],act["n"],act["p"],act["k"],act["irrig"]]
             offset_flags = np.zeros(self.env.unwrapped.NUM_ACT)
@@ -278,7 +279,7 @@ class NPKDictActionWrapper(gym.ActionWrapper):
 
         # Harvesting Single Year environments
         elif isinstance(self.env.unwrapped, Harvest_NPK_Env):
-            # Check for harvesting actions
+
             if not "harvest" in act.keys():
                 msg = "\'harvest\' not included in action dictionary keys"
                 raise exc.ActionException(msg)
@@ -286,7 +287,6 @@ class NPKDictActionWrapper(gym.ActionWrapper):
                 msg = "Incorrect action dictionary specification"
                 raise exc.ActionException(msg)
             
-            # Set the offsets to support converting to the correct action
             offsets = [1,self.num_fert,self.num_fert,self.num_fert,self.num_irrig]
             act_values = [act["harvest"],act["n"],act["p"],act["k"],act["irrig"]]
             offset_flags = np.zeros(self.env.unwrapped.NUM_ACT)
@@ -297,7 +297,7 @@ class NPKDictActionWrapper(gym.ActionWrapper):
             if len(act.keys()) != self.env.unwrapped.NUM_ACT:
                 msg = "Incorrect action dictionary specification"
                 raise exc.ActionException(msg)
-            # Set the offsets to support converting to the correct action
+            
             offsets = [self.num_fert,self.num_fert,self.num_fert,self.num_irrig]
             act_values = [act["n"],act["p"],act["k"],act["irrig"]]
             offset_flags = np.zeros(self.env.unwrapped.NUM_ACT)
@@ -364,7 +364,7 @@ class RewardWrapper(gym.Wrapper, ABC):
         if isinstance(action, dict):
             msg = f"Action must be of type `int` but is of type `dict`. Wrap environment in `pcse_gym.wrappers.NPKDictActionWrapper` before proceeding."
             raise Exception(msg)
-        # Send action signal to model and run model
+
         act_tuple = self.env.unwrapped._take_action(action)
   
         output = self.env.unwrapped._run_simulation()
@@ -382,6 +382,7 @@ class RewardWrapper(gym.Wrapper, ABC):
             termination = output[-1]['FIN'] == 1.0 or output[-1]['FIN'] is None
             if output[-1]['FIN'] is None:
                 observation = np.nan_to_num(observation)
+
         # Truncate based on site end date
         truncation = self.env.unwrapped.date >= self.env.unwrapped.site_end_date
 
@@ -389,6 +390,7 @@ class RewardWrapper(gym.Wrapper, ABC):
             self.env.unwrapped._log([output[i][-1]['WSO'] for i in range(self.env.unwrapped.num_farms)], act_tuple, reward)
         else:
             self.env.unwrapped._log(output[-1]['WSO'], act_tuple, reward)
+            
         return observation, reward, termination, truncation, self.env.unwrapped.log
         
     def reset(self, **kwargs):

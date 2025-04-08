@@ -2,6 +2,8 @@
 application.
 
 Used for multi-year multi-farm perennial simulations.
+
+Written by Will Solow, 2025
 """
 
 import gymnasium as gym

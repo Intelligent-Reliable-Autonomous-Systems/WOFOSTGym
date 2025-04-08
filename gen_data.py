@@ -15,13 +15,14 @@ import pcse_gym
 import pandas as pd
 import torch
 import os
-
 import tyro
+from dataclasses import dataclass
+from typing import Optional
+
 import utils
 import pcse_gym.policies as policies
 from rl_algs.rl_utils import make_env
-from dataclasses import dataclass
-from typing import Optional
+
 
 @dataclass
 class DataArgs(utils.Args):
@@ -67,41 +68,32 @@ def csv(env, args, pol):
     assert args.save_folder.endswith("/"), f"Folder args.save_folder `{args.save_folder}` must end with `/`"
     assert isinstance(args.data_file, str), f"File args.data_file `{args.data_file}` must be of type `str`"
 
-    # Set the location of the weather data 
     years = np.arange(start=args.year_low,stop=args.year_high+1,step=1)
     latitudes = np.arange(start=args.lat_low,stop=args.lat_high+.5,step=.5)
     longitudes = np.arange(start=args.lon_low,stop=args.lon_high+.5,step=.5)
 
     lat_long = [(i,j) for i in latitudes for j in longitudes]
-    
-    # Create all the location-year pairs 
     loc_yr = [[loc, yr] for yr in years for loc in lat_long]
 
-    # Data list, to convert to array later
-
-    # Go through every year possibility
     obs_arr = []
-    # Call env.reset to update the parameters
     _, _ = env.reset()
     for pair in loc_yr:
-        # Reset Gym environment to desired location and year 
         obs, _ = env.reset(**{'year':pair[1], 'location':pair[0]})
 
         done = False
         while not done:
-            # Cast to tensor for PyTorch compatability
             if args.agent_type:
                 obs = torch.from_numpy(obs).float()
             action = pol.get_action(obs)
             next_obs, reward, done, trunc, _ = env.step(action)
-            # Append data/location, observation and reward
+
             obs_arr.append(utils.obs_to_numpy(obs))
 
             obs = next_obs
             if done:
                 obs, _ = env.reset()
                 break
-    # Save all data as dataframe
+
     df = pd.DataFrame(data=obs_arr, columns=env.unwrapped.output_vars+env.unwrapped.weather_vars+["DAYS ELAPSED"])
     df.to_csv(f'{args.save_folder}{args.data_file}.csv', index=False)
     
@@ -115,17 +107,13 @@ def npz(env, args, pol):
     assert args.save_folder.endswith("/"), f"Folder args.save_folder `{args.save_folder}` must end with `/`"
     assert isinstance(args.data_file, str), f"File args.data_file `{args.data_file}` must be of type `str`"
 
-    # Set the location of the weather data 
     years = np.arange(start=args.year_low,stop=args.year_high+1,step=1)
     latitudes = np.arange(start=args.lat_low,stop=args.lat_high+.5,step=.5)
     longitudes = np.arange(start=args.lon_low,stop=args.lon_high+.5,step=.5)
 
-    lat_long = [(i,j) for i in latitudes for j in longitudes]
-    
-    # Create all the location-year pairs 
+    lat_long = [(i,j) for i in latitudes for j in longitudes] 
     loc_yr = [[loc, yr] for yr in years for loc in lat_long]
 
-    # Go through every year possibility
     obs_arr = []
     next_obs_arr = []
     action_arr = []
@@ -134,12 +122,10 @@ def npz(env, args, pol):
     info_arr = []
 
     for pair in loc_yr:
-        # Reset Gym environment to desired location and year 
         obs, _ = env.reset(**{'year':pair[1], 'location':pair[0]})
 
         done = False
         while not done:
-            # Cast to tensor for PyTorch compatability
             if args.agent_type:
                 obs = torch.from_numpy(obs).float().to('cuda')
             action = pol.get_action(obs)
@@ -177,7 +163,6 @@ if __name__ == "__main__":
     Runs the data collection
     """
 
-    # Create environment
     args = tyro.cli(DataArgs)
     env = utils.make_gym_env(args)
     env = utils.wrap_env_reward(env, args)
@@ -187,8 +172,7 @@ if __name__ == "__main__":
 
     env.random_reset = False
     env.domain_rand = False
-    if args.policy_name:
-        # Load policy name if it is valid
+    if args.policy_name: # Pre specified policies
         env = pcse_gym.wrappers.NPKDictObservationWrapper(env)
         env = pcse_gym.wrappers.NPKDictActionWrapper(env)
         try:
@@ -199,15 +183,13 @@ if __name__ == "__main__":
             msg = f'No policy {args.policy_name} found in policies.py'
             raise Exception(msg)
 
-    else:
-        # Check if we have the correct arguments to load an agent
+    else: # PyTorch Agents
         assert isinstance(args.agent_path, str), f" `--args.agent-path` is `{args.agent_path}` (incorrectly specified) and no Pre Specified Policy is provided"
         assert os.path.isfile(f"{os.getcwd()}/{args.agent_path}"), f"`{args.agent_path}` is not a valid file"
         assert args.agent_path.endswith(".pt"), f"`{args.agent_path}` must be a valid `.pt` file"
 
         envs = gym.vector.SyncVectorEnv([make_env(args) for i in range(1)],)
         
-        # Get the agent constructor from RL_Algs
         try:
             ag_constr = utils.get_valid_agents()[args.agent_type]
             policy = ag_constr(envs)
@@ -226,7 +208,6 @@ if __name__ == "__main__":
             msg = "Error in loading state dict. Likely caused by loading an agent.pt file with incompatible `args.agent_type`"
             raise Exception(msg)
         
-    # Get the data function specified by the policy name
     try: 
         data_func = utils.get_functions(__import__(__name__))[args.file_type]
     except:

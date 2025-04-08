@@ -2,6 +2,8 @@
 application.
 
 Used for single year annual crop simulations.
+
+Written by Will Solow, 2024
 """
 
 import gymnasium as gym

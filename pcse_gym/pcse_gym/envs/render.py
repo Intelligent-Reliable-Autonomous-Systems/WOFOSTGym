@@ -1,8 +1,17 @@
+"""
+Simulation rendering for WOFOFSTGym
+
+Written by Will Solow, 2025
+"""
+
 import pygame
 import matplotlib.cm as cm
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 def render(env):
+    """
+    Render the environment
+    """
     if env.render_mode is None:
             return
     if env.screen is None:
@@ -24,23 +33,22 @@ def render(env):
     """Title Text"""
     crop = env.agromanagement["CropCalendar"]["crop_name"]
     variety = env.agromanagement["CropCalendar"]["crop_variety"]
-    title_font = pygame.font.Font(None, 64)  # Use default font, size 48
+    title_font = pygame.font.Font(None, 64) 
     title_surface = title_font.render(f"Growing {crop}: {variety}", True, (0, 0, 0))
     title_rect = title_surface.get_rect(center=(env.screen_width // 2, 1*env.screen_height/20))  
     env.screen.blit(title_surface, title_rect)
 
     """Day text"""
     date = env.agromanagement["SiteCalendar"]["site_start_date"] + timedelta(obs_dict["DAYS"])
-    date_font = pygame.font.Font(None, 40)  # Use default font, size 48
+    date_font = pygame.font.Font(None, 40) 
     date_surface = date_font.render(f"Date: {date}", True, (0, 0, 0))
     date_rect = date_surface.get_rect(center=(env.screen_width // 2, 18.5*env.screen_height/20))  
     env.screen.blit(date_surface, date_rect)
 
-    elapsed_font = pygame.font.Font(None, 36)  # Use default font, size 48
+    elapsed_font = pygame.font.Font(None, 36)  
     elapsed_surface = elapsed_font.render(f"Days Elapsed: {int(obs_dict['DAYS'])}", True, (0, 0, 0))
     elapsed_rect = elapsed_surface.get_rect(center=(env.screen_width // 2, 19.5*env.screen_height/20))  
     env.screen.blit(elapsed_surface, elapsed_rect)
-
 
     """Crop State"""
     if obs_dict["DVS"] < 0:
@@ -69,11 +77,11 @@ def render(env):
         env.screen, 
         (144, 238, 144), 
         (crop_x-2, crop_y-2, crop_size[0]+4, crop_size[1]+4), 
-        5 # Thickness
+        5 
     )
 
     """Draw font below crop"""
-    font = pygame.font.Font(None, 48)  # Use default font, size 48
+    font = pygame.font.Font(None, 48) 
     text_surface = font.render(f"Crop State: {crop_text}", True, (0, 0, 0))
     text_rect = text_surface.get_rect(center=(env.screen_width // 2, 1*env.screen_height/3 + crop_size[1]/2+25))  
     env.screen.blit(text_surface, text_rect)
@@ -96,7 +104,7 @@ def render(env):
     pygame.draw.rect(env.screen, (0,0,0), wso_rect, 3)
 
     """Draw font below harvest"""
-    wso_font = pygame.font.Font(None, 36)  # Use default font, size 48
+    wso_font = pygame.font.Font(None, 36) 
     wso_surface = wso_font.render(f"Yield (kg/ha): {obs_dict['WSO']:0.0f}", True, (0, 0, 0))
     wso_text_rect = wso_surface.get_rect(center=(wso_x + wso_size[0] // 2, wso_y+wso_size[1]+15))  
     env.screen.blit(wso_surface, wso_text_rect)
@@ -144,17 +152,17 @@ def render(env):
     pygame.draw.rect(env.screen, (0,0,0), rain_rect, 3)
 
     """Draw font below weather"""
-    irrad_font = pygame.font.Font(None, 36)  # Use default font, size 48
+    irrad_font = pygame.font.Font(None, 36)  
     irrad_surface = irrad_font.render(f"IRRAD: {obs_dict['IRRAD']:0.1e}", True, (0, 0, 0))
     irrad_text_rect = irrad_surface.get_rect(center=(irrad_x + weather_size[0] // 2, irrad_y+weather_size[1]+15))  
     env.screen.blit(irrad_surface, irrad_text_rect)
 
-    rain_font = pygame.font.Font(None, 36)  # Use default font, size 48
+    rain_font = pygame.font.Font(None, 36)  
     rain_surface = rain_font.render(f"RAIN: {obs_dict['RAIN']:0.2f}", True, (0, 0, 0))
     rain_text_rect = rain_surface.get_rect(center=(rain_x + weather_size[0] // 2, rain_y+weather_size[1]+15))  
     env.screen.blit(rain_surface, rain_text_rect)
 
-    temp_font = pygame.font.Font(None, 36)  # Use default font, size 48
+    temp_font = pygame.font.Font(None, 36) 
     temp_surface = temp_font.render(f"TEMP: {obs_dict['TEMP']:0.1f}", True, (0, 0, 0))
     temp_text_rect = temp_surface.get_rect(center=(temp_x + weather_size[0] // 2, temp_y+weather_size[1]+15))  
     env.screen.blit(temp_surface, temp_text_rect)
@@ -212,22 +220,22 @@ def render(env):
     pygame.draw.rect(env.screen, (0,0,0), w_rect, 3)
 
     """Draw font below weather"""
-    n_font = pygame.font.Font(None, 36)  # Use default font, size 48
+    n_font = pygame.font.Font(None, 36)  
     n_surface = n_font.render(f"N (kg/ha): {obs_dict['TOTN']:0.0f}", True, (0, 0, 0))
     n_text_rect = n_surface.get_rect(center=(n_x + fert_size[0] // 2, n_y+fert_size[1]+15))  
     env.screen.blit(n_surface, n_text_rect)
 
-    p_font = pygame.font.Font(None, 36)  # Use default font, size 48
+    p_font = pygame.font.Font(None, 36)  
     p_surface = p_font.render(f"P (kg/ha): {obs_dict['TOTP']:0.0f}", True, (0, 0, 0))
     p_text_rect = p_surface.get_rect(center=(p_x + fert_size[0] // 2, p_y+fert_size[1]+15))  
     env.screen.blit(p_surface, p_text_rect)
 
-    k_font = pygame.font.Font(None, 36)  # Use default font, size 48
+    k_font = pygame.font.Font(None, 36) 
     k_surface = k_font.render(f"K (kg/ha): {obs_dict['TOTK']:0.0f}", True, (0, 0, 0))
     k_text_rect = k_surface.get_rect(center=(k_x + fert_size[0] // 2, k_y+fert_size[1]+15))  
     env.screen.blit(k_surface, k_text_rect)
 
-    w_font = pygame.font.Font(None, 36)  # Use default font, size 48
+    w_font = pygame.font.Font(None, 36)  
     w_surface = w_font.render(f"Water (cm/ha): {obs_dict['TOTIRRIG']:0.0f}", True, (0, 0, 0))
     w_text_rect = w_surface.get_rect(center=(w_x + fert_size[0] // 2, w_y+fert_size[1]+15))  
     env.screen.blit(w_surface, w_text_rect)

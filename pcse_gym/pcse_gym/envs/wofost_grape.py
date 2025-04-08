@@ -2,6 +2,8 @@
 application.
 
 Used for Grape crop simulations.
+
+Written by Will Solow, 2024
 """
 
 import gymnasium as gym

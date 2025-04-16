@@ -296,10 +296,11 @@ class NPK_Soil_Dynamics(SimulationObject):
         self._FERT_P_SUPPLY = 0.
         self._FERT_K_SUPPLY = 0.
 
+        DTSR = k.MDTSR if "MDTSR" in k else k.DTSR
         # Compute runoff rates
-        r.RRUNOFF_N = s.SURFACE_N * p.RNPKRUNOFF(k.DTSR)
-        r.RRUNOFF_P = s.SURFACE_P * p.RNPKRUNOFF(k.DTSR)
-        r.RRUNOFF_K = s.SURFACE_K * p.RNPKRUNOFF(k.DTSR)
+        r.RRUNOFF_N = s.SURFACE_N * p.RNPKRUNOFF(DTSR)
+        r.RRUNOFF_P = s.SURFACE_P * p.RNPKRUNOFF(DTSR)
+        r.RRUNOFF_K = s.SURFACE_K * p.RNPKRUNOFF(DTSR)
 
         # Relative rate of surface N to subsoil
         r.RNSUBSOIL = min(p.RNSOILMAX, s.SURFACE_N * p.RNABSORPTION)

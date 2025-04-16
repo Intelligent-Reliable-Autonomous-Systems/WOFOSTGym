@@ -8,8 +8,13 @@ from datetime import date
 from ..utils.traitlets import Instance
 from ..nasapower import WeatherDataProvider
 from ..base import SimulationObject, VariableKiosk
+
 from .classic_waterbalance import WaterbalanceFD
 from .classic_waterbalance import WaterbalancePP
+
+from .multilayer_waterbalance import WaterBalanceLayered
+from .multilayer_waterbalance import WaterBalanceLayered_PP
+
 from .npk_soil_dynamics import NPK_Soil_Dynamics
 from .npk_soil_dynamics import NPK_Soil_Dynamics_PP
 from .npk_soil_dynamics import NPK_Soil_Dynamics_LN
@@ -133,7 +138,110 @@ class SoilModuleWrapper_LN(BaseSoilModuleWrapper):
         self.WaterbalanceFD = WaterbalancePP(day, kiosk, parvalues)
         self.NPK_Soil_Dynamics = NPK_Soil_Dynamics_LN(day, kiosk, parvalues)
 
+class LayeredSoilModuleWrapper_LNPKW(BaseSoilModuleWrapper):
+    """This wraps the layered soil water balance for free drainage conditions and NPK balance
+    for production conditions limited by both soil water and NPK.
+    """
 
+    def initialize(self, day:date, kiosk:VariableKiosk, parvalues:dict):
+        """
+        :param day: start date of the simulation
+        :param kiosk: variable kiosk of this PCSE instance
+        :param parvalues: dictionary with parameter key/value pairs
+        """
+        self.WaterbalanceFD = WaterBalanceLayered(day, kiosk, parvalues)
+        self.NPK_Soil_Dynamics = NPK_Soil_Dynamics(day, kiosk, parvalues)
+
+class LayeredSoilModuleWrapper_PP(BaseSoilModuleWrapper):
+    """This wraps the layered soil water balance for free drainage conditions and NPK balance
+    for potential production with unlimited water and NPK.
+    """
+    WaterbalanceFD = Instance(SimulationObject)
+    NPK_Soil_Dynamics = Instance(SimulationObject)
+
+    def initialize(self, day:date, kiosk:VariableKiosk, parvalues:dict):
+        """
+        :param day: start date of the simulation
+        :param kiosk: variable kiosk of this PCSE instance
+        :param parvalues: dictionary with parameter key/value pairs
+        """
+        self.WaterbalanceFD = WaterBalanceLayered_PP(day, kiosk, parvalues)
+        self.NPK_Soil_Dynamics = NPK_Soil_Dynamics_PP(day, kiosk, parvalues)
+
+class LayeredSoilModuleWrapper_LW(BaseSoilModuleWrapper):
+    """This wraps the layered soil water balance for free drainage conditions and NPK balance
+    for production conditions limited by soil water.
+    """
+    WaterbalanceFD = Instance(SimulationObject)
+    NPK_Soil_Dynamics = Instance(SimulationObject)
+
+    def initialize(self, day:date, kiosk:VariableKiosk, parvalues:dict):
+        """
+        :param day: start date of the simulation
+        :param kiosk: variable kiosk of this PCSE instance
+        :param parvalues: dictionary with parameter key/value pairs
+        """
+        self.WaterbalanceFD = WaterBalanceLayered(day, kiosk, parvalues)
+        self.NPK_Soil_Dynamics = NPK_Soil_Dynamics_PP(day, kiosk, parvalues)
+
+class LayeredSoilModuleWrapper_LNW(BaseSoilModuleWrapper):
+    """This wraps the layered soil water balance for free drainage conditions and NPK balance
+    for production conditions limited by both soil water and N, but assumes abundance
+    of P/K.
+    """
+    WaterbalanceFD = Instance(SimulationObject)
+    NPK_Soil_Dynamics = Instance(SimulationObject)
+
+    def initialize(self, day:date, kiosk:VariableKiosk, parvalues:dict):
+        """
+        :param day: start date of the simulation
+        :param kiosk: variable kiosk of this PCSE instance
+        :param parvalues: dictionary with parameter key/value pairs
+        """
+        self.WaterbalanceFD = WaterBalanceLayered(day, kiosk, parvalues)
+        self.NPK_Soil_Dynamics = NPK_Soil_Dynamics_LN(day, kiosk, parvalues)
+
+class LayeredSoilModuleWrapper_LNPK(BaseSoilModuleWrapper):
+    """This wraps the layered soil water balance for free drainage conditions and NPK balance
+    for production conditions limited by NPK but assumes abundant water.
+    """
+    WaterbalanceFD = Instance(SimulationObject)
+    NPK_Soil_Dynamics = Instance(SimulationObject)
+
+    def initialize(self, day:date, kiosk:VariableKiosk, parvalues:dict):
+        """
+        :param day: start date of the simulation
+        :param kiosk: variable kiosk of this PCSE instance
+        :param parvalues: dictionary with parameter key/value pairs
+        """
+        self.WaterbalanceFD = WaterBalanceLayered(day, kiosk, parvalues)
+        self.NPK_Soil_Dynamics = NPK_Soil_Dynamics(day, kiosk, parvalues)
+
+class LayeredSoilModuleWrapper_LN(BaseSoilModuleWrapper):
+    """This wraps the layered soil water balance for free drainage conditions and NPK balance
+    for production conditions limited by Nitrogen, but assumes abundance of P/K
+    and water.
+    """
+    WaterbalanceFD = Instance(SimulationObject)
+    NPK_Soil_Dynamics = Instance(SimulationObject)
+
+    def initialize(self, day:date, kiosk:VariableKiosk, parvalues:dict):
+        """
+        :param day: start date of the simulation
+        :param kiosk: variable kiosk of this PCSE instance
+        :param parvalues: dictionary with parameter key/value pairs
+        """
+        self.WaterbalanceFD = WaterBalanceLayered_PP(day, kiosk, parvalues)
+        self.NPK_Soil_Dynamics = NPK_Soil_Dynamics_LN(day, kiosk, parvalues)
+
+
+
+
+
+
+
+
+        
 
 
 

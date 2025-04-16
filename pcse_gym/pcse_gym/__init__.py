@@ -35,7 +35,7 @@ register(
 
 # Single year planting Environments
 register(
-    id='plant-npk-v0',
+    id='plant-lnpkw-v0',
     entry_point='pcse_gym.envs.plant_annual:Plant_Limited_NPKW_Env',
 )
 register(
@@ -61,7 +61,7 @@ register(
 
 # Single year harvesting environments
 register(
-    id='harvest-npk-v0',
+    id='harvest-lnpkw-v0',
     entry_point='pcse_gym.envs.harvest_annual:Harvest_Limited_NPKW_Env',
 )
 register(
@@ -113,7 +113,7 @@ register(
 
 # Perennial planting Environments
 register(
-    id='perennial-plant-npk-v0',
+    id='perennial-plant-lnpkw-v0',
     entry_point='pcse_gym.envs.plant_perennial:Perennial_Plant_Limited_NPKW_Env',
 )
 register(
@@ -139,7 +139,7 @@ register(
 
 # Perennial harvest environemnts
 register(
-    id='perennial-harvest-npk-v0',
+    id='perennial-harvest-lnpkw-v0',
     entry_point='pcse_gym.envs.harvest_perennial:Perennial_Harvest_Limited_NPKW_Env',
 )
 register(
@@ -213,4 +213,212 @@ register(
 register(
     id='multi-lw-v0',
     entry_point='pcse_gym.envs.multi_annual:Multi_Limited_W_Env',
+)
+
+# Layered Default Annual Environments
+register(
+    id='llnpkw-v0',
+    entry_point='pcse_gym.envs.wofost_annual:Limited_Layered_NPKW_Env',
+)
+register(
+    id='lpp-v0',
+    entry_point='pcse_gym.envs.wofost_annual:Layered_PP_Env',
+)
+register(
+    id='llnpk-v0',
+    entry_point='pcse_gym.envs.wofost_annual:Limited_Layered_NPK_Env',
+)
+register(
+    id='lln-v0',
+    entry_point='pcse_gym.envs.wofost_annual:Limited_Layered_N_Env',
+)
+register(
+    id='llnw-v0',
+    entry_point='pcse_gym.envs.wofost_annual:Limited_Layered_NW_Env',
+)
+register(
+    id='llw-v0',
+    entry_point='pcse_gym.envs.wofost_annual:Limited_Layered_W_Env',
+)
+
+# Layered Single year planting Environments
+register(
+    id='plant-llnpkw-v0',
+    entry_point='pcse_gym.envs.plant_annual:Plant_Limited_Layered_NPKW_Env',
+)
+register(
+    id='plant-lpp-v0',
+    entry_point='pcse_gym.envs.plant_annual:Plant_Layered_PP_Env',
+)
+register(
+    id='plant-llnpk-v0',
+    entry_point='pcse_gym.envs.plant_annual:Plant_Limited_Layered_NPK_Env',
+)
+register(
+    id='plant-lln-v0',
+    entry_point='pcse_gym.envs.plant_annual:Plant_Limited_Layered_N_Env',
+)
+register(
+    id='plant-llnw-v0',
+    entry_point='pcse_gym.envs.plant_annual:Plant_Limited_Layered_NW_Env',
+)
+register(
+    id='plant-llw-v0',
+    entry_point='pcse_gym.envs.plant_annual:Plant_Limited_Layered_W_Env',
+)
+
+# Layered Single year harvesting environments
+register(
+    id='harvest-llnpkw-v0',
+    entry_point='pcse_gym.envs.harvest_annual:Harvest_Limited_Layered_NPKW_Env',
+)
+register(
+    id='harvest-lpp-v0',
+    entry_point='pcse_gym.envs.harvest_annual:Harvest_Layered_PP_Env',
+)
+register(
+    id='harvest-llnpk-v0',
+    entry_point='pcse_gym.envs.harvest_annual:Harvest_Limited_Layered_NPK_Env',
+)
+register(
+    id='harvest-lln-v0',
+    entry_point='pcse_gym.envs.harvest_annual:Harvest_Limited_Layered_N_Env',
+)
+register(
+    id='harvest-llnw-v0',
+    entry_point='pcse_gym.envs.harvest_annual:Harvest_Limited_Layered_NW_Env',
+)
+register(
+    id='harvest-llw-v0',
+    entry_point='pcse_gym.envs.harvest_annual:Harvest_Limited_Layered_W_Env',
+)
+
+# Layered Default perennial environments
+register(
+    id='perennial-llnpkw-v0',
+    entry_point='pcse_gym.envs.wofost_perennial:Perennial_Limited_Layered_NPKW_Env',
+)
+register(
+    id='perennial-lpp-v0',
+    entry_point='pcse_gym.envs.wofost_perennial:Perennial_Layered_PP_Env',
+)
+register(
+    id='perennial-llnpk-v0',
+    entry_point='pcse_gym.envs.wofost_perennial:Perennial_Limited_Layered_NPK_Env',
+)
+register(
+    id='perennial-lln-v0',
+    entry_point='pcse_gym.envs.wofost_perennial:Perennial_Limited_Layered_N_Env',
+)
+register(
+    id='perennial-llnw-v0',
+    entry_point='pcse_gym.envs.wofost_perennial:Perennial_Limited_Layered_NW_Env',
+)
+register(
+    id='perennial-llw-v0',
+    entry_point='pcse_gym.envs.wofost_perennial:Perennial_Limited_Layered_W_Env',
+)
+
+# Layered Perennial planting Environments
+register(
+    id='perennial-plant-llnpkw-v0',
+    entry_point='pcse_gym.envs.plant_perennial:Perennial_Plant_Limited_Layered_NPKW_Env',
+)
+register(
+    id='perennial-plant-lpp-v0',
+    entry_point='pcse_gym.envs.plant_perennial:Perennial_Plant_Layered_PP_Env',
+)
+register(
+    id='perennial-plant-llnpk-v0',
+    entry_point='pcse_gym.envs.plant_perennial:Perennial_Plant_Limited_Layered_NPK_Env',
+)
+register(
+    id='perennial-plant-lln-v0',
+    entry_point='pcse_gym.envs.plant_perennial:Perennial_Plant_Limited_Layered_N_Env',
+)
+register(
+    id='perennial-plant-llnw-v0',
+    entry_point='pcse_gym.envs.plant_perennial:Perennial_Plant_Limited_Layered_NW_Env',
+)
+register(
+    id='perennial-plant-llw-v0',
+    entry_point='pcse_gym.envs.plant_perennial:Perennial_Plant_Limited_Layered_W_Env',
+)
+
+# Layered Perennial harvest environemnts
+register(
+    id='perennial-harvest-llnpkw-v0',
+    entry_point='pcse_gym.envs.harvest_perennial:Perennial_Harvest_Limited_Layered_NPKW_Env',
+)
+register(
+    id='perennial-harvest-lpp-v0',
+    entry_point='pcse_gym.envs.harvest_perennial:Perennial_Harvest_Layered_PP_Env',
+)
+register(
+    id='perennial-harvest-llnpk-v0',
+    entry_point='pcse_gym.envs.harvest_perennial:Perennial_Harvest_Limited_Layered_NPK_Env',
+)
+register(
+    id='perennial-harvest-lln-v0',
+    entry_point='pcse_gym.envs.harvest_perennial:Perennial_Harvest_Limited_Layered_N_Env',
+)
+register(
+    id='perennial-harvest-llnw-v0',
+    entry_point='pcse_gym.envs.harvest_perennial:Perennial_Harvest_Limited_Layered_NW_Env',
+)
+register(
+    id='perennial-harvest-llw-v0',
+    entry_point='pcse_gym.envs.harvest_perennial:Perennial_Harvest_Limited_Layered_W_Env',
+)
+
+# Layered Default Grape environments
+register(
+    id='grape-llnpkw-v0',
+    entry_point='pcse_gym.envs.wofost_grape:Grape_Limited_Layered_NPKW_Env',
+)
+register(
+    id='grape-lpp-v0',
+    entry_point='pcse_gym.envs.wofost_grape:Grape_Layered_PP_Env',
+)
+register(
+    id='grape-llnpk-v0',
+    entry_point='pcse_gym.envs.wofost_grape:Grape_Limited_Layered_NPK_Env',
+)
+register(
+    id='grape-lln-v0',
+    entry_point='pcse_gym.envs.wofost_grape:Grape_Limited_Layered_N_Env',
+)
+register(
+    id='grape-llnw-v0',
+    entry_point='pcse_gym.envs.wofost_grape:Grape_Limited_Layered_NW_Env',
+)
+register(
+    id='grape-llw-v0',
+    entry_point='pcse_gym.envs.wofost_grape:Grape_Limited_Layered_W_Env',
+)
+
+# Layered Default Annual Environments
+register(
+    id='multi-llnpkw-v0',
+    entry_point='pcse_gym.envs.multi_annual:Multi_Limited_Layered_NPKW_Env',
+)
+register(
+    id='multi-lpp-v0',
+    entry_point='pcse_gym.envs.multi_annual:Multi_Layered_PP_Env',
+)
+register(
+    id='multi-llnpk-v0',
+    entry_point='pcse_gym.envs.multi_annual:Multi_Limited_Layered_NPK_Env',
+)
+register(
+    id='multi-lln-v0',
+    entry_point='pcse_gym.envs.multi_annual:Multi_Limited_Layered_N_Env',
+)
+register(
+    id='multi-llnw-v0',
+    entry_point='pcse_gym.envs.multi_annual:Multi_Limited_Layered_NW_Env',
+)
+register(
+    id='multi-llw-v0',
+    entry_point='pcse_gym.envs.multi_annual:Multi_Limited_Layered_W_Env',
 )

@@ -13,6 +13,7 @@ import textwrap
 from collections.abc import Iterable
 import datetime as dt
 import numpy as np
+import dotmap
 
 from .utils import exceptions as exc
 from .utils.traitlets import TraitType
@@ -839,4 +840,13 @@ def check_angstromAB(xA, xB):
         raise exc.PCSEError(msg)
 
     return [A,B]
+
+
+class DotMap(dotmap.DotMap):
+    """DotMap subclass with _dynamic switched off by default.
+    """
+    def __init__(self, *args, **kwargs):
+        kwargs.update(_dynamic=False)
+        super().__init__(*args, **kwargs)
+
            

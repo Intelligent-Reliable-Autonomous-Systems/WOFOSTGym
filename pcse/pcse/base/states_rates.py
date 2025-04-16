@@ -8,6 +8,7 @@ Written by: Allard de Wit (allard.dewit@wur.nl), April 2014
 Modified by Will Solow, 2024
 """
 import logging
+import numpy as np
 
 from ..utils.traitlets import (HasTraits, Float, Int, Instance, Bool, All)
 from ..utils import exceptions as exc
@@ -393,7 +394,7 @@ class RatesTemplate(StatesRatesCommon):
         """
 
         # Define the zero value for Float, Int and Bool
-        zero_value = {Bool: False, Int: 0, Float: 0.}
+        zero_value = {Bool: False, Int: 0, Float: 0., Instance: np.zeros(1)}
 
         d = {}
         for name, value in self.traits().items():
@@ -402,6 +403,8 @@ class RatesTemplate(StatesRatesCommon):
             try:
                 d[name] = zero_value[value.__class__]
             except KeyError:
+                print(name)
+                print(value.__class__)
                 msg = ("Rate variable '%s' not of type Float, Bool or Int. " +
                        "Its zero value cannot be determined and it will " +
                        "not be treated by zerofy().") % name

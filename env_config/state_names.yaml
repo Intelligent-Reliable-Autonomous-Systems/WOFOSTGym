@@ -439,7 +439,7 @@
   WBALRT:           'Root Zone Waterbalance CheckSum'            
   WBALTT:           'Total Waterbalance CheckSum'                
 
- # **Rate Variables:** (For Output To Observation Space):
+  # **Rate Variables:** (For Output To Observation Space):
   EVS:            'Actual Evaporation Rate From Soil'                
   EVW:            'Actual Evaporation Rate From Water Surface'      
   WTRA:           'Actual Transpiration Rate From Plant Canopy'
@@ -453,6 +453,47 @@
   DWLOW:          'Change In Amount Of Water In Subsoil'            
   DTSR:           'Change In Surface Runoff'                        
   DSS:            'Change In Surface Storage'      
+  
+  #*############################################################################**
+  # Multi Layer Soil Dynamics States And Rates
+  #*############################################################################**
+  #**STATE VARIABLES:** (FOR OUTPUT TO OBSERVATION SPACE):
+
+  MWTRAT:     'Total water lost as transpiration'
+  MEVST:      'Total evaporation from the soil surface'                   
+  MEVWT:      'Total evaporation from a water surface'                    
+  MTSR:       'Total surface runoff'                                      
+  MRAINT:     'Total amount of rainfall'                 
+  MWDRT:      'Amount of water added to root zone'            
+  MTOTINF:    'Total amount of infiltration'                              
+  MTOTIRR:    'Total amount of effective irrigation'                      
+  MSM:        'Volumetric moisture content in the different soil layers'
+  MWC:        'Water content in the different soil layers'                       
+  MW:         'Amount of water in root zone'                              
+  MWLOW:      'Amount of water in the subsoil'
+  MWWLOW:     'Total amount of water'                                     
+  MWBOT:      'Water below maximum rootable depth'                                         
+  MWAVUPP:    'Plant available water in the rooted zone'
+  MWAVLOW:    'Plant available water in the potential root zone' 
+  MWAVBOT:    'Plant available water zone below the maximum rootable depth'
+  MSS:        'Surface storage'           
+  MSM_MEAN:   'Mean water content in rooted zone'                         
+  MPERCT:     'Total amount of water percolating from rooted zone to subsoil'
+  MLOSST:     'Total amount of water lost to deeper soil'                 
+
+  # **Rate Variables:** (For Output To Observation Space):
+  MFlow:        'Rate of flow from one layer to the next'              
+  MRIN:         'Rate of infiltration at the surface'                  
+  MWTRALY:      'Rate of transpiration from the different layers'                               
+  MWTRA:        'Total crop transpiration rate accumulated over layers'      
+  MEVS:         'Soil evaporation rate'                                
+  MEVW:         'Open water evaporation rate'                         
+  MRIRR:        'Rate of irrigation'                                   
+  MDWC:         'Net change in water amount per layer' 
+  MDRAINT:      'Change in rainfall accumlation'                       
+  MDSS:         'Change in surface storage'                            
+  MDTSR:        'Rate of surface runoff'                               
+  MBOTTOMFLOW:  'Flow of the bottom of the profile'                    
 
   #*############################################################################**
   # Wofost Parameters
@@ -739,4 +780,15 @@
   NOTINF:          'Maximum Fraction Of Rain Not-Infiltrating Into The Soil'
   SMLIM:           'Initial Maximum Moisture Content In Initial Rooting Zone'
 
+  #*############################################################################**
+  # Multi Layered Soil Dynamics Parameters
+  #*############################################################################**
+  #*SIMULATION PARAMETERS** (TO BE PROVIDED IN CROPDATA DICTIONARY):
+
+  MNOTINF:     'Maximum fraction of rain not-infiltrating into the soil'
+  MIFUNRN:     'Indicates whether non-infiltrating rain'
+  MSSI:        'Initial surface storage'                                
+  MSSMAX:      'Maximum surface storage'                                
+  MSMLIM:      'Maximum soil moisture content of top soil layer'         
+  MWAV:        'Initial amount of water in the soil'                    
 

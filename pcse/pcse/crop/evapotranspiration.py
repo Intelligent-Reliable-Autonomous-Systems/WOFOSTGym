@@ -190,16 +190,18 @@ class EvapotranspirationCO2(SimulationObject):
 
         SMCR = (1.-SWDEP)*(p.SMFCF-p.SMW) + p.SMW
 
+        SM = k.MSM_MEAN if "MSM_MEAN" in k else k.SM
         # Reduction factor for transpiration in case of water shortage (RFWS)
-        r.RFWS = limit(0., 1., (k.SM-p.SMW)/(SMCR-p.SMW))
+        r.RFWS = limit(0., 1., (SM-p.SMW)/(SMCR-p.SMW))
 
         # reduction in transpiration in case of oxygen shortage (RFOS)
         # for non-rice crops, and possibly deficient land drainage
         r.RFOS = 1.
         if p.IAIRDU == 0 and p.IOX == 1:
-            RFOSMX = limit(0., 1., (p.SM0 - k.SM)/p.CRAIRC)
+            RFOSMX = limit(0., 1., (p.SM0 - SM)/p.CRAIRC)
             # maximum reduction reached after 4 days
-            r.RFOS = RFOSMX + (1. - min(k.DSOS, 4)/4.)*(1.-RFOSMX)
+            DSOS = k.DSOS if "DSOS" in k else 0
+            r.RFOS = RFOSMX + (1. - min(DSOS, 4)/4.)*(1.-RFOSMX)
 
         # Transpiration rate multiplied with reduction factors for oxygen and water
         r.RFTRA = r.RFOS * r.RFWS

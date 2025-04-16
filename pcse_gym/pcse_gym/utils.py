@@ -123,6 +123,13 @@ def make_config(soil: BaseSoilModuleWrapper=SoilModuleWrapper_LNPKW, crop: BaseC
         "RNSOIL", "RPSOIL", "RKSOIL", "RNAVAIL", "RPAVAIL", "RKAVAIL", "FERT_N_SUPPLY",
         "FERT_P_SUPPLY", "FERT_K_SUPPLY", "RNSUBSOIL", "RPSUBSOIL", "RKSUBSOIL",
         "RRUNOFF_N", "RRUNOFF_P", "RRUNOFF_K",
+        # MULTI LAYER SOIL STATES
+        "MWTRAT", "MEVST", "MEVWT", "MTSR", "MRAINT", "MWDRT", "MTOTINF", "MTOTIRR","MSM",       
+        "MWC", "MW", "MWLOW", "MWWLOW", "MWBOT", "MWAVUPP", "MWAVLOW", "MWAVBOT",    
+        "MSS", "MSM_MEAN", "MPERCT", "MLOSST",               
+        # MULTI LAYER SOIL RATES
+        "MFlow", "MRIN", "MWTRALY", "MWTRA", "MEVS", "MEVW", "MRIRR", "MDWC", "MDRAINT",                          
+        "MDSS", "MDTSR", "MBOTTOMFLOW",  
         ]
 
     # Summary variables to save at CROP_FINISH signals

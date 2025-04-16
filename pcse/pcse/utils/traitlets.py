@@ -60,3 +60,4 @@ class Int(tr.Int):
         if 'allow_none' not in kwargs:
             kwargs['allow_none'] = True
         tr.Int.__init__(self, *args, **kwargs)
+

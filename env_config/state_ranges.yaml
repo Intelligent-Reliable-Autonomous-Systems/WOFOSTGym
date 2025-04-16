@@ -453,4 +453,45 @@
   DW:          [-10,10]    # Change in amount of water in rooted zone as a result of infiltration, transpiration and evaporation.
   DWLOW:       [-10,10]    # Change in amount of water in subsoil              
   DTSR:        [-10,10]    # Change in surface runoff                          
-  DSS:         [-10,10]    # Change in surface storage        
+  DSS:         [-10,10]    # Change in surface storage  
+
+
+  #*############################################################################**
+  # Multi Layered Soil Dynamics States and Rates
+  #*############################################################################**
+  #**State variables:** (For output to observation space):
+  MWTRAT:     [0,50]      # Total water lost as transpiration as calculated by the water balanc
+  MEVST:      [0,50]      # Total evaporation from the soil surface                   
+  MEVWT:      [0,50]      # Total evaporation from a water surface                    
+  MTSR:       [0,50]      # Total surface runoff                                      
+  MRAINT:     [0,50]      # Total amount of rainfall              
+  MWDRT:      [0,50]      # Amount of water added to root zone by increaseof root growth
+  MTOTINF:    [0,50]      # Total amount of infiltration                              
+  MTOTIRR:    [0,50]      # Total amount of effective irrigation                      
+  MSM:        [0,50]      # Volumetric moisture content in the different soil layers
+  MWC:        [0,50]      # Water content in the different soil layers
+  MW:         [0,50]      # Amount of water in root zone                              
+  MWLOW:      [0,50]      # Amount of water in the subsoil (between current rooting depth and maximum rootable depth)
+  MWWLOW:     [0,50]      # Total amount of water in the  soil profile (WWLOW = WLOW + W)
+  MWBOT:      [0,50]      # Water below maximum rootable depth and unavailable for plant growth.                                         
+  MWAVUPP:    [0,50]      # Plant available water (above wilting point) in the rooted zone.
+  MWAVLOW:    [0,50]      # Plant available water (above wilting point) in the potential root zone (below current roots)
+  MWAVBOT:    [0,50]      # Plant available water (above wilting point) in the zone below the maximum rootable depth
+  MSS:        [0,50]      # Surface storage (layer of water on surface)               
+  MSM_MEAN:   [0,50]      # Mean water content in rooted zone                         
+  MPERCT:     [0,50]      # Total amount of water percolating from rooted zone to subsoil
+  MLOSST:     [0,50]      # Total amount of water lost to deeper soil                                
+
+  # **Rate variables:** (For output to observation space): 
+  MFlow:        [0,10]   # Rate of flow from one layer to the next              
+  MRIN:         [0,10]   # Rate of infiltration at the surface                 
+  MWTRALY:      [0,10]   # Rate of transpiration from the different soil layers
+  MWTRA:        [0,10]   # Total crop transpiration rate accumulated over soil layers
+  MEVS:         [0,10]   # Soil evaporation rate                                
+  MEVW:         [0,10]   # Open water evaporation rate                         
+  MRIRR:        [0,10]   # Rate of irrigation                                   
+  MDWC:         [-10,10] # Net change in water amount per layer         
+  MDRAINT:      [-10,10] # Change in rainfall accumlation                       
+  MDSS:         [-10,10] # Change in surface storage                            
+  MDTSR:        [0,10]   # Rate of surface runoff                               
+  MBOTTOMFLOW:  [-10,10] # Flow of the bottom of the profile                                

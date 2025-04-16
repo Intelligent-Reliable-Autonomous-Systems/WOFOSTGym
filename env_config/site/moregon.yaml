@@ -179,7 +179,7 @@ SiteParameters:
       GroundWater: null
 
    EcoTypes:
-     oregon: &oregon
+     moregon: &moregon
        #
        # NPK SOIL DYNAMICS
        # 
@@ -276,55 +276,27 @@ SiteParameters:
        #
        # WATER BALANCE
        # 
-       SMFCF:
-       - 0.460 
-       - soil moisture content at field capacity
-       - ['cm3/cm3']
-       SM0:
-       - 0.570 
-       - soil moisture content at saturation
-       - ['cm3/cm3']  
-       SMW:
-       - 0.300 
-       - soil moisture content at wilting point
-       - ['cm3/cm3']
-       CRAIRC:
-       - 0.100 
-       - critical soil air content for aeration
-       - ['cm3/cm3']
-       SOPE:
-       - 0.55
-       - maximum percolation rate root zone  
-       - ['cmday-1']
-       KSUB:
-       - .37
-       - maximum percolation rate subsoil  
-       - ['cmday-1']
-       RDMSOL: 
-       - 120.0 
-       - soil maximum rootable depth
-       - ['cm']
-       IFUNRN: 
+       MIFUNRN: 
        - 0.0
        - indicates whether non-infiltrating fraction of rain is a function of storm size (1) or not (0)
        - ['-']
-       SSMAX: 
+       MSSMAX: 
        - 0.0
        - maximum surface storage
        - ['cm']
-       SSI:
+       MSSI:
        - 0.0
        - initial surface storage   
        - ['cm']
-       WAV:
+       MWAV:
        - 1.0
        - initial amount of water in total soil profile
        - ['cm']
-       NOTINF:
+       MNOTINF:
        - 0.0
        - maximum fraction of rain not-infiltrating into the soil
        - ['-']
-       SMLIM:     
+       MSMLIM:     
        - 0.33
        - initial maximum moisture content in initial root zone
        - ['-']
@@ -335,6 +307,26 @@ SiteParameters:
        - 360.0
        - atmospheric CO2 concentration
        - ['ppm']
+       CRAIRC:
+       - 0.100 
+       - critical soil air content for aeration
+       - ['cm3/cm3']
+       SM0:
+       - 0.570 
+       - soil moisture content at saturation
+       - ['cm3/cm3']  
+       SMFCF:
+       - 0.460 
+       - soil moisture content at field capacity
+       - ['cm3/cm3']
+       SMW:
+       - 0.300 
+       - soil moisture content at wilting point
+       - ['cm3/cm3']
+       RDMSOL: 
+       - 120.0 
+       - soil maximum rootable depth
+       - ['cm']
        #
        # Multi Layered Info
        # 
@@ -344,8 +336,8 @@ SiteParameters:
          - ['-']
 
    Variations:
-      oregon_1:
-        <<: *oregon
+      moregon_1:
+        <<: *moregon
         Metadata:
            <<: *meta
         CO2:
@@ -353,8 +345,8 @@ SiteParameters:
         - atmospheric CO2 concentration
         - ['ppm']
       
-      oregon_2:
-         <<: *oregon
+      moregon_2:
+         <<: *moregon
          Metadata:
            <<: *meta
          CO2: 
@@ -372,8 +364,8 @@ SiteParameters:
          - soil maximum rootable depth
          - ['cm']
 
-      oregon_3:
-         <<: *oregon
+      moregon_3:
+         <<: *moregon
          Metadata:
             <<: *meta
          RNABSORPTION:

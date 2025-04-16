@@ -272,7 +272,8 @@ class BaseCropModel(SimulationObject):
         
         # total crop transpiration and soil evaporation
         states.CTRAT += self.kiosk.TRA
-        states.CEVST += self.kiosk.EVS
+        EVS = self.kiosk.EVS if "EVS" in self.kiosk else self.kiosk.MEVS
+        states.CEVST += EVS
 
     @prepare_states
     def finalize(self, day:date):

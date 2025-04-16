@@ -96,6 +96,22 @@ class WOFOST_Args:
     """Reference CO2 Rate"""
     REFCO2L: Optional[float] = None
 
+    # Multi Layer Water balance params
+    '''Maximum fraction of rain not-infiltrating into the soil'''
+    MNOTINF: Optional[float] = None     
+    '''Indicates whether non-infiltrating rain''' 
+    MIFUNRN: Optional[float] = None   
+    '''Initial surface storage'''               
+    MSSI: Optional[float] = None   
+    '''Maximum surface storage'''                              
+    MSSMAX: Optional[float] = None 
+    '''Maximum soil moisture content of top soil layer'''                                  
+    MSMLIM: Optional[float] = None     
+    '''Initial amount of water in the soil'''      
+    MWAV: Optional[float] = None  
+    '''Multi Layered Soil profile description'''  
+    SoilProfileDescription: Optional[dict]=None       
+
     # WOFOST Parameters
     """Conversion factor for assimilates to leaves"""
     CVL: Optional[List[float]] = None

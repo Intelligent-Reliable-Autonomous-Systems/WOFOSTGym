@@ -3,8 +3,8 @@ AgroManagement:
         latitude: 50
         longitude: 5
         year: 1984
-        site_name: oregon
-        site_variation: oregon_1
+        site_name: moregon
+        site_variation: moregon_1
         site_start_date: 1985-02-01
         site_end_date: 1985-10-01
     CropCalendar:

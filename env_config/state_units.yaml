@@ -453,7 +453,47 @@
   DW:          '|cmday-1|'    # Change in amount of water in rooted zone as a result of infiltration, transpiration and evaporation.
   DWLOW:       '|cmday-1|'    # Change in amount of water in subsoil              
   DTSR:        '|cmday-1|'    # Change in surface runoff                          
-  DSS:         '|cmday-1|'    # Change in surface storage        
+  DSS:         '|cmday-1|'    # Change in surface storage 
+
+  #*############################################################################**
+  # Multi Layered Soil Dynamics States and Rates
+  #*############################################################################**
+  #**State variables:** (For output to observation space):
+  MWTRAT:     'cm'      # Total water lost as transpiration as calculated by the water balanc
+  MEVST:      'cm'      # Total evaporation from the soil surface                   
+  MEVWT:      'cm'      # Total evaporation from a water surface                    
+  MTSR:       'cm'      # Total surface runoff                                      
+  MRAINT:     'cm'      # Total amount of rainfall              
+  MWDRT:      'cm'      # Amount of water added to root zone by increaseof root growth
+  MTOTINF:    'cm'      # Total amount of infiltration                              
+  MTOTIRR:    'cm'      # Total amount of effective irrigation                      
+  MSM:        '-'       # Volumetric moisture content in the different soil layers
+  MWC:        'cm'      # Water content in the different soil layers
+  MW:         'cm'      # Amount of water in root zone                              
+  MWLOW:      'cm'      # Amount of water in the subsoil (between current rooting depth and maximum rootable depth)
+  MWWLOW:     'cm'      # Total amount of water in the  soil profile (WWLOW = WLOW + W)
+  MWBOT:      'cm'      # Water below maximum rootable depth and unavailable for plant growth.                                         
+  MWAVUPP:    'cm'      # Plant available water (above wilting point) in the rooted zone.
+  MWAVLOW:    'cm'      # Plant available water (above wilting point) in the potential root zone (below current roots)
+  MWAVBOT:    'cm'      # Plant available water (above wilting point) in the zone below the maximum rootable depth
+  MSS:        'cm'      # Surface storage (layer of water on surface)               
+  MSM_MEAN:   'cm3/cm3' # Mean water content in rooted zone                         
+  MPERCT:     'cm'      # Total amount of water percolating from rooted zone to subsoil
+  MLOSST:     'cm'      # Total amount of water lost to deeper soil                                
+
+  # **Rate variables:** (For output to observation space): 
+  MFlow:        'cm/day' # Rate of flow from one layer to the next              
+  MRIN:         'cm/day' # Rate of infiltration at the surface                 
+  MWTRALY:      'cm/day' # Rate of transpiration from the different soil layers
+  MWTRA:        'cm/day' # Total crop transpiration rate accumulated over soil layers
+  MEVS:         'cm/day' # Soil evaporation rate                                
+  MEVW:         'cm/day' # Open water evaporation rate                         
+  MRIRR:        'cm/day' # Rate of irrigation                                   
+  MDWC:         'cm/day' # Net change in water amount per layer         
+  MDRAINT:      'cm/day' # Change in rainfall accumlation                       
+  MDSS:         'cm/day' # Change in surface storage                            
+  MDTSR:        'cm/day' # Rate of surface runoff                               
+  MBOTTOMFLOW:  'cm/day' # Flow of the bottom of the profile                          
 
   #*############################################################################**
   # WOFOST Parameters
@@ -743,3 +783,13 @@
   SMLIM:     '-'       # Initial maximum moisture content in initial rooting depth zone.
 
 
+  #*############################################################################**
+  # Multi Layered Soil Dynamics Parameters
+  #*############################################################################**
+
+  MNOTINF:     '-'          # Maximum fraction of rain not-infiltrating into the soil
+  MIFUNRN:     '-'          # Indicates whether non-infiltrating fraction of rain is a function of storm size (1) or not (0)
+  MSSI:        'cm'         # Initial surface storage                                 
+  MSSMAX:      'cm'         # Maximum surface storage                                 
+  MSMLIM:      'cm3/cm3'    # Maximum soil moisture content of top soil layer         
+  MWAV:        'cm'         # Initial amount of water in the soil                     

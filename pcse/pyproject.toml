@@ -8,6 +8,7 @@ version = "1.0.0"
 dependencies = [
   "traitlets_pcse",
   "requests",
+  "dotmap"
 ]
 requires-python = ">=3.10"
 authors = [

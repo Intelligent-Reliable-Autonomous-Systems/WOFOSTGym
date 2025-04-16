@@ -1,10 +1,16 @@
+"""
+Class for layered water balance
+
+Written by: Allard de Wit
+Modified by: Will Solow, 2025
+"""
+
 from math import sqrt
 import numpy as np
-from ..traitlets import Float, Int, Instance, Enum, Unicode, Bool, HasTraits, List
-from ..util import limit, Afgen, merge_dict, DotMap
+from ..utils.traitlets import Float, Int, Instance, Enum, Unicode, Bool, HasTraits, List
+from ..util import Afgen, DotMap
 
 from .. import exceptions as exc
-
 
 class pFCurve(Afgen):
     """Pf curve should check that:
@@ -15,7 +21,6 @@ class pFCurve(Afgen):
 
     """
     pass
-
 
 class MFPCurve(Afgen):
     """Computes Matrix Flow Potential using a Gaussian integration over the pfCurve
@@ -180,144 +185,6 @@ class SoilProfile(list):
     and finally a SubSoilType with a thickness of 200 cm. Only the top 3 layers contain a certain amaount of
     organic carbon (FSOMI).
 
-    An example of a data structure for the soil profile::
-
-        SoilLayerTypes:
-            TopSoil: &TopSoil
-                SMfromPF: [-1.0,     0.366,
-                            1.0,     0.338,
-                            1.3,     0.304,
-                            1.7,     0.233,
-                            2.0,     0.179,
-                            2.3,     0.135,
-                            2.4,     0.123,
-                            2.7,     0.094,
-                            3.0,     0.073,
-                            3.3,     0.059,
-                            3.7,     0.046,
-                            4.0,     0.039,
-                            4.17,    0.037,
-                            4.2,     0.036,
-                            6.0,     0.02]
-                CONDfromPF: [-1.0,     1.8451,
-                              1.0,     1.02119,
-                              1.3,     0.51055,
-                              1.7,    -0.52288,
-                              2.0,    -1.50864,
-                              2.3,    -2.56864,
-                              2.4,    -2.92082,
-                              2.7,    -4.01773,
-                              3.0,    -5.11919,
-                              3.3,    -6.22185,
-                              3.7,    -7.69897,
-                              4.0,    -8.79588,
-                              4.17,   -9.4318,
-                              4.2,    -9.5376,
-                              6.0,   -11.5376]
-                CRAIRC:  0.090
-                CNRatioSOMI: 9.0
-                RHOD: 1.406
-                Soil_pH: 7.4
-                SoilID: TopSoil
-            MidSoil: &MidSoil
-                SMfromPF: [-1.0,     0.366,
-                            1.0,     0.338,
-                            1.3,     0.304,
-                            1.7,     0.233,
-                            2.0,     0.179,
-                            2.3,     0.135,
-                            2.4,     0.123,
-                            2.7,     0.094,
-                            3.0,     0.073,
-                            3.3,     0.059,
-                            3.7,     0.046,
-                            4.0,     0.039,
-                            4.17,    0.037,
-                            4.2,     0.036,
-                            6.0,     0.02]
-                CONDfromPF: [-1.0,     1.8451,
-                              1.0,     1.02119,
-                              1.3,     0.51055,
-                              1.7,    -0.52288,
-                              2.0,    -1.50864,
-                              2.3,    -2.56864,
-                              2.4,    -2.92082,
-                              2.7,    -4.01773,
-                              3.0,    -5.11919,
-                              3.3,    -6.22185,
-                              3.7,    -7.69897,
-                              4.0,    -8.79588,
-                              4.17,   -9.4318,
-                              4.2,    -9.5376,
-                              6.0,   -11.5376]
-                CRAIRC:  0.090
-                CNRatioSOMI: 9.0
-                RHOD: 1.406
-                Soil_pH: 7.4
-                SoilID: MidSoil_10
-            SubSoil: &SubSoil
-                SMfromPF: [-1.0,     0.366,
-                            1.0,     0.338,
-                            1.3,     0.304,
-                            1.7,     0.233,
-                            2.0,     0.179,
-                            2.3,     0.135,
-                            2.4,     0.123,
-                            2.7,     0.094,
-                            3.0,     0.073,
-                            3.3,     0.059,
-                            3.7,     0.046,
-                            4.0,     0.039,
-                            4.17,    0.037,
-                            4.2,     0.036,
-                            6.0,     0.02]
-                CONDfromPF: [-1.0,     1.8451,
-                              1.0,     1.02119,
-                              1.3,     0.51055,
-                              1.7,    -0.52288,
-                              2.0,    -1.50864,
-                              2.3,    -2.56864,
-                              2.4,    -2.92082,
-                              2.7,    -4.01773,
-                              3.0,    -5.11919,
-                              3.3,    -6.22185,
-                              3.7,    -7.69897,
-                              4.0,    -8.79588,
-                              4.17,   -9.4318,
-                              4.2,    -9.5376,
-                              6.0,   -11.5376]
-                CRAIRC:  0.090
-                CNRatioSOMI: 9.0
-                RHOD: 1.406
-                Soil_pH: 7.4
-                SoilID: SubSoil_10
-        SoilProfileDescription:
-            PFWiltingPoint: 4.2
-            PFFieldCapacity: 2.0
-            SurfaceConductivity: 70.0 # surface conductivity cm / day
-            SoilLayers:
-            -   <<: *TopSoil
-                Thickness: 10
-                FSOMI: 0.02
-            -   <<: *TopSoil
-                Thickness: 10
-                FSOMI: 0.02
-            -   <<: *MidSoil
-                Thickness: 10
-                FSOMI: 0.01
-            -   <<: *MidSoil
-                Thickness: 20
-                FSOMI: 0.00
-            -   <<: *MidSoil
-                Thickness: 30
-                FSOMI: 0.00
-            -   <<: *SubSoil
-                Thickness: 45
-                FSOMI: 0.00
-            SubSoilType:
-                <<: *SubSoil
-                Thickness: 200
-            GroundWater: null
     """
     
     def __init__(self, parvalues):

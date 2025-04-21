@@ -312,7 +312,8 @@ class WaterBalanceLayered(SimulationObject):
         MPERC       =    Float(-99.)
 
     def initialize(self, day, kiosk, parvalues):
-
+        
+        assert "SoilProfileDescription" in parvalues, "`SoilProfileDescription` is not in parvalues, ensure that you are using a site configuration with multilayer water balance parameters"
         self.soil_profile = SoilProfile(parvalues)
         parvalues._soildata["soil_profile"] = self.soil_profile
 

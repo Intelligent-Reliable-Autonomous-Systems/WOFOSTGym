@@ -189,7 +189,7 @@ register(
     entry_point='pcse_gym.envs.wofost_grape:Grape_Limited_W_Env',
 )
 
-# Default Annual Environments
+# Default Multi Annual Environments
 register(
     id='multi-lnpkw-v0',
     entry_point='pcse_gym.envs.multi_annual:Multi_Limited_NPKW_Env',
@@ -213,6 +213,32 @@ register(
 register(
     id='multi-lw-v0',
     entry_point='pcse_gym.envs.multi_annual:Multi_Limited_W_Env',
+)
+
+# Default Multi Annual Environments
+register(
+    id='multi-perennial-lnpkw-v0',
+    entry_point='pcse_gym.envs.multi_perennial:Perennial_Multi_Limited_NPKW_Env',
+)
+register(
+    id='multi-perennial-pp-v0',
+    entry_point='pcse_gym.envs.multi_perennial:Perennial_Multi_PP_Env',
+)
+register(
+    id='multi-perennial-lnpk-v0',
+    entry_point='pcse_gym.envs.multi_perennial:Perennial_Multi_Limited_NPK_Env',
+)
+register(
+    id='multi-perennial-ln-v0',
+    entry_point='pcse_gym.envs.multi_perennial:Perennial_Multi_Limited_N_Env',
+)
+register(
+    id='multi-perennial-lnw-v0',
+    entry_point='pcse_gym.envs.multi_perennial:Perennial_Multi_Limited_NW_Env',
+)
+register(
+    id='multi-perennial-lw-v0',
+    entry_point='pcse_gym.envs.multi_perennial:Perennial_Multi_Limited_W_Env',
 )
 
 # Layered Default Annual Environments
@@ -421,4 +447,30 @@ register(
 register(
     id='multi-llw-v0',
     entry_point='pcse_gym.envs.multi_annual:Multi_Limited_Layered_W_Env',
+)
+
+# Layered Default Perennial Environments
+register(
+    id='multi-perennial-llnpkw-v0',
+    entry_point='pcse_gym.envs.multi_perennial:Perennial_Multi_Limited_Layered_NPKW_Env',
+)
+register(
+    id='multi-perennial-lpp-v0',
+    entry_point='pcse_gym.envs.multi_perennial:Perennial_Multi_Layered_PP_Env',
+)
+register(
+    id='multi-perennial-llnpk-v0',
+    entry_point='pcse_gym.envs.multi_perennial:Perennial_Multi_Limited_Layered_NPK_Env',
+)
+register(
+    id='multi-perennial-lln-v0',
+    entry_point='pcse_gym.envs.multi_perennial:Perennial_Multi_Limited_Layered_N_Env',
+)
+register(
+    id='multi-perennial-llnw-v0',
+    entry_point='pcse_gym.envs.multi_perennial:Perennial_Multi_Limited_Layered_NW_Env',
+)
+register(
+    id='multi-perennial-llw-v0',
+    entry_point='pcse_gym.envs.multi_perennial:Perennial_Multi_Limited_Layered_W_Env',
 )

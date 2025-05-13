@@ -4,7 +4,7 @@ AgroManagement:
         longitude: 5
         year: 1984
         site_name: oregon
-        site_variation: Oregon_3
+        site_variation: oregon_3
         site_start_date: 1985-02-01
         site_end_date: 1985-10-01
     CropCalendar:

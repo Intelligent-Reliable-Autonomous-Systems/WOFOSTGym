@@ -810,8 +810,7 @@ class WaterbalancePP(SimulationObject):
         :param kiosk: variable kiosk of this PCSE  instance
         :param parvalues: ParameterProvider containing all parameters
         """
-        
-        assert "SoilProfileDescription" not in parvalues, "`SoilProfileDescription` is in the parameter configuration which is specific to a multilayer waterbalance. Ensure you are using a single layer water balance configuration file"
+        assert "SMLIM" in parvalues, "Key `SMLIM` not in parameters. Ensure you are using a classic water balance configuration file, not a multi layer water balance configuration file!"
         # Check validity of maximum soil moisture amount in topsoil (SMLIM)
         SMLIM = limit(parvalues["SMW"], parvalues["SM0"],  parvalues["SMLIM"])
 

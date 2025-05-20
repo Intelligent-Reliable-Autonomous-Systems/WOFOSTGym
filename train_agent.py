@@ -15,6 +15,7 @@ To run: python3 train_agent.py --agent-type <Agent Type> --save-folder <logs>
 import tyro
 from dataclasses import dataclass, field
 
+from rl_algs.RPPO import Args as RPPO_Args
 from rl_algs.PPO import Args as PPO_Args
 from rl_algs.SAC import Args as SAC_Args
 from rl_algs.DQN import Args as DQN_Args
@@ -30,6 +31,8 @@ class AgentArgs(utils.Args):
     # Agent Args configurations
     """Algorithm Parameters for PPO"""
     PPO: PPO_Args = field(default_factory=PPO_Args)
+    """Algorithm Parameters for Recurrent-PPO"""
+    RPPO: PPO_Args = field(default_factory=RPPO_Args)
     """Algorithm Parameters for DQN"""
     DQN: DQN_Args = field(default_factory=DQN_Args)
     """Algorithm Parameters for SAC"""
@@ -42,8 +45,7 @@ class AgentArgs(utils.Args):
     GAIL: GAIL_Args = field(default_factory=GAIL_Args)
     """Algorithm parameters for AIRL"""
     AIRL: AIRL_Args = field(default_factory=AIRL_Args)
-
-    """Agent Type: PPO | DQN | SAC| BCQ | etc"""
+    """Agent Type: RPPO | PPO | DQN | SAC| BCQ | etc"""
     agent_type: Optional[str] = None
 
     """Tracking Flag, if True will Track using Weights and Biases"""

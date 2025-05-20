@@ -165,6 +165,74 @@ def eval_policy(policy, eval_env, kwargs, device, eval_episodes=5):
     avg_reward /= eval_episodes
     return avg_reward
 
+def eval_policy_lstm(policy, eval_env, kwargs, device, eval_episodes=5):
+    """
+    Evaluate a policy with an LSTM agent for Recurrent-PPO. Don't perform domain randomization 
+    (ie evaluate performance on the base environment)
+    And don't perform limited weather resets (ie evaluate performance on the full weather data)
+    """
+    avg_reward = 0.
+
+    assert hasattr(policy, "lstm"), "Calling `eval_policy_lstm` with a policy that does not have a LSTM!"
+
+    if isinstance(eval_env, gym.vector.SyncVectorEnv):
+        env_constr = type(eval_env.envs[0].unwrapped)
+        args = eval_env.envs[0].unwrapped.args
+        base_fpath = eval_env.envs[0].unwrapped.base_fpath
+        agro_fpath = eval_env.envs[0].unwrapped.agro_fpath
+        site_fpath = eval_env.envs[0].unwrapped.site_fpath
+        crop_fpath = eval_env.envs[0].unwrapped.crop_fpath
+        name_fpath = eval_env.envs[0].unwrapped.name_fpath
+        unit_fpath = eval_env.envs[0].unwrapped.unit_fpath
+        range_fpath = eval_env.envs[0].unwrapped.range_fpath
+        render_mode = eval_env.envs[0].unwrapped.render_mode
+        config = eval_env.envs[0].unwrapped.config
+    else:
+        env_constr = type(eval_env.unwrapped)
+        args = eval_env.unwrapped.args
+        base_fpath = eval_env.unwrapped.base_fpath
+        agro_fpath = eval_env.unwrapped.agro_fpath
+        site_fpath = eval_env.unwrapped.site_fpath
+        crop_fpath = eval_env.unwrapped.crop_fpath
+        name_fpath = eval_env.unwrapped.name_fpath
+        unit_fpath = eval_env.unwrapped.unit_fpath
+        range_fpath = eval_env.unwrapped.range_fpath
+        render_mode = eval_env.unwrapped.render_mode
+        config = eval_env.unwrapped.config
+
+    new_args = copy.deepcopy(args)
+    new_args.random_reset = True
+    new_args.train_reset = False
+    new_args.domain_rand = False
+    env = env_constr(new_args, base_fpath, agro_fpath, site_fpath, crop_fpath, name_fpath, unit_fpath, range_fpath, render_mode, config)
+    
+    env = utils.wrap_env_reward(env, kwargs)
+    env = wrappers.NormalizeObservation(env)
+    env = wrappers.NormalizeReward(env)
+    
+    for i in range(eval_episodes):
+        
+        state, _, term, trunc = *env.reset(), False, False
+
+        next_lstm_state = (
+        torch.zeros(policy.lstm.num_layers, args.num_envs, policy.lstm.hidden_size).to(device),
+        torch.zeros(policy.lstm.num_layers, args.num_envs, policy.lstm.hidden_size).to(device),
+        )  # hidden and cell states (see https://youtu.be/8HyCNIVRbSU)
+
+        while not (term or trunc):
+            if isinstance(state, np.ndarray):
+                state = torch.Tensor(state).reshape((-1, *env.observation_space.shape)).to(device)
+            action, next_lstm_state = policy.get_action(state, next_lstm_state)
+            state, reward, term, trunc, _ = env.step(action.detach().cpu().numpy())
+
+            if isinstance(eval_env, gym.vector.SyncVectorEnv):
+                avg_reward += eval_env.envs[0].unnormalize(reward)
+            else: 
+                avg_reward += eval_env.unnormalize(reward)
+    
+    avg_reward /= eval_episodes
+    return avg_reward
+
 def load_data_to_buffer(env, data_path:str, buffer, remove_keys=True):
     """
     Load data from .npz file to buffer

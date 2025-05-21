@@ -32,7 +32,7 @@ class AgentArgs(utils.Args):
     """Algorithm Parameters for PPO"""
     PPO: PPO_Args = field(default_factory=PPO_Args)
     """Algorithm Parameters for Recurrent-PPO"""
-    RPPO: PPO_Args = field(default_factory=RPPO_Args)
+    RPPO: RPPO_Args = field(default_factory=RPPO_Args)
     """Algorithm Parameters for DQN"""
     DQN: DQN_Args = field(default_factory=DQN_Args)
     """Algorithm Parameters for SAC"""

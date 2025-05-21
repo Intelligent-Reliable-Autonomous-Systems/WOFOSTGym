@@ -22,9 +22,9 @@ class Args(RL_Args):
     """total timesteps of the experiments"""
     learning_rate: float = 2.5e-4
     """the learning rate of the optimizer"""
-    num_envs: int = 8
+    num_envs: int = 4
     """the number of parallel game environments"""
-    num_steps: int = 128
+    num_steps: int = 650
     """the number of steps to run in each environment per policy rollout"""
     anneal_lr: bool = True
     """Toggle learning rate annealing for policy and value networks"""
@@ -71,15 +71,12 @@ class RPPO(nn.Module, Agent):
         super().__init__()
         self.env = envs
         self.network = nn.Sequential(
-            layer_init(nn.Conv2d(1, 32, 8, stride=4)),
+            self.layer_init(nn.Linear(np.array(envs.single_observation_space.shape).prod(), 64)),
             nn.ReLU(),
-            layer_init(nn.Conv2d(32, 64, 4, stride=2)),
+            self.layer_init(nn.Linear(64, 128)),
             nn.ReLU(),
-            layer_init(nn.Conv2d(64, 64, 3, stride=1)),
-            nn.ReLU(),
-            nn.Flatten(),
-            layer_init(nn.Linear(64 * 7 * 7, 512)),
-            nn.ReLU(),
+            self.layer_init(nn.Linear(128, 512)),
+            nn.ReLU()
         )
         self.lstm = nn.LSTM(512, 128)
         for name, param in self.lstm.named_parameters():
@@ -138,6 +135,11 @@ class RPPO(nn.Module, Agent):
         if action is None:
             action = probs.sample()
         return action, probs.log_prob(action), probs.entropy(), self.critic(hidden), lstm_state
+    
+    def layer_init(self, layer, std=np.sqrt(2), bias_const=0.0):
+        torch.nn.init.orthogonal_(layer.weight, std)
+        torch.nn.init.constant_(layer.bias, bias_const)
+        return layer
 
 def train(kwargs):
     """
@@ -173,6 +175,7 @@ def train(kwargs):
     )  # hidden and cell states (see https://youtu.be/8HyCNIVRbSU)
 
     for iteration in range(1, args.num_iterations + 1):
+        print(iteration)
         initial_lstm_state = (next_lstm_state[0].clone(), next_lstm_state[1].clone())
 
         if global_step % args.checkpoint_frequency == 0:
@@ -186,6 +189,7 @@ def train(kwargs):
             optimizer.param_groups[0]["lr"] = lrnow
 
         for step in range(0, args.num_steps):
+            print(f"step: ", step)
             global_step += args.num_envs
             obs[step] = next_obs
             dones[step] = next_done

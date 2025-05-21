@@ -212,17 +212,17 @@ def eval_policy_lstm(policy, eval_env, kwargs, device, eval_episodes=5):
     
     for i in range(eval_episodes):
         
-        state, _, term, trunc = *env.reset(), False, False
+        state, _, term, trunc = *env.reset(), [False]*policy.env.num_envs, [False]*policy.env.num_envs
 
         next_lstm_state = (
-        torch.zeros(policy.lstm.num_layers, args.num_envs, policy.lstm.hidden_size).to(device),
-        torch.zeros(policy.lstm.num_layers, args.num_envs, policy.lstm.hidden_size).to(device),
+        torch.zeros(policy.lstm.num_layers, policy.env.num_envs, policy.lstm.hidden_size).to(device),
+        torch.zeros(policy.lstm.num_layers, policy.env.num_envs, policy.lstm.hidden_size).to(device),
         )  # hidden and cell states (see https://youtu.be/8HyCNIVRbSU)
 
-        while not (term or trunc):
+        while not np.any(np.logical_or(term, trunc)):
             if isinstance(state, np.ndarray):
                 state = torch.Tensor(state).reshape((-1, *env.observation_space.shape)).to(device)
-            action, next_lstm_state = policy.get_action(state, next_lstm_state)
+            action, next_lstm_state = policy.get_action(state, next_lstm_state, torch.tensor(np.logical_or(term, trunc)).to(device))
             state, reward, term, trunc, _ = env.step(action.detach().cpu().numpy())
 
             if isinstance(eval_env, gym.vector.SyncVectorEnv):

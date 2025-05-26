@@ -46,6 +46,7 @@ class Harvest_Limited_NPKW_Env(Harvest_NPK_Env, LNPKW):
         Args: 
             NPK_Args: The environment parameterization
         """
+
         self.perennial_env = False
         super().__init__(args, base_fpath, agro_fpath, site_fpath, crop_fpath, \
                          name_fpath, unit_fpath, range_fpath, render_mode, config=self.config)

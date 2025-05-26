@@ -148,7 +148,6 @@ def make_gym_env(args, run_name=None):
         
         valid_keys = {field.name for field in type(args).__dataclass_fields__.values()}
         filtered_fields = {k:v for k,v in correct_config_lists(config).items() if k in valid_keys}
-        
         env_id, env_kwargs = get_gym_args(type(args)(**filtered_fields))
         env = gym.make(env_id, **env_kwargs).unwrapped
     else:

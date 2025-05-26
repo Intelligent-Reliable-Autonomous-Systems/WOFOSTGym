@@ -1108,7 +1108,8 @@ class Plant_NPK_Env(NPK_Env):
     I = 5 # Irrigation action 
 
     def __init__(self, args: NPK_Args, base_fpath: str, agro_fpath:str, \
-                 site_fpath:str, crop_fpath: str, config: dict=None):
+                 site_fpath:str, crop_fpath:str, name_fpath:str, unit_fpath:str, 
+                 range_fpath:str, render_mode:str=None, config:dict=None):
         """Initialize the :class:`Plant_NPK_Env`.
 
         Args: 
@@ -1116,7 +1117,7 @@ class Plant_NPK_Env(NPK_Env):
             config: Agromanagement configuration dictionary
         """
         super().__init__(args, base_fpath, agro_fpath, site_fpath, crop_fpath, \
-                         config=config)
+                         name_fpath, unit_fpath, range_fpath, render_mode, config=config)
 
         self.crop_name = self.agromanagement['CropCalendar']['crop_name']
         self.crop_variety = self.agromanagement['CropCalendar']['crop_variety']
@@ -1174,7 +1175,8 @@ class Harvest_NPK_Env(NPK_Env):
     I = 4 # Irrigation action 
 
     def __init__(self, args: NPK_Args, base_fpath: str, agro_fpath:str, \
-                 site_fpath:str, crop_fpath: str, config: dict=None):
+                 site_fpath:str, crop_fpath:str, name_fpath:str, unit_fpath:str, 
+                 range_fpath:str, render_mode:str=None, config:dict=None):
         """Initialize the :class:`Plant_NPK_Env`.
 
         Args: 
@@ -1182,7 +1184,7 @@ class Harvest_NPK_Env(NPK_Env):
             config: Agromanagement configuration dictionary
         """
         super().__init__(args, base_fpath, agro_fpath, site_fpath, crop_fpath, \
-                         config=config)
+                         name_fpath, unit_fpath, range_fpath, render_mode, config=config)
 
         self.crop_name = self.agromanagement['CropCalendar']['crop_name']
         self.crop_variety = self.agromanagement['CropCalendar']['crop_variety']

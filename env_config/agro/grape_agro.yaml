@@ -4,12 +4,12 @@ AgroManagement:
         longitude: 5
         year: 1987
         site_name: washington
-        site_variation: Washington_1
+        site_variation: washington_1
         site_start_date: 1987-01-01
         site_end_date: 1990-12-01
     CropCalendar:
         crop_name: grape
-        crop_variety: grape_1
+        crop_variety: Auxerrois
         crop_start_date: 1987-01-01
         crop_start_type: endodorm
         crop_end_date: 1990-10-01

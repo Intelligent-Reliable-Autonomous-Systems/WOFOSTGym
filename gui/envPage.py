@@ -15,13 +15,15 @@ class EnvironmentPage(QWidget):
         self.file_selections = file_selections
         self.home_page = home_page
 
-        # ===== Variables =====
+        # *************************
+        #        VARIABLES
+        # *************************
         vars = QGroupBox("")
         vars_layout = QVBoxLayout()
         vars_layout.setContentsMargins(10, 10, 10, 10)
         vars_layout.setSpacing(10)
 
-        # Variable 1 : Cycle
+        # ===== VARIABLE 1 : Cycle =====
         self.env_var1_label = QLabel("Cycle:")
         self.env_var1_label.setFixedSize(QSize(100, 30))
         self.env_var1_dropdown = QComboBox()
@@ -48,7 +50,7 @@ class EnvironmentPage(QWidget):
         env_var1_layout.addLayout(env_var1_row)
         env_var1_layout.addWidget(self.env_var1_label2)
 
-        # Variable 2 : Type
+        # V===== VARIABLE 2 : Type =====
         self.env_var2_label = QLabel("Type:")
         self.env_var2_label.setFixedSize(QSize(100, 30))
 
@@ -61,7 +63,7 @@ class EnvironmentPage(QWidget):
         env_var2_layout.addWidget(self.env_var2_dropdown)
         env_var2_layout.addStretch()
 
-        # Variable 3 : Limitations
+        # ===== VARIABLE 3 : Limitations =====
         self.env_var3_label = QLabel("Limitations:")
         self.env_var3_label.setFixedSize(QSize(100, 30))
 
@@ -81,15 +83,21 @@ class EnvironmentPage(QWidget):
         env_var3_layout.addLayout(env_var3_inner_layout)
         env_var3_layout.addWidget(self.env_var3_checkbox)
 
-        # ===== Buttons =====
+        # **************************
+        #        BUTTONS
+        # **************************
+        # ===== BACK =====
         back_button = QPushButton("Back")
         back_button.setFixedSize(QSize(50, 30))
         back_button.clicked.connect(self.go_back)
 
+        # ===== CONTINUE =====
         continue_button = QPushButton("Continue")
         continue_button.clicked.connect(self.go_next)
 
-        # ===== Main Layout =====
+        # **************************
+        #        MAIN LAYOUT
+        # **************************
         layout = QVBoxLayout()
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(15)
@@ -104,7 +112,9 @@ class EnvironmentPage(QWidget):
         layout.addWidget(continue_button)
         self.setLayout(layout)
 
-    # ===== Functions =====
+    # **************************
+    #        FUNCTIONS
+    # **************************
     def var_1_change(self):
         var_1 = self.env_var1_dropdown.currentText()
 

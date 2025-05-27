@@ -4,6 +4,7 @@ import yaml
 import subprocess
 import sys
 from notif import Notif
+from customAgroPage import CustomAgro
 
 from PySide6.QtWidgets import (
     QWidget, QPushButton, QComboBox, QCheckBox,
@@ -13,8 +14,6 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import QSize, Qt
 
 AGRO_FOLDER_PATH = "env_config/agro"
-CROP_FOLDER_PATH = "env_config/crop"
-SITE_FOLDER_PATH = "env_config/site"
 
 def build_env_id(env_selections):
     env_id = ""
@@ -38,90 +37,6 @@ def build_env_id(env_selections):
 
     env_id += env_selections["limitations"] + "-v0"
     return env_id
-
-class CustomAgro(QWidget):
-    def __init__(self, agro_page, env_selections, file_selections):
-        super().__init__()
-        self.setWindowTitle("Custom Agromanagement Configuration")
-        self.setFixedSize(400, 200)
-        self.env_selections = env_selections
-        self.file_selections = file_selections
-        self.agro_page = agro_page
-
-        # ===== Variables =====
-        self.crops_label = QLabel("Available Crops:")
-        self.crops_label.setFixedSize(QSize(125, 30))
-        self.crops_dropdown = QComboBox()
-        self.crops_dropdown.setFixedSize(QSize(200, 30))
-
-        crops_layout = QHBoxLayout()
-        crops_layout.addWidget(self.crops_label)
-        crops_layout.addWidget(self.crops_dropdown)
-        crops_layout.addStretch()
-
-        self.sites_label = QLabel("Available Sites:")
-        self.sites_label.setFixedSize(QSize(125, 30))
-        self.sites_dropdown = QComboBox()
-        self.sites_dropdown.setFixedSize(QSize(200, 30))
-
-        site_layout = QHBoxLayout()
-        site_layout.addWidget(self.sites_label)
-        site_layout.addWidget(self.sites_dropdown)
-        site_layout.addStretch()
-
-        self.load_yaml_files()
-        self.crops_dropdown.setCurrentIndex(-1)
-        self.sites_dropdown.setCurrentIndex(-1)
-
-        # ===== Buttons =====
-        back_button = QPushButton("Back")
-        back_button.setFixedSize(QSize(50, 30))
-        back_button.clicked.connect(self.go_back)
-
-        run_sim_button = QPushButton("Run Simulation")
-
-        # ===== Main Layout =====
-        layout = QVBoxLayout()
-        layout.setContentsMargins(10, 10, 10, 10)
-        layout.setSpacing(15)
-
-        layout.addWidget(back_button)
-        layout.addLayout(crops_layout)
-        layout.addLayout(site_layout)
-        layout.addWidget(run_sim_button)
-        self.setLayout(layout)
-
-    # ===== Functions =====
-    def load_yaml_files(self):
-        if not os.path.isdir(CROP_FOLDER_PATH):
-            print("Invalid crop folder path")
-            return
-        elif not os.path.isdir(SITE_FOLDER_PATH):
-            print("Invalid site folder path")
-            return
-
-        self.crop_yaml_files = [
-            f for f in os.listdir(CROP_FOLDER_PATH)
-            if fnmatch.fnmatch(f, "*.yaml") or fnmatch.fnmatch(f, "*.yml")
-        ]
-        self.site_yaml_files = [
-            f for f in os.listdir(SITE_FOLDER_PATH)
-            if fnmatch.fnmatch(f, "*.yaml") or fnmatch.fnmatch(f, "*.yml")
-        ]
-
-        if not self.crop_yaml_files:
-            print("No crop YAML files found")
-        else:
-            self.crops_dropdown.addItems(self.crop_yaml_files)
-
-        if not self.site_yaml_files:
-            print("No site YAML files found")
-        else:
-            self.sites_dropdown.addItems(self.site_yaml_files)
-
-    def go_back(self):
-        self.agro_page.show()
-        self.close()
 
 class AgromanagementPage(QWidget):
     def __init__(self, env_page, env_selections, file_selections):
@@ -256,7 +171,7 @@ class AgromanagementPage(QWidget):
             self.selected_agro_crop_info.setText(crop_data_formatted)
 
         except Exception as e:
-            print(f"Error reading YAML file: {e}")
+            print(f"Error reading agro YAML file: {e}")
 
     def run_simulation(self):
         agro_file = self.agros_dropdown.currentText()

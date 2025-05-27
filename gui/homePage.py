@@ -10,9 +10,12 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import QSize
 
+SAVES_FOLDER_NAME = "saves"
+
 class HomePage(QWidget):
     def __init__(self):
         super().__init__()
+        self.pages = {"home_page": self}
 
         # *************************
         #        INPUTS
@@ -67,7 +70,6 @@ class HomePage(QWidget):
         button_layout.addWidget(self.gen_data_button)
         button_layout.addWidget(self.run_sim_button)
         button_layout.addWidget(self.train_agent_button)
-        # button_layout.addWidget(self.view_results_button)
         button_layout.setSpacing(15)
 
         # *************************
@@ -92,7 +94,7 @@ class HomePage(QWidget):
 
     def nav_single_sim(self):
         file_selections = {
-            "save_folder": self.save_folder_loc_input_box.text(),
+            "save_folder": "sim_runs/" + self.save_folder_loc_input_box.text(),
             "data_file": self.data_file_name_input_box.text()
         }
 
@@ -101,13 +103,13 @@ class HomePage(QWidget):
             self.notif.show()
             return
 
-        self.env_page = EnvironmentPage(home_page=self, file_selections=file_selections)
+        self.env_page = EnvironmentPage(pages=self.pages, file_selections=file_selections)
         self.env_page.show()
         self.hide()
 
     def nav_train_agent(self):
         file_selections = {
-            "save_folder": self.save_folder_loc_input_box.text(),
+            "save_folder": "training_logs/" + self.save_folder_loc_input_box.text(),
             "data_file": self.data_file_name_input_box.text()
         }
 
@@ -116,22 +118,9 @@ class HomePage(QWidget):
             self.notif.show()
             return
 
-        self.train_agent_page = TrainAgentPage(home_page=self, file_selections=file_selections)
+        self.train_agent_page = TrainAgentPage(pages=self.pages, file_selections=file_selections)
         self.train_agent_page.show()
         self.hide()
-
-    def nav_view_results(self):
-        if not self.save_folder_loc_input_box.text():
-            self.notif = Notif("Please provide a save folder to view results from.")
-            self.notif.show()
-            return
-        try:
-            subprocess.run([
-                "python3", "gui/plotDisplay.py",
-                "-f", f"{self.save_folder_loc_input_box.text()}/",
-            ], check=True)
-        except subprocess.CalledProcessError as e:
-            print(f"Plot display failed with error: {e}")
 
 
 if __name__ == "__main__":

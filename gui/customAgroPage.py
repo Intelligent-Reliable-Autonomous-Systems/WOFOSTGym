@@ -1,8 +1,6 @@
 import os
-import fnmatch
 import yaml
 import subprocess
-import sys
 from notif import Notif
 
 from PySide6.QtWidgets import (
@@ -17,13 +15,14 @@ CROP_FOLDER_PATH = "env_config/crop"
 SITE_FOLDER_PATH = "env_config/site"
 
 class CustomAgro(QWidget):
-    def __init__(self, agro_page, env_selections, file_selections):
+    def __init__(self, pages, env_selections, file_selections):
         super().__init__()
         self.setWindowTitle("Custom Agromanagement Configuration")
         self.setFixedSize(400, 400)
         self.env_selections = env_selections
         self.file_selections = file_selections
-        self.agro_page = agro_page
+        self.pages = pages
+        self.pages["custom_agro_page"] = self
 
         # *************************
         #       VARIABLES
@@ -107,6 +106,7 @@ class CustomAgro(QWidget):
         back_button.clicked.connect(self.go_back)
 
         run_sim_button = QPushButton("Run Simulation")
+        run_sim_button.clicked.connect(self.run_simulation)
 
         # *************************
         #       MAIN LAYOUT
@@ -210,7 +210,41 @@ class CustomAgro(QWidget):
             self.site_variations_dropdown.addItem("No variations available")
         self.site_variations_dropdown.setCurrentIndex(-1)
 
+    # ===== RUN SIMULATION =====
+    def run_simulation(self):
+        crop_name = self.crops_dropdown.currentText()
+        crop_variety = self.crop_varieties_dropdown.currentText()
+        site_name = self.sites_dropdown.currentText()
+        site_variation = self.site_variations_dropdown.currentText()
+
+        if not crop_name or not crop_variety or not site_name or not site_variation:
+            self.notif = Notif("Please select all options.")
+            self.notif.show()
+            return
+        
+        print("-WOFOST- Running custom agro simulation...")
+        print("-WOFOST- Command: python3 test_wofost.py --save-folder {} --data-file {} --env-id {} --npk.ag.crop-name {} --npk.ag.crop-variety {} --npk.ag.site-name {} --npk.ag.site-variation {}".format(
+            self.file_selections["save_folder"],
+            self.file_selections["data_file"],
+            self.env_selections["env_id"],
+            crop_name,
+            crop_variety,
+            site_name,
+            site_variation
+        ))
+
+        subprocess.run([
+            "python3", "test_wofost.py",
+            "--save-folder", self.file_selections["save_folder"] + "/",
+            "--data-file", self.file_selections["data_file"],
+            "--env-id", self.env_selections["env_id"],
+            "--npk.ag.crop-name", crop_name,
+            "--npk.ag.crop-variety", crop_variety,
+            "--npk.ag.site-name", site_name,
+            "--npk.ag.site-variation", site_variation,
+        ])
+
     # ===== NAVIGATION =====
     def go_back(self):
-        self.agro_page.show()
+        self.pages["agro_page"].show()
         self.close()

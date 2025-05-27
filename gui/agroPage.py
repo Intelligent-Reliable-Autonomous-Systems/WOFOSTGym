@@ -2,8 +2,8 @@ import os
 import fnmatch
 import yaml
 import subprocess
-import sys
 from notif import Notif
+from successNotif import SuccessNotif
 from customAgroPage import CustomAgro
 
 from PySide6.QtWidgets import (
@@ -15,37 +15,16 @@ from PySide6.QtCore import QSize, Qt
 
 AGRO_FOLDER_PATH = "env_config/agro"
 
-def build_env_id(env_selections):
-    env_id = ""
-
-    if env_selections["cycle"] == "Annual":
-        env_id += ""
-    elif env_selections["cycle"] == "Perennial":
-        env_id += "perennial-"
-    elif env_selections["cycle"] == "Grape Specific":
-        env_id += "grape-"
-    elif env_selections["cycle"] == "Annual - Multi Farm":
-        env_id += "multi-"
-    # No else if for "Perennial - Multi Farm" as it is does not currenlty have any available envs
-
-    if env_selections["type"] == "Default":
-        env_id += ""
-    elif env_selections["type"] == "Harvesting":
-        env_id += "harvest-"
-    elif env_selections["type"] == "Planting":
-        env_id += "plant-"
-
-    env_id += env_selections["limitations"] + "-v0"
-    return env_id
 
 class AgromanagementPage(QWidget):
-    def __init__(self, env_page, env_selections, file_selections):
+    def __init__(self, pages, env_selections, file_selections):
         super().__init__()
         self.setWindowTitle("Agromanagement Configuration")
         self.setFixedSize(400, 500)
         self.env_selections = env_selections
         self.file_selections = file_selections
-        self.env_page = env_page
+        self.pages = pages
+        self.pages["agro_page"] = self
 
         # ===== Variables =====
 
@@ -107,15 +86,9 @@ class AgromanagementPage(QWidget):
 
 
     # ===== Functions =====
-
-    def run_custom_agro(self):
-        self.custom_agro = CustomAgro(agro_page=self, env_selections=self.env_selections, file_selections=self.file_selections)
-        self.custom_agro.show()
-        self.hide()
-
     def load_agro_yaml_files(self):
         if not os.path.isdir(AGRO_FOLDER_PATH):
-            print("Invalid agro folder path")
+            print("-WOFOST- Invalid agro folder path")
             return
 
         self.yaml_files = [
@@ -171,7 +144,7 @@ class AgromanagementPage(QWidget):
             self.selected_agro_crop_info.setText(crop_data_formatted)
 
         except Exception as e:
-            print(f"Error reading agro YAML file: {e}")
+            print(f"-WOFOST- Error reading agro YAML file: {e}")
 
     def run_simulation(self):
         agro_file = self.agros_dropdown.currentText()
@@ -202,37 +175,39 @@ class AgromanagementPage(QWidget):
             self.notif.show()
             return
         
-        env_id = build_env_id(self.env_selections)
-        # print("ENV ID:", env_id)
-
         try:
-            print("Running simulation...")
-            print("Command: python3 test_wofost.py --save-folder {}/ --data-file {} --env-id {} --agro-file {}".format(
+            print("-WOFOST- Running agro simulation...")
+            print("-WOFOST- Command: python3 test_wofost.py --save-folder {}/ --data-file {} --env-id {} --agro-file {}".format(
                 self.file_selections["save_folder"],
                 self.file_selections["data_file"],
-                env_id,
+                self.env_selections["env_id"],
                 agro_file
             ))
             subprocess.run([
                 "python3", "test_wofost.py",
                 "--save-folder", f"{self.file_selections['save_folder']}/",
                 "--data-file", f"{self.file_selections['data_file']}",
-                "--env-id", f"{env_id}",
+                "--env-id", f"{self.env_selections['env_id']}",
                 "--agro-file", f"{self.agros_dropdown.currentText()}"
             ], check=True)
 
-            self.notif = Notif("Simulation completed")
-            self.notif.show()
-            print("Done.")
+            self.successNotif = SuccessNotif(message="Simulation completed", pages=self.pages, file_selections=self.file_selections)
+            self.successNotif.show()
+            self.close()
+            print("-WOFOST- Simulation completed successfully.")
         except subprocess.CalledProcessError as e:
-            print(f"Script failed with error: {e}")
+            print(f"-WOFOST- Simulation failed with error: {e}")
             self.notif = Notif("Simulation failed.")
             self.notif.show()
-            self.env_page.close()
+            self.pages["env_page"].close()
             self.close()
             return
-
+        
+    def run_custom_agro(self):
+        self.custom_agro = CustomAgro(pages=self.pages, env_selections=self.env_selections, file_selections=self.file_selections)
+        self.custom_agro.show()
+        self.hide()
 
     def go_back(self):
-        self.env_page.show()
+        self.pages["env_page"].show()
         self.close()

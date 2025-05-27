@@ -8,7 +8,7 @@ class ImageGallery(QWidget):
     def __init__(self, save_folder):
         super().__init__()
 
-        self.setWindowTitle("Plots")
+        self.setWindowTitle(f"Results from {save_folder}")
         self.setGeometry(100, 100, 800, 600)
         layout = QVBoxLayout()
 

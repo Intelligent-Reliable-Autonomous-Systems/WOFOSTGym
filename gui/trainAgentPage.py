@@ -21,12 +21,13 @@ def get_latest_logdir(base_dir):
         return None
 
 class TrainingPage(QWidget):
-    def __init__(self, home_page, file_selections, agent_type):
+    def __init__(self, pages, file_selections, agent_type):
         super().__init__()
         self.setWindowTitle("Training Controller")
         self.setFixedSize(400, 100)
         self.agent_type = agent_type
-        self.home_page = home_page
+        self.pages = pages
+        self.pages["training_page"] = self
         self.file_selections = file_selections
 
         self.label = QLabel("Training in progress...")
@@ -104,22 +105,11 @@ class TrainingPage(QWidget):
                 self.tb_proc.terminate()
                 print("-WOFOST- TensorBoard process terminated.")
 
-            self.home_page.show()
+            self.pages["home_page"].show()
             self.close()
 
     def stop_training(self):
-        if self.tb_proc and self.tb_proc.poll() is None:
-            self.tb_proc.terminate()
-            print("-WOFOST- TensorBoard process terminated.")
-        if self.train_proc and self.train_proc.poll() is None:
-            self.train_proc.terminate()
-            self.notif = Notif("Training terminated by user.")
-            self.notif.show()
-            print("-WOFOST- Training process terminated by user.")
-        self.progress_bar.setRange(0, 1)
-        self.progress_bar.setValue(1)
-        self.timer.stop()
-        self.home_page.show()
+        self.pages["home_page"].show()
         self.close()
 
     def open_tensorboard(self):
@@ -137,19 +127,20 @@ class TrainingPage(QWidget):
             print("-WOFOST- Command: tensorboard --logdir={}".format(logdir))
             webbrowser.open(f"http://localhost:6006")
         else:
-            self.notif = Notif("TensorBoard is already running.")
-            self.notif.show()
             webbrowser.open(f"http://localhost:6006")
 
     def closeEvent(self, event):
         if self.tb_proc and self.tb_proc.poll() is None:
             self.tb_proc.terminate()
-            print("-WOFOST- TensorBoard process terminated in closeEvent.")
-
+            print("-WOFOST- TensorBoard process terminated.")
         if self.train_proc and self.train_proc.poll() is None:
             self.train_proc.terminate()
-            print("-WOFOST- Training process terminated in closeEvent.")
-
+            self.notif = Notif("Training terminated by user.")
+            self.notif.show()
+            print("-WOFOST- Training process terminated by user.")
+        self.progress_bar.setRange(0, 1)
+        self.progress_bar.setValue(1)
+        
         if self.timer.isActive():
             self.timer.stop()
 
@@ -157,12 +148,13 @@ class TrainingPage(QWidget):
 
 
 class TrainAgentPage(QWidget):
-    def __init__(self, home_page, file_selections):
+    def __init__(self, pages, file_selections):
         super().__init__()
         self.setWindowTitle("Train Agent")
-        self.setFixedSize(400, 400)
+        self.setFixedSize(200, 150)
         self.file_selections = file_selections
-        self.home_page = home_page
+        self.pages = pages
+        self.pages["train_agent_page"] = self
 
         # *************************
         #        VARIABLES
@@ -221,7 +213,7 @@ class TrainAgentPage(QWidget):
         
         print("-WOFOST- Training started with agent type:", self.types_dropdown.currentText())
 
-        self.training_page = TrainingPage(home_page=self.home_page, file_selections=self.file_selections,
+        self.training_page = TrainingPage(pages=self.pages, file_selections=self.file_selections,
                                           agent_type=self.types_dropdown.currentText())
         
         self.training_page.show()
@@ -229,5 +221,5 @@ class TrainAgentPage(QWidget):
 
     # ===== NAVIGATION =====
     def go_back(self):
-        self.home_page.show()
+        self.pages["home_page"].show()
         self.close()

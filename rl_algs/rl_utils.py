@@ -212,23 +212,25 @@ def eval_policy_lstm(policy, eval_env, kwargs, device, eval_episodes=5):
     
     for i in range(eval_episodes):
         
-        state, _, term, trunc = *env.reset(), [False]*policy.env.num_envs, [False]*policy.env.num_envs
+        state, _, term, trunc = *env.reset(), False, False
 
         next_lstm_state = (
-        torch.zeros(policy.lstm.num_layers, policy.env.num_envs, policy.lstm.hidden_size).to(device),
-        torch.zeros(policy.lstm.num_layers, policy.env.num_envs, policy.lstm.hidden_size).to(device),
+        torch.zeros(policy.lstm.num_layers, 1, policy.lstm.hidden_size).to(device),
+        torch.zeros(policy.lstm.num_layers, 1, policy.lstm.hidden_size).to(device),
         )  # hidden and cell states (see https://youtu.be/8HyCNIVRbSU)
 
-        while not np.any(np.logical_or(term, trunc)):
+        while not np.logical_or(term, trunc):
+            next_done = np.logical_or([term], [term])
+            next_done = torch.Tensor(next_done).to(device)
             if isinstance(state, np.ndarray):
                 state = torch.Tensor(state).reshape((-1, *env.observation_space.shape)).to(device)
-            action, next_lstm_state = policy.get_action(state, next_lstm_state, torch.tensor(np.logical_or(term, trunc)).to(device))
+            action, next_lstm_state = policy.get_action(state, next_lstm_state, next_done)
             state, reward, term, trunc, _ = env.step(action.detach().cpu().numpy())
-
             if isinstance(eval_env, gym.vector.SyncVectorEnv):
                 avg_reward += eval_env.envs[0].unnormalize(reward)
             else: 
                 avg_reward += eval_env.unnormalize(reward)
+
     
     avg_reward /= eval_episodes
     return avg_reward

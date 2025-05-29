@@ -112,6 +112,7 @@ class RPPO(nn.Module, Agent):
                 ),
             )
             new_hidden += [h]
+        
         new_hidden = torch.flatten(torch.cat(new_hidden), 0, 1)
         return new_hidden, lstm_state
 

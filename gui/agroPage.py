@@ -7,14 +7,12 @@ from successNotif import SuccessNotif
 from customAgroPage import CustomAgro
 
 from PySide6.QtWidgets import (
-    QWidget, QPushButton, QComboBox, QCheckBox,
-    QVBoxLayout, QLabel, QHBoxLayout, QGroupBox, QTextEdit,
-    QSizePolicy
+    QWidget, QPushButton, QComboBox,
+    QVBoxLayout, QLabel, QHBoxLayout, QTextEdit,
 )
-from PySide6.QtCore import QSize, Qt
+from PySide6.QtCore import QSize
 
 AGRO_FOLDER_PATH = "env_config/agro"
-
 
 class AgromanagementPage(QWidget):
     def __init__(self, pages, env_selections, file_selections):

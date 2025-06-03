@@ -188,13 +188,14 @@ class EnvironmentPage(QWidget):
             "type": self.env_var2_dropdown.currentText(),
             "limitations": self.env_var3_dropdown.currentText(),
         }
-        env_selections["env_id"] = build_env_id(env_selections)
-        print("-WOFOST- Env ID Generated:", env_selections["env_id"])
 
         if env_selections["cycle"] == "" or env_selections["type"] == "" or env_selections["limitations"] == "":
             self.notif = Notif("Please select all options.")
             self.notif.show()
             return
+        
+        env_selections["env_id"] = build_env_id(env_selections)
+        print("-WOFOST- Env ID Generated:", env_selections["env_id"])
 
         self.agro_page = AgromanagementPage(pages=self.pages, env_selections=env_selections, file_selections=self.file_selections)
         self.agro_page.show()

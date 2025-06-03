@@ -2,12 +2,13 @@ import os
 import webbrowser
 import subprocess
 from notif import Notif
+from viewLogsPage import ViewLogsPage
 
 from PySide6.QtWidgets import (
-    QApplication, QWidget, QPushButton, QProgressBar,
+    QWidget, QPushButton, QProgressBar,
     QVBoxLayout, QLabel, QHBoxLayout, QGroupBox, QComboBox
 )
-from PySide6.QtCore import QSize, QTimer, Qt
+from PySide6.QtCore import QSize, QTimer
 
 def get_latest_logdir(base_dir):
     try:
@@ -24,7 +25,7 @@ class TrainingPage(QWidget):
     def __init__(self, pages, file_selections, agent_type):
         super().__init__()
         self.setWindowTitle("Training Controller")
-        self.setFixedSize(400, 100)
+        self.setFixedSize(400, 400)
         self.agent_type = agent_type
         self.pages = pages
         self.pages["training_page"] = self
@@ -151,7 +152,7 @@ class TrainAgentPage(QWidget):
     def __init__(self, pages, file_selections):
         super().__init__()
         self.setWindowTitle("Train Agent")
-        self.setFixedSize(200, 150)
+        self.setFixedSize(400, 400)
         self.file_selections = file_selections
         self.pages = pages
         self.pages["train_agent_page"] = self
@@ -188,6 +189,9 @@ class TrainAgentPage(QWidget):
         train_button = QPushButton("Start Training")
         train_button.clicked.connect(self.start_training)
 
+        view_logs_button = QPushButton("View Logs")
+        view_logs_button.clicked.connect(self.view_logs)
+
         # *************************
         #       MAIN LAYOUT
         # *************************
@@ -198,6 +202,7 @@ class TrainAgentPage(QWidget):
         layout.addWidget(back_button)
         layout.addWidget(types)
         layout.addWidget(train_button)
+        layout.addWidget(view_logs_button)
         self.setLayout(layout)
 
     # *************************
@@ -218,6 +223,17 @@ class TrainAgentPage(QWidget):
         
         self.training_page.show()
         self.close()
+
+    def view_logs(self):
+        if not os.path.isdir(self.file_selections["save_folder"]):
+            print("-WOFOST- No training logs found in: " + self.file_selections["save_folder"])
+            self.notif = Notif("No training logs found in given save folder.")
+            self.notif.show()
+            return
+
+        self.view_logs_page = ViewLogsPage(pages=self.pages, file_selections=self.file_selections)
+        self.view_logs_page.show()
+        self.hide()
 
     # ===== NAVIGATION =====
     def go_back(self):

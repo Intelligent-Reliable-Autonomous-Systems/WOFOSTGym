@@ -93,30 +93,30 @@ class HomePage(QWidget):
         pass
 
     def nav_single_sim(self):
+        if not self.save_folder_loc_input_box.text() or not self.data_file_name_input_box.text():
+            self.notif = Notif("Please fill in all fields.")
+            self.notif.show()
+            return
+        
         file_selections = {
             "save_folder": "sim_runs/" + self.save_folder_loc_input_box.text(),
             "data_file": self.data_file_name_input_box.text()
         }
-
-        if not file_selections["save_folder"] or not file_selections["data_file"]:
-            self.notif = Notif("Please fill in all fields.")
-            self.notif.show()
-            return
 
         self.env_page = EnvironmentPage(pages=self.pages, file_selections=file_selections)
         self.env_page.show()
         self.hide()
 
     def nav_train_agent(self):
+        if not self.save_folder_loc_input_box.text():
+            self.notif = Notif("Please enter a save folder.")
+            self.notif.show()
+            return
+        
         file_selections = {
             "save_folder": "training_logs/" + self.save_folder_loc_input_box.text(),
             "data_file": self.data_file_name_input_box.text()
         }
-
-        if not file_selections["save_folder"]:
-            self.notif = Notif("Please enter a save folder.")
-            self.notif.show()
-            return
 
         self.train_agent_page = TrainAgentPage(pages=self.pages, file_selections=file_selections)
         self.train_agent_page.show()

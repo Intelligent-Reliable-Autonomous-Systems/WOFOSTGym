@@ -163,7 +163,7 @@ def plot_reward_figs_two(data, names, args):
     lb_size=12
     for i,d in enumerate(data.items()):
         log_dir, (steps, values) = d
-        avg, std = running_average(values)
+        avg, std = running_average(values,window_size=150)
         if i > 3:
             formatter = ticker.ScalarFormatter(useMathText=True)
             formatter.set_powerlimits((4, 4))  
@@ -195,7 +195,7 @@ def plot_reward_figs_two(data, names, args):
     ax[0].set_xlim((0,5000000))
     ax[1].set_xlim((0,5000000))
     ax[0].set_title("Jujube Over Three Seasons", fontsize=fnt_size)
-    ax[1].set_title("Wheat Over One Season", fontsize=fnt_size)
+    ax[1].set_title("Grapevine Over One Season", fontsize=fnt_size)
 
     #ax[0].set_yticks([0,1e4, 2e4, 3e4], labels=['0', f'$1\cdot10^4$', f'$2\cdot10^4$', f'$3\cdot10^4$'],fontsize=lb_size)
     #ax[1].set_yticks([-1e6, -1e4, -1e2, 0, 1e2, 1e4], labels=[f"$-10^6$", f"$-10^4$", f"$-10^2$", f"$0$", f"$10^2$",f"$10^4$" ], fontsize=lb_size)
@@ -420,7 +420,7 @@ def plot_reward_log_hist(data, names, args):
 
     for i,d in enumerate(data.items()):
         log_dir, (steps, values) = d
-        avg, std = running_average(values, window_size=100)
+        avg, std = running_average(values, window_size=150)
         ax[0].set_yscale('symlog')
         formatter = ticker.ScalarFormatter(useMathText=True)
         formatter.set_powerlimits((4, 4))  

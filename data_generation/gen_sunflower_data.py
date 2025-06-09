@@ -39,7 +39,7 @@ def main():
                 num = int(f)
             except:
                 pass
-        run_str = f"python3 -m data_generation.gen_data --agro-file sunflower_agro.yaml --env-id multi-lnpkw-v0 --file-type npz --year-low 2005 --lat-low 40 --lat-high 40 --agent-path {p} --agent-type {ag_type} --save-folder experiments/run_data/Sunflower/ --data-file sunflower_multi_{ag_type}_{num} --config-fpath {config}"
+        run_str = f"python3 -m data_generation.gen_data --agro-file sunflower_agro.yaml --env-id multi-lnpkw-v0 --file-type npz --year-low 2005 --lat-low 40 --lat-high 40 --agent-path {p} --agent-type {ag_type} --save-folder experiments/data/sunflower/ --data-file sunflower_multi_{ag_type}_{num} --config-fpath {config}"
         run_str = run_str.split(" ")
         process = subprocess.Popen(run_str, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         

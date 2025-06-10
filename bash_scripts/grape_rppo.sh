@@ -6,4 +6,4 @@
 #SBATCH -t 4-12:00:00
 #SBATCH --gres=gpu:1
 
-python3 train_agent.py --agent-type DQN --agro-file grape.yaml --env-id grape-lnpkw-v0 --RPPO.total-timesteps 5000000  --npk.random-reset --npk.domain-rand --npk.scale 0.03  --save-folder experiments/UncontrainedControl/Grape/
+python3 train_agent.py --agent-type RPPO --agro-file grape_agro.yaml --env-id grape-lnpkw-v0 --RPPO.total-timesteps 5000000  --npk.random-reset --npk.domain-rand --npk.scale 0.03  --save-folder experiments/UncontrainedControl/Grape/

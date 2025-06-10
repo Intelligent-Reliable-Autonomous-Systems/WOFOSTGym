@@ -9,7 +9,7 @@ AgroManagement:
         site_end_date: 1987-12-01
     CropCalendar:
         crop_name: grape
-        crop_variety: grape_1
+        crop_variety: Auxerrois
         crop_start_date: 1987-01-01
         crop_start_type: endodorm
         crop_end_date: 1987-10-01

@@ -36,7 +36,7 @@ class PlotArgs(utils.Args):
 
 def plot_output(args:utils.Args, output_vars:np.ndarray|list=None, obs:np.ndarray=None, 
                 actions: np.ndarray=None, rewards:np.ndarray=None, next_obs:np.ndarray=None,
-                dones:np.ndarray=None, figsize=(8,6), save=False, **kwargs):
+                dones:np.ndarray=None, figsize=(8,6), save=False, show=False, **kwargs):
     """
     Plot the output variables for a single simulation. 
     Requires observations to be 2-dimensional of (step, obs)
@@ -72,7 +72,8 @@ def plot_output(args:utils.Args, output_vars:np.ndarray|list=None, obs:np.ndarra
 
                 os.makedirs(f"{args.base_fpath}{args.fig_folder}", exist_ok=True)
                 plt.savefig(f"{args.fig_folder}{v}.png", bbox_inches='tight')
-    plt.show()
+    if show:
+        plt.show()
     plt.close()
 
     if rewards is not None:
@@ -97,7 +98,8 @@ def plot_output(args:utils.Args, output_vars:np.ndarray|list=None, obs:np.ndarra
 
                 os.makedirs(f"{args.base_fpath}{args.fig_folder}", exist_ok=True)
                 plt.savefig(f"{args.fig_folder}/rewards.png", bbox_inches='tight')
-    plt.show()
+    if show:
+        plt.show()
     plt.close()
 
 def plot_policy(args:utils.Args, output_vars:np.ndarray|list=None, obs:np.ndarray=None, 

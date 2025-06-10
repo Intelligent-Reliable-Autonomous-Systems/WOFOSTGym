@@ -1,0 +1,2 @@
+#!/bin/bash
+python3 -m data_generation.gen_data --agro-file pear_agro.yaml --npk.intvn-interval 14  --file-type npz --year-low 2005 --agent-path experiments/ContrainedControl/Pear/PPO/perennial-lnpkw-v0__rl_utils__1__1749037796/agent.pt --agent-type PPO --save-folder experiments/data/pear/ --data-file pear_threshold_wk_ppo --env-reward RewardFertilizationThresholdWrapper --max-n 80 --max-p 80 --max-k 80 --max-w 40 --env-id perennial-lnpkw-v0

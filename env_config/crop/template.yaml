@@ -1,0 +1,2034 @@
+# Created by Allard de Wit
+
+Version: 
+Metadata: &meta
+  Creator: 
+  Contributor: 
+  Contact: 
+  Publisher: 
+  Title: 
+  Date: 
+  Language: 
+  Format: 
+  Subject:
+  Description: 
+  Identifier:
+  Relation:
+  Source: 
+  Type: 
+  Coverage:
+    Region: 
+  Rights: 
+  Keyword: 
+
+CropParameters:
+  GenericC3:
+    #
+    # Atmospheric CO2
+    #
+    CO2EFFTB:
+    CO2TRATB:
+    CO2AMAXTB:
+
+  GenericC4:
+    #
+    # Atmospheric CO2
+    #
+    CO2EFFTB:
+    CO2TRATB:
+    CO2AMAXTB:
+
+  EcoTypes:
+    crop:
+      #
+      # CO2 ASSIMILATION
+      #
+     KDIFTB:
+     EFFTB:
+     AMAXTB:
+     REFCO2L:
+     TMPFTB:
+     TMNFTB:
+
+      #
+      # RESPIRATION
+      #
+     Q10:
+     RML:
+     RMO:
+     RMR:
+     RMS:
+     RFSETB:
+
+      #
+      # CONVERSION EFFICIENCY OF ASSIMILATES
+      #
+     CVL:
+     CVO:
+     CVR:
+     CVS:
+
+      #
+      # PARTITIONING
+      #
+     FRTB:
+     FLTB:
+     FSTB:
+     FOTB:
+
+      #
+      # EMERGENCE
+      #
+     TBASEM:
+     TEFFMX:
+     TSUMEM:
+     DTBEM:
+
+      #
+      # PHENOLOGICAL DEVELOPMENT
+      #
+     IDSL:
+     DLO:
+     DLC:
+     TSUM1:
+     TSUM2:
+     TSUM3:
+     DTSMTB:
+     DVSI:
+     DVSM:
+     DVSEND:
+     AGEI:
+
+      #
+      # PERENNIAL DEVELOPMENT
+      #
+     DORM: 
+     DORMCD:
+     DCYCLEMAX:
+
+      #
+      # VERNALIZATION
+      #
+     VERNBASE:
+     VERNSAT:
+     VERNDVS:
+     VERNRTB:
+
+      #
+      # DVS NPK UPTAKE AND TRANSLOCATION
+      #
+     DVS_NPK_STOP:
+     DVS_NPK_TRANSL:
+
+      #
+      # INITIAL DRY MATTER
+      #
+     TDWI:
+
+      #
+      # CROP GREEN AREA
+      #
+     SLATB:
+     SSATB:
+     SPA:
+     SPAN:
+     TBASE:
+     RGRLAI:
+
+      #
+      # ROOTING DEPTH
+      #
+     RDI:
+     RRI:
+     RDMCR:
+
+      #
+      # DEATH RATES
+      #
+     PERDL:
+     RDRROS:
+     RDRRNPK:
+     RDRRTB:
+     RDRSTB:
+     RDRSOB:
+     RDRSOF:
+
+      #
+      # WATER USE
+      #
+     CFET:
+     DEPNR:
+     IAIRDU:
+     IOX:
+
+      #
+      # IMPACT OF N/P/K STRESS ON PROCESSES
+      #
+     NTHRESH:
+     PTHRESH:
+     KTHRESH:
+     NLAI_NPK:
+     NSLA_NPK:
+     NPART:
+     NLUE_NPK:
+     NPK_TRANSLRT_FR:
+     RDRLV_NPK:
+
+      #
+      # Maximum N/P/K uptake rates
+      #
+     RNUPTAKEMAX:
+     RPUPTAKEMAX:
+     RKUPTAKEMAX:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL NITROGEN CONCENTRATION IN DIFFERENT ORGANS
+      #
+     NMAXLV_TB:
+     NMAXRT_FR:
+     NMAXST_FR:
+     NMAXSO:
+     NCRIT_FR:
+     NRESIDLV:
+     NRESIDST:
+     NRESIDRT:
+     TCNT:
+     NFIX_FR:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL PHOSPHORUS CONCENTRATION IN DIFFERENT ORGANS
+      #
+     PMAXLV_TB:
+     PMAXRT_FR:
+     PMAXST_FR:
+     PMAXSO:
+     PCRIT_FR:
+     PRESIDLV:
+     PRESIDST:
+     PRESIDRT:
+     TCPT:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL POTASSIUM CONCENTRATION IN DIFFERENT ORGANS
+      #
+     KMAXLV_TB:
+     KMAXRT_FR:
+     KMAXST_FR:
+     KMAXSO:
+     KCRIT_FR:
+     KRESIDLV:
+     KRESIDST:
+     KRESIDRT:
+     TCKT:
+
+    crop2:
+      #
+      # CO2 ASSIMILATION
+      #
+     KDIFTB:
+     EFFTB:
+     AMAXTB:
+     REFCO2L:
+     TMPFTB:
+     TMNFTB:
+
+      #
+      # RESPIRATION
+      #
+     Q10:
+     RML:
+     RMO:
+     RMR:
+     RMS:
+     RFSETB:
+
+      #
+      # CONVERSION EFFICIENCY OF ASSIMILATES
+      #
+     CVL:
+     CVO:
+     CVR:
+     CVS:
+
+      #
+      # PARTITIONING
+      #
+     FRTB:
+     FLTB:
+     FSTB:
+     FOTB:
+
+      #
+      # EMERGENCE
+      #
+     TBASEM:
+     TEFFMX:
+     TSUMEM:
+     DTBEM:
+
+      #
+      # PHENOLOGICAL DEVELOPMENT
+      #
+     IDSL:
+     DLO:
+     DLC:
+     TSUM1:
+     TSUM2:
+     TSUM3:
+     DTSMTB:
+     DVSI:
+     DVSM:
+     DVSEND:
+     AGEI:
+
+      #
+      # PERENNIAL DEVELOPMENT
+      #
+     DORM: 
+     DORMCD:
+     DCYCLEMAX:
+
+      #
+      # VERNALIZATION
+      #
+     VERNBASE:
+     VERNSAT:
+     VERNDVS:
+     VERNRTB:
+
+      #
+      # DVS NPK UPTAKE AND TRANSLOCATION
+      #
+     DVS_NPK_STOP:
+     DVS_NPK_TRANSL:
+
+      #
+      # INITIAL DRY MATTER
+      #
+     TDWI:
+
+      #
+      # CROP GREEN AREA
+      #
+     SLATB:
+     SSATB:
+     SPA:
+     SPAN:
+     TBASE:
+     RGRLAI:
+
+      #
+      # ROOTING DEPTH
+      #
+     RDI:
+     RRI:
+     RDMCR:
+
+      #
+      # DEATH RATES
+      #
+     PERDL:
+     RDRROS:
+     RDRRNPK:
+     RDRRTB:
+     RDRSTB:
+     RDRSOB:
+
+      #
+      # WATER USE
+      #
+     CFET:
+     DEPNR:
+     IAIRDU:
+     IOX:
+
+      #
+      # IMPACT OF N/P/K STRESS ON PROCESSES
+      #
+     NTHRESH:
+     PTHRESH:
+     KTHRESH:
+     NLAI_NPK:
+     NSLA_NPK:
+     NPART:
+     NLUE_NPK:
+     NPK_TRANSLRT_FR:
+     RDRLV_NPK:
+
+      #
+      # Maximum N/P/K uptake rates
+      #
+     RNUPTAKEMAX:
+     RPUPTAKEMAX:
+     RKUPTAKEMAX:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL NITROGEN CONCENTRATION IN DIFFERENT ORGANS
+      #
+     NMAXLV_TB:
+     NMAXRT_FR:
+     NMAXST_FR:
+     NMAXSO:
+     NCRIT_FR:
+     NRESIDLV:
+     NRESIDST:
+     NRESIDRT:
+     TCNT:
+     NFIX_FR:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL PHOSPHORUS CONCENTRATION IN DIFFERENT ORGANS
+      #
+     PMAXLV_TB:
+     PMAXRT_FR:
+     PMAXST_FR:
+     PMAXSO:
+     PCRIT_FR:
+     PRESIDLV:
+     PRESIDST:
+     PRESIDRT:
+     TCPT:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL POTASSIUM CONCENTRATION IN DIFFERENT ORGANS
+      #
+     KMAXLV_TB:
+     KMAXRT_FR:
+     KMAXST_FR:
+     KMAXSO:
+     KCRIT_FR:
+     KRESIDLV:
+     KRESIDST:
+     KRESIDRT:
+     TCKT:
+
+  Varieties:
+    crop_1:
+      #
+      # CO2 ASSIMILATION
+      #
+     KDIFTB:
+     EFFTB:
+     AMAXTB:
+     REFCO2L:
+     TMPFTB:
+     TMNFTB:
+
+      #
+      # RESPIRATION
+      #
+     Q10:
+     RML:
+     RMO:
+     RMR:
+     RMS:
+     RFSETB:
+
+      #
+      # CONVERSION EFFICIENCY OF ASSIMILATES
+      #
+     CVL:
+     CVO:
+     CVR:
+     CVS:
+
+      #
+      # PARTITIONING
+      #
+     FRTB:
+     FLTB:
+     FSTB:
+     FOTB:
+
+      #
+      # EMERGENCE
+      #
+     TBASEM:
+     TEFFMX:
+     TSUMEM:
+     DTBEM:
+
+      #
+      # PHENOLOGICAL DEVELOPMENT
+      #
+     IDSL:
+     DLO:
+     DLC:
+     TSUM1:
+     TSUM2:
+     TSUM3:
+     DTSMTB:
+     DVSI:
+     DVSM:
+     DVSEND:
+     AGEI:
+
+      #
+      # PERENNIAL DEVELOPMENT
+      #
+     DORM: 
+     DORMCD:
+     DCYCLEMAX:
+
+      #
+      # VERNALIZATION
+      #
+     VERNBASE:
+     VERNSAT:
+     VERNDVS:
+     VERNRTB:
+
+      #
+      # DVS NPK UPTAKE AND TRANSLOCATION
+      #
+     DVS_NPK_STOP:
+     DVS_NPK_TRANSL:
+
+      #
+      # INITIAL DRY MATTER
+      #
+     TDWI:
+
+      #
+      # CROP GREEN AREA
+      #
+     SLATB:
+     SSATB:
+     SPA:
+     SPAN:
+     TBASE:
+     RGRLAI:
+
+      #
+      # ROOTING DEPTH
+      #
+     RDI:
+     RRI:
+     RDMCR:
+
+      #
+      # DEATH RATES
+      #
+     PERDL:
+     RDRROS:
+     RDRRNPK:
+     RDRRTB:
+     RDRSTB:
+     RDRSOB:
+
+      #
+      # WATER USE
+      #
+     CFET:
+     DEPNR:
+     IAIRDU:
+     IOX:
+
+      #
+      # IMPACT OF N/P/K STRESS ON PROCESSES
+      #
+     NTHRESH:
+     PTHRESH:
+     KTHRESH:
+     NLAI_NPK:
+     NSLA_NPK:
+     NPART:
+     NLUE_NPK:
+     NPK_TRANSLRT_FR:
+     RDRLV_NPK:
+
+      #
+      # Maximum N/P/K uptake rates
+      #
+     RNUPTAKEMAX:
+     RPUPTAKEMAX:
+     RKUPTAKEMAX:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL NITROGEN CONCENTRATION IN DIFFERENT ORGANS
+      #
+     NMAXLV_TB:
+     NMAXRT_FR:
+     NMAXST_FR:
+     NMAXSO:
+     NCRIT_FR:
+     NRESIDLV:
+     NRESIDST:
+     NRESIDRT:
+     TCNT:
+     NFIX_FR:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL PHOSPHORUS CONCENTRATION IN DIFFERENT ORGANS
+      #
+     PMAXLV_TB:
+     PMAXRT_FR:
+     PMAXST_FR:
+     PMAXSO:
+     PCRIT_FR:
+     PRESIDLV:
+     PRESIDST:
+     PRESIDRT:
+     TCPT:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL POTASSIUM CONCENTRATION IN DIFFERENT ORGANS
+      #
+     KMAXLV_TB:
+     KMAXRT_FR:
+     KMAXST_FR:
+     KMAXSO:
+     KCRIT_FR:
+     KRESIDLV:
+     KRESIDST:
+     KRESIDRT:
+     TCKT:
+
+    crop_2:
+      #
+      # CO2 ASSIMILATION
+      #
+     KDIFTB:
+     EFFTB:
+     AMAXTB:
+     REFCO2L:
+     TMPFTB:
+     TMNFTB:
+
+      #
+      # RESPIRATION
+      #
+     Q10:
+     RML:
+     RMO:
+     RMR:
+     RMS:
+     RFSETB:
+
+      #
+      # CONVERSION EFFICIENCY OF ASSIMILATES
+      #
+     CVL:
+     CVO:
+     CVR:
+     CVS:
+
+      #
+      # PARTITIONING
+      #
+     FRTB:
+     FLTB:
+     FSTB:
+     FOTB:
+
+      #
+      # EMERGENCE
+      #
+     TBASEM:
+     TEFFMX:
+     TSUMEM:
+     DTBEM:
+
+      #
+      # PHENOLOGICAL DEVELOPMENT
+      #
+     IDSL:
+     DLO:
+     DLC:
+     TSUM1:
+     TSUM2:
+     TSUM3:
+     DTSMTB:
+     DVSI:
+     DVSM:
+     DVSEND:
+     AGEI:
+
+      #
+      # PERENNIAL DEVELOPMENT
+      #
+     DORM: 
+     DORMCD:
+     DCYCLEMAX:
+
+      #
+      # VERNALIZATION
+      #
+     VERNBASE:
+     VERNSAT:
+     VERNDVS:
+     VERNRTB:
+
+      #
+      # DVS NPK UPTAKE AND TRANSLOCATION
+      #
+     DVS_NPK_STOP:
+     DVS_NPK_TRANSL:
+
+      #
+      # INITIAL DRY MATTER
+      #
+     TDWI:
+
+      #
+      # CROP GREEN AREA
+      #
+     SLATB:
+     SSATB:
+     SPA:
+     SPAN:
+     TBASE:
+     RGRLAI:
+
+      #
+      # ROOTING DEPTH
+      #
+     RDI:
+     RRI:
+     RDMCR:
+
+      #
+      # DEATH RATES
+      #
+     PERDL:
+     RDRROS:
+     RDRRNPK:
+     RDRRTB:
+     RDRSTB:
+     RDRSOB:
+
+      #
+      # WATER USE
+      #
+     CFET:
+     DEPNR:
+     IAIRDU:
+     IOX:
+
+      #
+      # IMPACT OF N/P/K STRESS ON PROCESSES
+      #
+     NTHRESH:
+     PTHRESH:
+     KTHRESH:
+     NLAI_NPK:
+     NSLA_NPK:
+     NPART:
+     NLUE_NPK:
+     NPK_TRANSLRT_FR:
+     RDRLV_NPK:
+
+      #
+      # Maximum N/P/K uptake rates
+      #
+     RNUPTAKEMAX:
+     RPUPTAKEMAX:
+     RKUPTAKEMAX:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL NITROGEN CONCENTRATION IN DIFFERENT ORGANS
+      #
+     NMAXLV_TB:
+     NMAXRT_FR:
+     NMAXST_FR:
+     NMAXSO:
+     NCRIT_FR:
+     NRESIDLV:
+     NRESIDST:
+     NRESIDRT:
+     TCNT:
+     NFIX_FR:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL PHOSPHORUS CONCENTRATION IN DIFFERENT ORGANS
+      #
+     PMAXLV_TB:
+     PMAXRT_FR:
+     PMAXST_FR:
+     PMAXSO:
+     PCRIT_FR:
+     PRESIDLV:
+     PRESIDST:
+     PRESIDRT:
+     TCPT:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL POTASSIUM CONCENTRATION IN DIFFERENT ORGANS
+      #
+     KMAXLV_TB:
+     KMAXRT_FR:
+     KMAXST_FR:
+     KMAXSO:
+     KCRIT_FR:
+     KRESIDLV:
+     KRESIDST:
+     KRESIDRT:
+     TCKT:
+     
+    crop_3:
+      #
+      # CO2 ASSIMILATION
+      #
+     KDIFTB:
+     EFFTB:
+     AMAXTB:
+     REFCO2L:
+     TMPFTB:
+     TMNFTB:
+
+      #
+      # RESPIRATION
+      #
+     Q10:
+     RML:
+     RMO:
+     RMR:
+     RMS:
+     RFSETB:
+
+      #
+      # CONVERSION EFFICIENCY OF ASSIMILATES
+      #
+     CVL:
+     CVO:
+     CVR:
+     CVS:
+
+      #
+      # PARTITIONING
+      #
+     FRTB:
+     FLTB:
+     FSTB:
+     FOTB:
+
+      #
+      # EMERGENCE
+      #
+     TBASEM:
+     TEFFMX:
+     TSUMEM:
+     DTBEM:
+
+      #
+      # PHENOLOGICAL DEVELOPMENT
+      #
+     IDSL:
+     DLO:
+     DLC:
+     TSUM1:
+     TSUM2:
+     TSUM3:
+     DTSMTB:
+     DVSI:
+     DVSM:
+     DVSEND:
+     AGEI:
+
+      #
+      # PERENNIAL DEVELOPMENT
+      #
+     DORM: 
+     DORMCD:
+     DCYCLEMAX:
+
+      #
+      # VERNALIZATION
+      #
+     VERNBASE:
+     VERNSAT:
+     VERNDVS:
+     VERNRTB:
+
+      #
+      # DVS NPK UPTAKE AND TRANSLOCATION
+      #
+     DVS_NPK_STOP:
+     DVS_NPK_TRANSL:
+
+      #
+      # INITIAL DRY MATTER
+      #
+     TDWI:
+
+      #
+      # CROP GREEN AREA
+      #
+     SLATB:
+     SSATB:
+     SPA:
+     SPAN:
+     TBASE:
+     RGRLAI:
+
+      #
+      # ROOTING DEPTH
+      #
+     RDI:
+     RRI:
+     RDMCR:
+
+      #
+      # DEATH RATES
+      #
+     PERDL:
+     RDRROS:
+     RDRRNPK:
+     RDRRTB:
+     RDRSTB:
+     RDRSOB:
+
+      #
+      # WATER USE
+      #
+     CFET:
+     DEPNR:
+     IAIRDU:
+     IOX:
+
+      #
+      # IMPACT OF N/P/K STRESS ON PROCESSES
+      #
+     NTHRESH:
+     PTHRESH:
+     KTHRESH:
+     NLAI_NPK:
+     NSLA_NPK:
+     NPART:
+     NLUE_NPK:
+     NPK_TRANSLRT_FR:
+     RDRLV_NPK:
+
+      #
+      # Maximum N/P/K uptake rates
+      #
+     RNUPTAKEMAX:
+     RPUPTAKEMAX:
+     RKUPTAKEMAX:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL NITROGEN CONCENTRATION IN DIFFERENT ORGANS
+      #
+     NMAXLV_TB:
+     NMAXRT_FR:
+     NMAXST_FR:
+     NMAXSO:
+     NCRIT_FR:
+     NRESIDLV:
+     NRESIDST:
+     NRESIDRT:
+     TCNT:
+     NFIX_FR:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL PHOSPHORUS CONCENTRATION IN DIFFERENT ORGANS
+      #
+     PMAXLV_TB:
+     PMAXRT_FR:
+     PMAXST_FR:
+     PMAXSO:
+     PCRIT_FR:
+     PRESIDLV:
+     PRESIDST:
+     PRESIDRT:
+     TCPT:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL POTASSIUM CONCENTRATION IN DIFFERENT ORGANS
+      #
+     KMAXLV_TB:
+     KMAXRT_FR:
+     KMAXST_FR:
+     KMAXSO:
+     KCRIT_FR:
+     KRESIDLV:
+     KRESIDST:
+     KRESIDRT:
+     TCKT:
+     
+    crop_4:
+      #
+      # CO2 ASSIMILATION
+      #
+     KDIFTB:
+     EFFTB:
+     AMAXTB:
+     REFCO2L:
+     TMPFTB:
+     TMNFTB:
+
+      #
+      # RESPIRATION
+      #
+     Q10:
+     RML:
+     RMO:
+     RMR:
+     RMS:
+     RFSETB:
+
+      #
+      # CONVERSION EFFICIENCY OF ASSIMILATES
+      #
+     CVL:
+     CVO:
+     CVR:
+     CVS:
+
+      #
+      # PARTITIONING
+      #
+     FRTB:
+     FLTB:
+     FSTB:
+     FOTB:
+
+      #
+      # EMERGENCE
+      #
+     TBASEM:
+     TEFFMX:
+     TSUMEM:
+     DTBEM:
+
+      #
+      # PHENOLOGICAL DEVELOPMENT
+      #
+     IDSL:
+     DLO:
+     DLC:
+     TSUM1:
+     TSUM2:
+     TSUM3:
+     DTSMTB:
+     DVSI:
+     DVSM:
+     DVSEND:
+     AGEI:
+
+      #
+      # PERENNIAL DEVELOPMENT
+      #
+     DORM: 
+     DORMCD:
+     DCYCLEMAX:
+
+      #
+      # VERNALIZATION
+      #
+     VERNBASE:
+     VERNSAT:
+     VERNDVS:
+     VERNRTB:
+
+      #
+      # DVS NPK UPTAKE AND TRANSLOCATION
+      #
+     DVS_NPK_STOP:
+     DVS_NPK_TRANSL:
+
+      #
+      # INITIAL DRY MATTER
+      #
+     TDWI:
+
+      #
+      # CROP GREEN AREA
+      #
+     SLATB:
+     SSATB:
+     SPA:
+     SPAN:
+     TBASE:
+     RGRLAI:
+
+      #
+      # ROOTING DEPTH
+      #
+     RDI:
+     RRI:
+     RDMCR:
+
+      #
+      # DEATH RATES
+      #
+     PERDL:
+     RDRROS:
+     RDRRNPK:
+     RDRRTB:
+     RDRSTB:
+     RDRSOB:
+
+      #
+      # WATER USE
+      #
+     CFET:
+     DEPNR:
+     IAIRDU:
+     IOX:
+
+      #
+      # IMPACT OF N/P/K STRESS ON PROCESSES
+      #
+     NTHRESH:
+     PTHRESH:
+     KTHRESH:
+     NLAI_NPK:
+     NSLA_NPK:
+     NPART:
+     NLUE_NPK:
+     NPK_TRANSLRT_FR:
+     RDRLV_NPK:
+
+      #
+      # Maximum N/P/K uptake rates
+      #
+     RNUPTAKEMAX:
+     RPUPTAKEMAX:
+     RKUPTAKEMAX:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL NITROGEN CONCENTRATION IN DIFFERENT ORGANS
+      #
+     NMAXLV_TB:
+     NMAXRT_FR:
+     NMAXST_FR:
+     NMAXSO:
+     NCRIT_FR:
+     NRESIDLV:
+     NRESIDST:
+     NRESIDRT:
+     TCNT:
+     NFIX_FR:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL PHOSPHORUS CONCENTRATION IN DIFFERENT ORGANS
+      #
+     PMAXLV_TB:
+     PMAXRT_FR:
+     PMAXST_FR:
+     PMAXSO:
+     PCRIT_FR:
+     PRESIDLV:
+     PRESIDST:
+     PRESIDRT:
+     TCPT:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL POTASSIUM CONCENTRATION IN DIFFERENT ORGANS
+      #
+     KMAXLV_TB:
+     KMAXRT_FR:
+     KMAXST_FR:
+     KMAXSO:
+     KCRIT_FR:
+     KRESIDLV:
+     KRESIDST:
+     KRESIDRT:
+     TCKT:
+     
+    crop_5:
+      #
+      # CO2 ASSIMILATION
+      #
+     KDIFTB:
+     EFFTB:
+     AMAXTB:
+     REFCO2L:
+     TMPFTB:
+     TMNFTB:
+
+      #
+      # RESPIRATION
+      #
+     Q10:
+     RML:
+     RMO:
+     RMR:
+     RMS:
+     RFSETB:
+
+      #
+      # CONVERSION EFFICIENCY OF ASSIMILATES
+      #
+     CVL:
+     CVO:
+     CVR:
+     CVS:
+
+      #
+      # PARTITIONING
+      #
+     FRTB:
+     FLTB:
+     FSTB:
+     FOTB:
+
+      #
+      # EMERGENCE
+      #
+     TBASEM:
+     TEFFMX:
+     TSUMEM:
+     DTBEM:
+
+      #
+      # PHENOLOGICAL DEVELOPMENT
+      #
+     IDSL:
+     DLO:
+     DLC:
+     TSUM1:
+     TSUM2:
+     TSUM3:
+     DTSMTB:
+     DVSI:
+     DVSM:
+     DVSEND:
+     AGEI:
+
+      #
+      # PERENNIAL DEVELOPMENT
+      #
+     DORM: 
+     DORMCD:
+     DCYCLEMAX:
+
+      #
+      # VERNALIZATION
+      #
+     VERNBASE:
+     VERNSAT:
+     VERNDVS:
+     VERNRTB:
+
+      #
+      # DVS NPK UPTAKE AND TRANSLOCATION
+      #
+     DVS_NPK_STOP:
+     DVS_NPK_TRANSL:
+
+      #
+      # INITIAL DRY MATTER
+      #
+     TDWI:
+
+      #
+      # CROP GREEN AREA
+      #
+     SLATB:
+     SSATB:
+     SPA:
+     SPAN:
+     TBASE:
+     RGRLAI:
+
+      #
+      # ROOTING DEPTH
+      #
+     RDI:
+     RRI:
+     RDMCR:
+
+      #
+      # DEATH RATES
+      #
+     PERDL:
+     RDRROS:
+     RDRRNPK:
+     RDRRTB:
+     RDRSTB:
+     RDRSOB:
+
+      #
+      # WATER USE
+      #
+     CFET:
+     DEPNR:
+     IAIRDU:
+     IOX:
+
+      #
+      # IMPACT OF N/P/K STRESS ON PROCESSES
+      #
+     NTHRESH:
+     PTHRESH:
+     KTHRESH:
+     NLAI_NPK:
+     NSLA_NPK:
+     NPART:
+     NLUE_NPK:
+     NPK_TRANSLRT_FR:
+     RDRLV_NPK:
+
+      #
+      # Maximum N/P/K uptake rates
+      #
+     RNUPTAKEMAX:
+     RPUPTAKEMAX:
+     RKUPTAKEMAX:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL NITROGEN CONCENTRATION IN DIFFERENT ORGANS
+      #
+     NMAXLV_TB:
+     NMAXRT_FR:
+     NMAXST_FR:
+     NMAXSO:
+     NCRIT_FR:
+     NRESIDLV:
+     NRESIDST:
+     NRESIDRT:
+     TCNT:
+     NFIX_FR:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL PHOSPHORUS CONCENTRATION IN DIFFERENT ORGANS
+      #
+     PMAXLV_TB:
+     PMAXRT_FR:
+     PMAXST_FR:
+     PMAXSO:
+     PCRIT_FR:
+     PRESIDLV:
+     PRESIDST:
+     PRESIDRT:
+     TCPT:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL POTASSIUM CONCENTRATION IN DIFFERENT ORGANS
+      #
+     KMAXLV_TB:
+     KMAXRT_FR:
+     KMAXST_FR:
+     KMAXSO:
+     KCRIT_FR:
+     KRESIDLV:
+     KRESIDST:
+     KRESIDRT:
+     TCKT:
+     
+    crop_6:
+      #
+      # CO2 ASSIMILATION
+      #
+     KDIFTB:
+     EFFTB:
+     AMAXTB:
+     REFCO2L:
+     TMPFTB:
+     TMNFTB:
+
+      #
+      # RESPIRATION
+      #
+     Q10:
+     RML:
+     RMO:
+     RMR:
+     RMS:
+     RFSETB:
+
+      #
+      # CONVERSION EFFICIENCY OF ASSIMILATES
+      #
+     CVL:
+     CVO:
+     CVR:
+     CVS:
+
+      #
+      # PARTITIONING
+      #
+     FRTB:
+     FLTB:
+     FSTB:
+     FOTB:
+
+      #
+      # EMERGENCE
+      #
+     TBASEM:
+     TEFFMX:
+     TSUMEM:
+     DTBEM:
+
+      #
+      # PHENOLOGICAL DEVELOPMENT
+      #
+     IDSL:
+     DLO:
+     DLC:
+     TSUM1:
+     TSUM2:
+     TSUM3:
+     DTSMTB:
+     DVSI:
+     DVSM:
+     DVSEND:
+     AGEI:
+
+      #
+      # PERENNIAL DEVELOPMENT
+      #
+     DORM: 
+     DORMCD:
+     DCYCLEMAX:
+
+      #
+      # VERNALIZATION
+      #
+     VERNBASE:
+     VERNSAT:
+     VERNDVS:
+     VERNRTB:
+
+      #
+      # DVS NPK UPTAKE AND TRANSLOCATION
+      #
+     DVS_NPK_STOP:
+     DVS_NPK_TRANSL:
+
+      #
+      # INITIAL DRY MATTER
+      #
+     TDWI:
+
+      #
+      # CROP GREEN AREA
+      #
+     SLATB:
+     SSATB:
+     SPA:
+     SPAN:
+     TBASE:
+     RGRLAI:
+
+      #
+      # ROOTING DEPTH
+      #
+     RDI:
+     RRI:
+     RDMCR:
+
+      #
+      # DEATH RATES
+      #
+     PERDL:
+     RDRROS:
+     RDRRNPK:
+     RDRRTB:
+     RDRSTB:
+     RDRSOB:
+
+      #
+      # WATER USE
+      #
+     CFET:
+     DEPNR:
+     IAIRDU:
+     IOX:
+
+      #
+      # IMPACT OF N/P/K STRESS ON PROCESSES
+      #
+     NTHRESH:
+     PTHRESH:
+     KTHRESH:
+     NLAI_NPK:
+     NSLA_NPK:
+     NPART:
+     NLUE_NPK:
+     NPK_TRANSLRT_FR:
+     RDRLV_NPK:
+
+      #
+      # Maximum N/P/K uptake rates
+      #
+     RNUPTAKEMAX:
+     RPUPTAKEMAX:
+     RKUPTAKEMAX:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL NITROGEN CONCENTRATION IN DIFFERENT ORGANS
+      #
+     NMAXLV_TB:
+     NMAXRT_FR:
+     NMAXST_FR:
+     NMAXSO:
+     NCRIT_FR:
+     NRESIDLV:
+     NRESIDST:
+     NRESIDRT:
+     TCNT:
+     NFIX_FR:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL PHOSPHORUS CONCENTRATION IN DIFFERENT ORGANS
+      #
+     PMAXLV_TB:
+     PMAXRT_FR:
+     PMAXST_FR:
+     PMAXSO:
+     PCRIT_FR:
+     PRESIDLV:
+     PRESIDST:
+     PRESIDRT:
+     TCPT:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL POTASSIUM CONCENTRATION IN DIFFERENT ORGANS
+      #
+     KMAXLV_TB:
+     KMAXRT_FR:
+     KMAXST_FR:
+     KMAXSO:
+     KCRIT_FR:
+     KRESIDLV:
+     KRESIDST:
+     KRESIDRT:
+     TCKT:
+     
+    crop_7:
+      #
+      # CO2 ASSIMILATION
+      #
+     KDIFTB:
+     EFFTB:
+     AMAXTB:
+     REFCO2L:
+     TMPFTB:
+     TMNFTB:
+
+      #
+      # RESPIRATION
+      #
+     Q10:
+     RML:
+     RMO:
+     RMR:
+     RMS:
+     RFSETB:
+
+      #
+      # CONVERSION EFFICIENCY OF ASSIMILATES
+      #
+     CVL:
+     CVO:
+     CVR:
+     CVS:
+
+      #
+      # PARTITIONING
+      #
+     FRTB:
+     FLTB:
+     FSTB:
+     FOTB:
+
+      #
+      # EMERGENCE
+      #
+     TBASEM:
+     TEFFMX:
+     TSUMEM:
+     DTBEM:
+
+      #
+      # PHENOLOGICAL DEVELOPMENT
+      #
+     IDSL:
+     DLO:
+     DLC:
+     TSUM1:
+     TSUM2:
+     TSUM3:
+     DTSMTB:
+     DVSI:
+     DVSM:
+     DVSEND:
+     AGEI:
+
+      #
+      # PERENNIAL DEVELOPMENT
+      #
+     DORM: 
+     DORMCD:
+     DCYCLEMAX:
+
+      #
+      # VERNALIZATION
+      #
+     VERNBASE:
+     VERNSAT:
+     VERNDVS:
+     VERNRTB:
+
+      #
+      # DVS NPK UPTAKE AND TRANSLOCATION
+      #
+     DVS_NPK_STOP:
+     DVS_NPK_TRANSL:
+
+      #
+      # INITIAL DRY MATTER
+      #
+     TDWI:
+
+      #
+      # CROP GREEN AREA
+      #
+     SLATB:
+     SSATB:
+     SPA:
+     SPAN:
+     TBASE:
+     RGRLAI:
+
+      #
+      # ROOTING DEPTH
+      #
+     RDI:
+     RRI:
+     RDMCR:
+
+      #
+      # DEATH RATES
+      #
+     PERDL:
+     RDRROS:
+     RDRRNPK:
+     RDRRTB:
+     RDRSTB:
+     RDRSOB:
+
+      #
+      # WATER USE
+      #
+     CFET:
+     DEPNR:
+     IAIRDU:
+     IOX:
+
+      #
+      # IMPACT OF N/P/K STRESS ON PROCESSES
+      #
+     NTHRESH:
+     PTHRESH:
+     KTHRESH:
+     NLAI_NPK:
+     NSLA_NPK:
+     NPART:
+     NLUE_NPK:
+     NPK_TRANSLRT_FR:
+     RDRLV_NPK:
+
+      #
+      # Maximum N/P/K uptake rates
+      #
+     RNUPTAKEMAX:
+     RPUPTAKEMAX:
+     RKUPTAKEMAX:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL NITROGEN CONCENTRATION IN DIFFERENT ORGANS
+      #
+     NMAXLV_TB:
+     NMAXRT_FR:
+     NMAXST_FR:
+     NMAXSO:
+     NCRIT_FR:
+     NRESIDLV:
+     NRESIDST:
+     NRESIDRT:
+     TCNT:
+     NFIX_FR:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL PHOSPHORUS CONCENTRATION IN DIFFERENT ORGANS
+      #
+     PMAXLV_TB:
+     PMAXRT_FR:
+     PMAXST_FR:
+     PMAXSO:
+     PCRIT_FR:
+     PRESIDLV:
+     PRESIDST:
+     PRESIDRT:
+     TCPT:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL POTASSIUM CONCENTRATION IN DIFFERENT ORGANS
+      #
+     KMAXLV_TB:
+     KMAXRT_FR:
+     KMAXST_FR:
+     KMAXSO:
+     KCRIT_FR:
+     KRESIDLV:
+     KRESIDST:
+     KRESIDRT:
+     TCKT:
+     
+    crop_8:
+      #
+      # CO2 ASSIMILATION
+      #
+     KDIFTB:
+     EFFTB:
+     AMAXTB:
+     REFCO2L:
+     TMPFTB:
+     TMNFTB:
+
+      #
+      # RESPIRATION
+      #
+     Q10:
+     RML:
+     RMO:
+     RMR:
+     RMS:
+     RFSETB:
+
+      #
+      # CONVERSION EFFICIENCY OF ASSIMILATES
+      #
+     CVL:
+     CVO:
+     CVR:
+     CVS:
+
+      #
+      # PARTITIONING
+      #
+     FRTB:
+     FLTB:
+     FSTB:
+     FOTB:
+
+      #
+      # EMERGENCE
+      #
+     TBASEM:
+     TEFFMX:
+     TSUMEM:
+     DTBEM:
+
+      #
+      # PHENOLOGICAL DEVELOPMENT
+      #
+     IDSL:
+     DLO:
+     DLC:
+     TSUM1:
+     TSUM2:
+     TSUM3:
+     DTSMTB:
+     DVSI:
+     DVSM:
+     DVSEND:
+     AGEI:
+
+      #
+      # PERENNIAL DEVELOPMENT
+      #
+     DORM: 
+     DORMCD:
+     DCYCLEMAX:
+
+      #
+      # VERNALIZATION
+      #
+     VERNBASE:
+     VERNSAT:
+     VERNDVS:
+     VERNRTB:
+
+      #
+      # DVS NPK UPTAKE AND TRANSLOCATION
+      #
+     DVS_NPK_STOP:
+     DVS_NPK_TRANSL:
+
+      #
+      # INITIAL DRY MATTER
+      #
+     TDWI:
+
+      #
+      # CROP GREEN AREA
+      #
+     SLATB:
+     SSATB:
+     SPA:
+     SPAN:
+     TBASE:
+     RGRLAI:
+
+      #
+      # ROOTING DEPTH
+      #
+     RDI:
+     RRI:
+     RDMCR:
+
+      #
+      # DEATH RATES
+      #
+     PERDL:
+     RDRROS:
+     RDRRNPK:
+     RDRRTB:
+     RDRSTB:
+     RDRSOB:
+
+      #
+      # WATER USE
+      #
+     CFET:
+     DEPNR:
+     IAIRDU:
+     IOX:
+
+      #
+      # IMPACT OF N/P/K STRESS ON PROCESSES
+      #
+     NTHRESH:
+     PTHRESH:
+     KTHRESH:
+     NLAI_NPK:
+     NSLA_NPK:
+     NPART:
+     NLUE_NPK:
+     NPK_TRANSLRT_FR:
+     RDRLV_NPK:
+
+      #
+      # Maximum N/P/K uptake rates
+      #
+     RNUPTAKEMAX:
+     RPUPTAKEMAX:
+     RKUPTAKEMAX:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL NITROGEN CONCENTRATION IN DIFFERENT ORGANS
+      #
+     NMAXLV_TB:
+     NMAXRT_FR:
+     NMAXST_FR:
+     NMAXSO:
+     NCRIT_FR:
+     NRESIDLV:
+     NRESIDST:
+     NRESIDRT:
+     TCNT:
+     NFIX_FR:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL PHOSPHORUS CONCENTRATION IN DIFFERENT ORGANS
+      #
+     PMAXLV_TB:
+     PMAXRT_FR:
+     PMAXST_FR:
+     PMAXSO:
+     PCRIT_FR:
+     PRESIDLV:
+     PRESIDST:
+     PRESIDRT:
+     TCPT:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL POTASSIUM CONCENTRATION IN DIFFERENT ORGANS
+      #
+     KMAXLV_TB:
+     KMAXRT_FR:
+     KMAXST_FR:
+     KMAXSO:
+     KCRIT_FR:
+     KRESIDLV:
+     KRESIDST:
+     KRESIDRT:
+     TCKT:
+     
+    crop_9:
+      #
+      # CO2 ASSIMILATION
+      #
+     KDIFTB:
+     EFFTB:
+     AMAXTB:
+     REFCO2L:
+     TMPFTB:
+     TMNFTB:
+
+      #
+      # RESPIRATION
+      #
+     Q10:
+     RML:
+     RMO:
+     RMR:
+     RMS:
+     RFSETB:
+
+      #
+      # CONVERSION EFFICIENCY OF ASSIMILATES
+      #
+     CVL:
+     CVO:
+     CVR:
+     CVS:
+
+      #
+      # PARTITIONING
+      #
+     FRTB:
+     FLTB:
+     FSTB:
+     FOTB:
+
+      #
+      # EMERGENCE
+      #
+     TBASEM:
+     TEFFMX:
+     TSUMEM:
+     DTBEM:
+
+      #
+      # PHENOLOGICAL DEVELOPMENT
+      #
+     IDSL:
+     DLO:
+     DLC:
+     TSUM1:
+     TSUM2:
+     TSUM3:
+     DTSMTB:
+     DVSI:
+     DVSM:
+     DVSEND:
+     AGEI:
+
+      #
+      # PERENNIAL DEVELOPMENT
+      #
+     DORM: 
+     DORMCD:
+     DCYCLEMAX:
+
+      #
+      # VERNALIZATION
+      #
+     VERNBASE:
+     VERNSAT:
+     VERNDVS:
+     VERNRTB:
+
+      #
+      # DVS NPK UPTAKE AND TRANSLOCATION
+      #
+     DVS_NPK_STOP:
+     DVS_NPK_TRANSL:
+
+      #
+      # INITIAL DRY MATTER
+      #
+     TDWI:
+
+      #
+      # CROP GREEN AREA
+      #
+     SLATB:
+     SSATB:
+     SPA:
+     SPAN:
+     TBASE:
+     RGRLAI:
+
+      #
+      # ROOTING DEPTH
+      #
+     RDI:
+     RRI:
+     RDMCR:
+
+      #
+      # DEATH RATES
+      #
+     PERDL:
+     RDRROS:
+     RDRRNPK:
+     RDRRTB:
+     RDRSTB:
+     RDRSOB:
+
+      #
+      # WATER USE
+      #
+     CFET:
+     DEPNR:
+     IAIRDU:
+     IOX:
+
+      #
+      # IMPACT OF N/P/K STRESS ON PROCESSES
+      #
+     NTHRESH:
+     PTHRESH:
+     KTHRESH:
+     NLAI_NPK:
+     NSLA_NPK:
+     NPART:
+     NLUE_NPK:
+     NPK_TRANSLRT_FR:
+     RDRLV_NPK:
+
+      #
+      # Maximum N/P/K uptake rates
+      #
+     RNUPTAKEMAX:
+     RPUPTAKEMAX:
+     RKUPTAKEMAX:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL NITROGEN CONCENTRATION IN DIFFERENT ORGANS
+      #
+     NMAXLV_TB:
+     NMAXRT_FR:
+     NMAXST_FR:
+     NMAXSO:
+     NCRIT_FR:
+     NRESIDLV:
+     NRESIDST:
+     NRESIDRT:
+     TCNT:
+     NFIX_FR:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL PHOSPHORUS CONCENTRATION IN DIFFERENT ORGANS
+      #
+     PMAXLV_TB:
+     PMAXRT_FR:
+     PMAXST_FR:
+     PMAXSO:
+     PCRIT_FR:
+     PRESIDLV:
+     PRESIDST:
+     PRESIDRT:
+     TCPT:
+
+      #
+      # MAXIMUM, CRITICAL AND RESIDUAL POTASSIUM CONCENTRATION IN DIFFERENT ORGANS
+      #
+     KMAXLV_TB:
+     KMAXRT_FR:
+     KMAXST_FR:
+     KMAXSO:
+     KCRIT_FR:
+     KRESIDLV:
+     KRESIDST:
+     KRESIDRT:
+     TCKT:
+     

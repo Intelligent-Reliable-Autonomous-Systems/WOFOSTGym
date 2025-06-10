@@ -1,0 +1,18 @@
+AgroManagement:
+    SiteCalendar:
+        latitude: 50
+        longitude: 5
+        year: 1990
+        site_name: oregon
+        site_variation: oregon_3
+        site_start_date: 1990-01-01
+        site_end_date: 1990-12-01
+    CropCalendar:
+        crop_name: potato
+        crop_variety: potato_1
+        crop_start_date: 1990-01-01
+        crop_start_type: sowing
+        crop_end_date: 1990-07-01
+        crop_end_type: max_duration
+        max_duration: 365
+

@@ -1,0 +1,17 @@
+AgroManagement:
+    SiteCalendar:
+        latitude: 44
+        longitude: -99
+        year: 1984
+        site_name: oregon
+        site_variation: oregon_1
+        site_start_date: 1985-05-01
+        site_end_date: 1985-11-01
+    CropCalendar:
+        crop_name: millet
+        crop_variety: millet_1
+        crop_start_date: 1985-05-01
+        crop_start_type: sowing
+        crop_end_date: 1985-11-01
+        crop_end_type: max_duration
+        max_duration: 365

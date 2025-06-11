@@ -23,7 +23,6 @@ import utils
 import pcse_gym.policies as policies
 from rl_algs.rl_utils import make_env
 
-
 @dataclass
 class DataArgs(utils.Args):
     """File extension (.npz or .csv)"""
@@ -124,12 +123,24 @@ def npz(env, args, pol):
     for pair in loc_yr:
         obs, _ = env.reset(**{'year':pair[1], 'location':pair[0]})
 
-        done = False
-        while not done:
+        term, trunc = False, False
+        if hasattr(pol, "lstm"):
+            next_lstm_state = (
+            torch.zeros(policy.lstm.num_layers, 1, policy.lstm.hidden_size).to(device),
+            torch.zeros(policy.lstm.num_layers, 1, policy.lstm.hidden_size).to(device),
+            )  # hidden and cell states (see https://youtu.be/8HyCNIVRbSU)
+
+        while not term:
             if args.agent_type:
                 obs = torch.from_numpy(obs).float().to('cuda')
-            action = pol.get_action(obs)
-            next_obs, reward, done, trunc, info = env.step(action)
+
+            if hasattr(pol, "lstm"):
+                next_done = np.logical_or([term], [trunc])
+                next_done = torch.Tensor(next_done).to(device)
+                action, next_lstm_state = policy.get_action(obs, next_lstm_state, next_done)
+            else: 
+                action = pol.get_action(obs)
+            next_obs, reward, term, trunc, info = env.step(action)
 
             if args.agent_type:
                 reward = env.unnormalize(reward)
@@ -139,7 +150,7 @@ def npz(env, args, pol):
                 obs_arr.append(utils.obs_to_numpy(obs))
                 next_obs_arr.append(utils.obs_to_numpy(next_obs))
             action_arr.append(utils.action_to_numpy(env, action))
-            dones_arr.append(done)
+            dones_arr.append(term)
 
             if isinstance(reward, torch.Tensor):
                 reward.cpu().numpy().flatten()[0]
@@ -151,7 +162,7 @@ def npz(env, args, pol):
 
             obs = next_obs
     
-            if done:
+            if term:
                 obs, _ = env.reset()
                 break
     np.savez(f"{args.save_folder}{args.data_file}.npz", obs=np.array(obs_arr), next_obs=np.array(next_obs_arr), \

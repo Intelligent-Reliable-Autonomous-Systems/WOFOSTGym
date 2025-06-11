@@ -972,7 +972,7 @@ npk:
   k_recovery: 0.7
   fert_amount: 2.0
   irrig_amount: 0.5
-  assets_fpath: /nfs/hpc/share/soloww/WOFOSTGym/pcse_gym/pcse_gym/assets/
+  assets_fpath: /home/will-solow/Projects/wofost-project/iras-wofost-gym/pcse_gym/pcse_gym/assets/
 env_id: lnpkw-v0
 env_reward: RewardLimitedRunoffWrapper
 render_mode: null
@@ -985,7 +985,7 @@ max_p: null
 max_k: null
 max_w: null
 cost: null
-base_fpath: /nfs/hpc/share/soloww/WOFOSTGym/
+base_fpath: /home/will-solow/Projects/wofost-project/iras-wofost-gym/
 agro_fpath: env_config/agro/
 crop_fpath: env_config/crop/
 site_fpath: env_config/site/

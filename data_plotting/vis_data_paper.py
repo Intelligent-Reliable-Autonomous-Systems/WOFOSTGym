@@ -296,7 +296,7 @@ def plot_reward_log_runoffbar(data, names, args):
 
     for i,d in enumerate(data.items()):
         log_dir, (steps, values) = d
-        avg, std = running_average(values)
+        avg, std = running_average(values,window_size=150)
         
         ax[0].set_yscale('symlog')
 
@@ -309,7 +309,7 @@ def plot_reward_log_runoffbar(data, names, args):
         ax[0].plot(steps, avg, label=names[i],color=utils.COLORS[i])
         ax[0].fill_between(steps, avg+std, avg-std, color=utils.COLORS[i],alpha=.4)
 
-    ax[0].set_xlim((0,1000000))
+    ax[0].set_xlim((0,5000000))
     ax[0].set_title("Potato Over One Seasons", fontsize=fnt_size)
     ax[1].set_title("Average Days with Runoff", fontsize=fnt_size)
     ax[1].set_xlabel("Relevant State Features in Each Environment", fontsize=fnt_size)
@@ -317,11 +317,11 @@ def plot_reward_log_runoffbar(data, names, args):
     ax[0].set_yticks([-1e4, -1e2, 0, 1e2, 1e4], labels=[f"$-10^4$", f"$-10^2$", f"$0$", f"$10^2$",f"$10^4$" ], fontsize=lb_size)
     ax[0].tick_params(axis='x', labelsize=lb_size)
     ax[0].set_xlabel("Episode Steps", fontsize=fnt_size)
-    ax[0].set_ylabel("Reward (Yield) (Log Scale)", fontsize=fnt_size)
+    ax[0].set_ylabel("Reward", fontsize=fnt_size)
     ax[0].legend(handlelength=1,ncol=2,fontsize=fnt_size, loc='lower right')
     plt.savefig(f"{args.save_name}.png", bbox_inches='tight')
 
-def load_bar_data(directories=["experiments/runs"]):
+def load_bar_data(directories=["experiments/data"], ag_type="RPPO"):
     """
     Walk through directories to get all npz files
     """
@@ -336,7 +336,8 @@ def load_bar_data(directories=["experiments/runs"]):
 
     # Group all files
     grouped_files = [[],[],[],[]]
-    prefixes = ['experiments/runs/potato_all', 'experiments/runs/potato_rain_totn', 'experiments/runs/potato_totn', 'experiments/runs/potato_rain']
+    prefixes = [f'experiments/data/Potato/{ag_type}/potato_all', f'experiments/data/Potato/{ag_type}/potato_rain_totn', 
+                f'experiments/data/Potato/{ag_type}/potato_totn', f'experiments/data/Potato/{ag_type}/potato_rain']
     for n in npz_files:
         if prefixes[0] in n:
             grouped_files[0].append(n)
@@ -380,7 +381,7 @@ def plot_reward_log_hist(data, names, args):
     fnt_size = 12
     lb_size=12
 
-    means = load_hist_data(directories=['experiments/data'], prefixes=['experiments/data/pear'])
+    means = load_hist_data(directories=['experiments/data'], prefixes=['experiments/data/Pear'])
     loc_mean = np.array([5, 3, 4, 1])
     loc_std = np.array([1, .5, .25, .1])
     x = np.arange(len(loc_mean))
@@ -843,9 +844,9 @@ if __name__ == "__main__":
                 "experiments/UncontrainedControl/Wheat/SAC/lnpkw-v0__rl_utils__1__1748416202",
                 "experiments/UncontrainedControl/Wheat/RPPO/lnpkw-v0__rl_utils__1__1748636264"]
     names = ["DQN", "PPO", "SAC", "RPPO"]
-    data = load_scalars_from_runs(log_dirs=log_dirs, scalar_name="charts/average_reward")
+    #data = load_scalars_from_runs(log_dirs=log_dirs, scalar_name="charts/average_reward")
     args.save_name = "experiments/figs/UnconstrainedControl_JujubeWheat"
-    plot_reward_figs_two(data, names, args)
+    #plot_reward_figs_two(data, names, args)
 
     # Constrained Control: Pear Threshold
     log_dirs = ["experiments/ContrainedControl/Pear/DQN/perennial-lnpkw-v0__rl_utils__1__1748732211",
@@ -853,16 +854,21 @@ if __name__ == "__main__":
                 "experiments/ContrainedControl/Pear/SAC/perennial-lnpkw-v0__rl_utils__1__1749102040",
                 "experiments/ContrainedControl/Pear/RPPO/perennial-lnpkw-v0__rl_utils__1__1749322749"]
     names = ["DQN", "PPO", "SAC", "RPPO"]
-    data = load_scalars_from_runs(log_dirs, scalar_name="charts/average_reward")
+    #data = load_scalars_from_runs(log_dirs, scalar_name="charts/average_reward")
     args.save_name = "experiments/figs/ConstrainedControl_PearThresholdProbs"
-    plot_reward_log_hist(data, names, args)
+    #plot_reward_log_hist(data, names, args)
     
-    sys.exit(0)
+    
     # Constrained Control: PPO Potato Runoff
-    log_dirs = [ # All
-                 # No Rain
-                 # No total N/NAvail
-                 #No total N/Rain 
+    # log_dirs = ["experiments/PartialObsConstrainedControl/Potato/RPPO/lnpkw-v0__rl_utils__1__1749355125", # All
+    #             "experiments/PartialObsConstrainedControl/Potato/RPPO/lnpkw-v0__rl_utils__1__1749355195", # No Rain
+    #             "experiments/PartialObsConstrainedControl/Potato/RPPO/lnpkw-v0__rl_utils__1__1749494686", # No total N/NAvail
+    #             "experiments/PartialObsConstrainedControl/Potato/RPPO/lnpkw-v0__rl_utils__1__1749517840", #No total N/Rain 
+    #             ]
+    log_dirs = ["experiments/PartialObsConstrainedControl/Potato/PPO/lnpkw-v0__rl_utils__1__1748664019", # All
+                "experiments/PartialObsConstrainedControl/Potato/PPO/lnpkw-v0__rl_utils__1__1748664026", # No Rain
+                "experiments/PartialObsConstrainedControl/Potato/PPO/lnpkw-v0__rl_utils__1__1749009571", # No total N
+                "experiments/PartialObsConstrainedControl/Potato/PPO/lnpkw-v0__rl_utils__1__1749009625" # No total N/Rain
                 ]
     names = ["Neither", "RAIN", "TOTN", "RAIN+TOTN"]
     data = load_scalars_from_runs(log_dirs, scalar_name="charts/average_reward")

@@ -4,13 +4,14 @@ import yaml
 import subprocess
 from notif import Notif
 from successNotif import SuccessNotif
-from customAgroPage import CustomAgro
+from customConfigPage import CustomConfigurationPage
+from trainAgentPage import TrainAgentPage
 
 from PySide6.QtWidgets import (
-    QWidget, QPushButton, QComboBox,
+    QWidget, QPushButton, QComboBox, QFrame,
     QVBoxLayout, QLabel, QHBoxLayout, QTextEdit,
 )
-from PySide6.QtCore import QSize
+from PySide6.QtCore import QSize, Qt
 
 AGRO_FOLDER_PATH = "env_config/agro"
 
@@ -18,15 +19,16 @@ class AgromanagementPage(QWidget):
     def __init__(self, pages, env_selections, file_selections):
         super().__init__()
         self.setWindowTitle("Agromanagement Configuration")
-        self.setFixedSize(400, 500)
+        self.setFixedSize(500, 500)
         self.env_selections = env_selections
         self.file_selections = file_selections
         self.pages = pages
         self.pages["agro_page"] = self
 
-        # ===== Variables =====
-
-        # Available Agros
+        # **************************
+        #        INPUTS
+        # **************************
+        # Available Agro YAMLs
         self.agros_label = QLabel("Available Configs:")
         self.agros_label.setFixedSize(QSize(125, 30))
         self.agros_dropdown = QComboBox()
@@ -37,53 +39,78 @@ class AgromanagementPage(QWidget):
         agros_layout.addWidget(self.agros_dropdown)
         agros_layout.addStretch()
 
-        self.selected_agro_site_info = QTextEdit()
-        self.selected_agro_site_info.setReadOnly(True)
-        self.selected_agro_site_label = QLabel("Site Info:")
-        self.selected_agro_crop_info = QTextEdit()
-        self.selected_agro_crop_info.setReadOnly(True)
-        self.selected_agro_crop_label = QLabel("Crop Info:")
+        # **************************
+        #        AGRO INFO
+        # **************************
+        self.selected_agro_info = QTextEdit()
+        self.selected_agro_info.setReadOnly(True)
+        self.selected_agro_info.setFixedSize(QSize(400, 300))
 
-        self.selected_agro_site_info.setFixedHeight(100)
-        self.selected_agro_crop_info.setFixedHeight(100)
-
-        agros_info_layout = QVBoxLayout()
-        agros_info_layout.addWidget(self.selected_agro_site_label)
-        agros_info_layout.addWidget(self.selected_agro_site_info)
-        agros_info_layout.addWidget(self.selected_agro_crop_label)
-        agros_info_layout.addWidget(self.selected_agro_crop_info)
-
-        self.load_agro_yaml_files()
-        self.agros_dropdown.setCurrentIndex(-1)
-        self.agros_dropdown.currentIndexChanged.connect(self.read_selected_yaml)
-
-
-        # ===== Buttons =====
+        # *************************
+        #        BUTTONS
+        # *************************
         back_button = QPushButton("Back")
         back_button.setFixedSize(QSize(50, 30))
         back_button.clicked.connect(self.go_back)
 
         run_sim_button = QPushButton("Run Simulation")
-        run_sim_button.clicked.connect(self.run_simulation)
+        run_sim_button.clicked.connect(self.run_sim)
 
-        custom_agro_button = QPushButton("Custom Agro")
-        custom_agro_button.clicked.connect(self.run_custom_agro)
+        run_training_button = QPushButton("Run Training")
+        run_training_button.clicked.connect(self.run_training)
 
+        custom_agro_button = QPushButton("Create Custom Config")
+        custom_agro_button.clicked.connect(self.create_custom)
 
-        # ===== Main Layout =====
+        # Button Layout
+        run_button_layout = QHBoxLayout()
+        run_button_layout.setContentsMargins(0, 0, 0, 0)
+        run_button_layout.setSpacing(10)
+        run_button_layout.addStretch()
+        run_button_layout.addWidget(run_sim_button)
+        run_button_layout.addWidget(run_training_button)
+        run_button_layout.addStretch()
+
+        separator = QFrame()
+        separator.setFrameShape(QFrame.HLine)
+        separator.setFrameShadow(QFrame.Sunken)
+        separator.setFixedHeight(2)
+
+        button_layout = QVBoxLayout()
+        button_layout.addLayout(run_button_layout)
+        button_layout.addWidget(separator)
+        button_layout.addWidget(custom_agro_button)
+        button_layout.addStretch()
+
+        # *************************
+        #         LAYOUT
+        # *************************
         layout = QVBoxLayout()
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(15)
 
         layout.addWidget(back_button)
         layout.addLayout(agros_layout)
-        layout.addLayout(agros_info_layout)
-        layout.addWidget(run_sim_button)
-        layout.addWidget(custom_agro_button)
+        layout.addWidget(self.selected_agro_info, alignment=Qt.AlignCenter)
+        layout.addLayout(button_layout)
+
+        layout.addStretch()
         self.setLayout(layout)
 
+        # *************************
+        #      INITIALIZATION
+        # *************************
+        self.load_agro_yaml_files()
+        self.agros_dropdown.setCurrentIndex(-1)
 
-    # ===== Functions =====
+        # *************************
+        #        SIGNALS
+        # *************************
+        self.agros_dropdown.currentIndexChanged.connect(self.read_selected_yaml)
+
+    # *************************
+    #        FUNCTIONS
+    # *************************
     def load_agro_yaml_files(self):
         if not os.path.isdir(AGRO_FOLDER_PATH):
             print("-WOFOST- Invalid agro folder path")
@@ -108,71 +135,49 @@ class AgromanagementPage(QWidget):
         file_path = os.path.join(AGRO_FOLDER_PATH, file_name)
 
         try:
-            with open(file_path, 'r') as f:
-                data = yaml.safe_load(f)
-
-            agm = data.get("AgroManagement", {})
-            site = agm.get("SiteCalendar", {})
-            crop = agm.get("CropCalendar", {})
-            self.site = site
-            self.crop = crop
-
-            if not site or not crop:
-                self.selected_agro_site_info.setText("No site information available.")
-                self.selected_agro_crop_info.setText("No crop information available.")
-                return
-            
-            site_data_formatted = (
-                f"Name: {site.get('site_name', 'N/A')}\n"
-                f"Variation: {site.get('site_variation', 'N/A')}\n"
-                f"Location: {site.get('latitude', 'N/A')}, {site.get('longitude', 'N/A')}\n"
-                f"Year: {site.get('year', 'N/A')}\n"
-                f"Start/End: {site.get('site_start_date', 'N/A')} / {site.get('site_end_date')}"
-            )    
-
-            crop_data_formatted = (
-                f"Name: {crop.get('crop_name', 'N/A')}\n"
-                f"Variety: {crop.get('crop_variety', 'N/A')}\n"
-                f"Start Date/Type: {crop.get('crop_start_date', 'N/A')} ({crop.get('crop_start_type', 'N/A')})\n"
-                f"End Date/Type: {crop.get('crop_end_date', 'N/A')} ({crop.get('crop_end_type', 'N/A')})\n"
-                f"Max Duration: {crop.get('max_duration', 'N/A')} days"
-            )
-
-            self.selected_agro_site_info.setText(site_data_formatted)
-            self.selected_agro_crop_info.setText(crop_data_formatted)
-
+            with open(file_path, 'r') as yaml_file:
+                self.yaml_data = yaml.safe_load(yaml_file)
+                text_data = yaml.dump(self.yaml_data, default_flow_style=False, allow_unicode=True, sort_keys=False)
+                self.selected_agro_info.setPlainText(text_data)
         except Exception as e:
             print(f"-WOFOST- Error reading agro YAML file: {e}")
 
-    def run_simulation(self):
+    def check_input(self):
         agro_file = self.agros_dropdown.currentText()
         if not agro_file:
             self.notif = Notif("Please select an agro configuration.")
             self.notif.show()
-            return
+            return False
 
         cycle = self.env_selections.get("cycle")
-        if cycle == "Annual" and self.crop.get("crop_name").lower() in ["grape", "jujube", "pear"]:
+        crop = self.yaml_data.get("AgroManagement", {}).get("CropCalendar", {}).get("crop_name", "").lower()
+        if cycle == "Annual" and crop in ["grape", "jujube", "pear"]:
             self.notif = Notif("Annual environment does not support grape, jujube, or pear.")
             self.notif.show()
-            return
-        elif cycle == "Perennial" and self.crop.get("crop_name").lower() not in ["jujube", "pear"]:
+            return False
+        elif cycle == "Perennial" and crop not in ["jujube", "pear"]:
             self.notif = Notif("Perennial environment only supports jujube and pear.")
             self.notif.show()
-            return
-        elif cycle == "Grape Specific" and self.crop.get("crop_name").lower() != "grape":
+            return False
+        elif cycle == "Grape Specific" and crop != "grape":
             self.notif = Notif("Grape specific environment only supports grape.")
             self.notif.show()
-            return
-        elif cycle == "Annual - Multi Farm" and self.crop.get("crop_name").lower() in ["grape", "jujube", "pear"]:
+            return False
+        elif cycle == "Annual - Multi Farm" and crop in ["grape", "jujube", "pear"]:
             self.notif = Notif("Annual - Multi Farm environment does not support grape, jujube, or pear.")
             self.notif.show()
-            return
-        elif cycle == "Perennial - Multi Farm" and self.crop.get("crop_name").lower() not in ["jujube", "pear"]:
+            return False
+        elif cycle == "Perennial - Multi Farm" and crop not in ["jujube", "pear"]:
             self.notif = Notif("Perennial - Multi Farm environment only supports jujube and pear.")
             self.notif.show()
+            return False
+        return True
+    
+
+    def run_sim(self):
+        if not self.check_input():
             return
-        
+        agro_file = self.agros_dropdown.currentText()
         try:
             print("-WOFOST- Running agro simulation...")
             print("-WOFOST- Command: python3 test_wofost.py --save-folder {}/ --data-file {} --env-id {} --agro-file {}".format(
@@ -200,9 +205,21 @@ class AgromanagementPage(QWidget):
             self.pages["env_page"].close()
             self.close()
             return
-        
-    def run_custom_agro(self):
-        self.custom_agro = CustomAgro(pages=self.pages, env_selections=self.env_selections, file_selections=self.file_selections)
+    
+    def run_training(self):
+        if not self.check_input():
+            return
+        self.env_selections["agro_file"] = self.agros_dropdown.currentText()
+        self.train_agent_page = TrainAgentPage(
+            pages=self.pages,
+            env_selections=self.env_selections,
+            file_selections=self.file_selections,
+        )
+        self.train_agent_page.show()
+        self.hide()
+  
+    def create_custom(self):
+        self.custom_agro = CustomConfigurationPage(pages=self.pages, env_selections=self.env_selections, file_selections=self.file_selections)
         self.custom_agro.show()
         self.hide()
 

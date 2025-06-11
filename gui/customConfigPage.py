@@ -3,35 +3,32 @@ import yaml
 import subprocess
 from notif import Notif
 from successNotif import SuccessNotif
-import agroYamlHelper as ah
+from trainAgentPage import TrainAgentPage
+import yamlHelper as ah
 
 from PySide6.QtWidgets import (
-    QWidget, QPushButton, QComboBox, QLineEdit, QCheckBox,
+    QWidget, QPushButton, QComboBox, QLineEdit, QCheckBox, QDateEdit,
     QVBoxLayout, QLabel, QHBoxLayout, QGroupBox, QTextEdit,
 )
-from PySide6.QtCore import QSize
+from PySide6.QtCore import QSize, QDate
 
 AGRO_FOLDER_PATH = "env_config/agro"
 CROP_FOLDER_PATH = "env_config/crop"
 SITE_FOLDER_PATH = "env_config/site"
 
-class CustomAgro(QWidget):
+class CustomConfigurationPage(QWidget):
     def __init__(self, pages, env_selections, file_selections):
         super().__init__()
-        self.setWindowTitle("Custom Agromanagement Configuration")
-        self.setFixedSize(1000, 400)
+        self.setWindowTitle("Custom Configuration")
+        self.setFixedSize(1000, 500)
         self.env_selections = env_selections
         self.file_selections = file_selections
         self.pages = pages
-        self.pages["custom_agro_page"] = self
-
-        self.agro_file_inputs = {"file_name": "default",}
+        self.pages["custom_config_page"] = self
 
         # *************************
-        #       VARIABLES
+        #       CROP INPUTS
         # *************************
-
-        # ===== CROPS =====
         crops = QGroupBox("")
         crops_layout = QVBoxLayout()
 
@@ -41,13 +38,12 @@ class CustomAgro(QWidget):
         self.crops_dropdown = QComboBox()
         self.crops_dropdown.setFixedSize(QSize(200, 30))
         
-        
         crop_names_layout = QHBoxLayout()
         crop_names_layout.addWidget(self.crops_label)
         crop_names_layout.addWidget(self.crops_dropdown)
         crop_names_layout.addStretch()
 
-        # Crop Varietie
+        # Crop Variety
         self.crops_varieties_label = QLabel("Crop Varieties:")
         self.crops_varieties_label.setFixedSize(QSize(125, 30))
         self.crop_varieties_dropdown = QComboBox()
@@ -80,14 +76,44 @@ class CustomAgro(QWidget):
         crop_max_duration_layout.addWidget(self.crop_max_duration_input)
         crop_max_duration_layout.addStretch()
 
+        # Crop Start Date
+        self.crop_start_date_label = QLabel("Crop Start Date:")
+        self.crop_start_date_label.setFixedSize(QSize(125, 30))
+        self.crop_start_date_input = QDateEdit()
+        self.crop_start_date_input.setDate(QDate(2020, 1, 1))
+        self.crop_start_date_input.setCalendarPopup(True)
+        self.crop_start_date_input.setDisplayFormat("yyyy-MM-dd")
+
+        crop_start_date_layout = QHBoxLayout()
+        crop_start_date_layout.addWidget(self.crop_start_date_label)
+        crop_start_date_layout.addWidget(self.crop_start_date_input)
+        crop_start_date_layout.addStretch()
+
+        # Crop End Date
+        self.crop_end_date_label = QLabel("Crop End Date:")
+        self.crop_end_date_label.setFixedSize(QSize(125, 30))
+        self.crop_end_date_input = QDateEdit()
+        self.crop_end_date_input.setDate(QDate(2020, 12, 31))
+        self.crop_end_date_input.setCalendarPopup(True)
+        self.crop_end_date_input.setDisplayFormat("yyyy-MM-dd")
+
+        crop_end_date_layout = QHBoxLayout()
+        crop_end_date_layout.addWidget(self.crop_end_date_label)
+        crop_end_date_layout.addWidget(self.crop_end_date_input)
+        crop_end_date_layout.addStretch()
+
         # Main Crop Layout
         crops_layout.addLayout(crop_names_layout)
         crops_layout.addLayout(crops_varieties_layout)
         crops_layout.addLayout(crop_end_type_layout)
         crops_layout.addLayout(crop_max_duration_layout)
+        crops_layout.addLayout(crop_start_date_layout)
+        crops_layout.addLayout(crop_end_date_layout)
         crops.setLayout(crops_layout)    
 
-        # ===== SITES =====
+        # *************************
+        #       SITE INPUTS
+        # *************************
         sites = QGroupBox("")
         sites_layout = QVBoxLayout()
 
@@ -143,15 +169,65 @@ class CustomAgro(QWidget):
         site_year_layout.addWidget(self.site_year_input)
         site_year_layout.addStretch()
 
+        # Site Start Date
+        self.site_start_date_label = QLabel("Site Start Date:")
+        self.site_start_date_label.setFixedSize(QSize(125, 30))
+        self.site_start_date_input = QDateEdit()
+        self.site_start_date_input.setDate(QDate(2020, 1, 1))
+        self.site_start_date_input.setCalendarPopup(True)
+        self.site_start_date_input.setDisplayFormat("yyyy-MM-dd")
+
+        site_start_date_layout = QHBoxLayout()
+        site_start_date_layout.addWidget(self.site_start_date_label)
+        site_start_date_layout.addWidget(self.site_start_date_input)
+        site_start_date_layout.addStretch()
+
+        # Site End Date
+        self.site_end_date_label = QLabel("Site End Date:")
+        self.site_end_date_label.setFixedSize(QSize(125, 30))
+        self.site_end_date_input = QDateEdit()
+        self.site_end_date_input.setDate(QDate(2020, 12, 31))
+        self.site_end_date_input.setCalendarPopup(True)
+        self.site_end_date_input.setDisplayFormat("yyyy-MM-dd")
+
+        site_end_date_layout = QHBoxLayout()
+        site_end_date_layout.addWidget(self.site_end_date_label)
+        site_end_date_layout.addWidget(self.site_end_date_input)
+        site_end_date_layout.addStretch()
+
         # Main Site Layout
         sites_layout.addLayout(site_layout)
         sites_layout.addLayout(site_variations_layout)
         sites_layout.addLayout(site_latitude_layout)
         sites_layout.addLayout(site_longitude_layout)
         sites_layout.addLayout(site_year_layout)
+        sites_layout.addLayout(site_start_date_layout)
+        sites_layout.addLayout(site_end_date_layout)
         sites.setLayout(sites_layout)
 
-        # ===== SUB LAYOUT =====
+        # *************************
+        #         BUTTONS
+        # *************************
+        back_button = QPushButton("Back")
+        back_button.setFixedSize(QSize(50, 30))
+        back_button.clicked.connect(self.go_back)
+
+        run_sim_button = QPushButton("Run Simulation")
+        run_sim_button.clicked.connect(self.run_simulation)
+
+        run_training_button = QPushButton("Run Training")
+        run_training_button.clicked.connect(self.run_training)
+
+        run_button_layout = QHBoxLayout()
+        run_button_layout.addStretch()
+        run_button_layout.addWidget(run_sim_button)
+        run_button_layout.addWidget(run_training_button)
+        run_button_layout.addStretch()
+
+        # *************************
+        #          LAYOUT
+        # *************************
+        # Sub
         dropdown_layout = QHBoxLayout()
         dropdown_layout.addWidget(crops)
         dropdown_layout.addWidget(sites)
@@ -163,7 +239,7 @@ class CustomAgro(QWidget):
         sub_layout.addLayout(dropdown_layout)
         sub_layout.addWidget(self.agro_man_info)
 
-        # ===== MISC =====
+        # Misc
         self.yaml_name_label = QLabel("Agro File Name:")
         self.yaml_name_label.setFixedSize(QSize(125, 30))
         self.yaml_name_input = QLineEdit()
@@ -181,7 +257,20 @@ class CustomAgro(QWidget):
         misc_layout.addWidget(self.save_file_checkbox)
         misc_layout.addStretch()
 
-        # ===== INIT =====
+        # Main
+        layout = QVBoxLayout()
+        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setSpacing(15)
+
+        layout.addWidget(back_button)
+        layout.addLayout(sub_layout)
+        layout.addLayout(misc_layout)
+        layout.addLayout(run_button_layout)
+        self.setLayout(layout)
+
+        # *************************
+        #      INITIALIZATION
+        # *************************
         self.load_crop_yaml_files()
         self.load_site_yaml_files()
 
@@ -191,46 +280,31 @@ class CustomAgro(QWidget):
         self.sites_dropdown.setCurrentIndex(-1)
         self.site_variations_dropdown.setCurrentIndex(-1)
 
+        self.agro_file_inputs = {}
         self.refresh_agro_info()
 
         # *************************
-        #         BUTTONS
+        #        SIGNALS
         # *************************
-        back_button = QPushButton("Back")
-        back_button.setFixedSize(QSize(50, 30))
-        back_button.clicked.connect(self.go_back)
 
-        run_sim_button = QPushButton("Run Simulation")
-        run_sim_button.clicked.connect(self.run_simulation_2)
-
-        # *************************
-        #       MAIN LAYOUT
-        # *************************
-        layout = QVBoxLayout()
-        layout.setContentsMargins(10, 10, 10, 10)
-        layout.setSpacing(15)
-
-        layout.addWidget(back_button)
-        layout.addLayout(sub_layout)
-        layout.addLayout(misc_layout)
-        layout.addWidget(run_sim_button)
-        self.setLayout(layout)
-
-        # *************************
-        #       SIGNALS
-        # *************************
+        # Crops
         self.crops_dropdown.currentIndexChanged.connect(self.load_crop_varieties)
         self.crops_dropdown.currentIndexChanged.connect(self.refresh_agro_info)
         self.crop_varieties_dropdown.currentIndexChanged.connect(self.refresh_agro_info)
         self.crop_end_type_dropdown.currentIndexChanged.connect(self.refresh_agro_info)
         self.crop_max_duration_input.textChanged.connect(self.refresh_agro_info)
+        self.crop_start_date_input.dateChanged.connect(self.refresh_agro_info)
+        self.crop_end_date_input.dateChanged.connect(self.refresh_agro_info)
+
+        # Sites
         self.sites_dropdown.currentIndexChanged.connect(self.load_site_variations)
         self.sites_dropdown.currentIndexChanged.connect(self.refresh_agro_info)
         self.site_variations_dropdown.currentIndexChanged.connect(self.refresh_agro_info)
         self.site_latitude_input.textChanged.connect(self.refresh_agro_info)
         self.site_longitude_input.textChanged.connect(self.refresh_agro_info)
         self.site_year_input.textChanged.connect(self.refresh_agro_info)
-
+        self.site_start_date_input.dateChanged.connect(self.refresh_agro_info)
+        self.site_end_date_input.dateChanged.connect(self.refresh_agro_info)
 
     # *************************
     #       FUNCTIONS
@@ -248,6 +322,16 @@ class CustomAgro(QWidget):
                 self.notif = Notif(f"Please fill in all fields.")
                 self.notif.show()
                 return False
+            
+        if site_info.get("site_start_date") > site_info.get("site_end_date"):
+            self.notif = Notif("Site start date cannot be after site end date.")
+            self.notif.show()
+            return False
+        if crop_info.get("crop_start_date") > crop_info.get("crop_end_date"):
+            self.notif = Notif("Crop start date cannot be after crop end date.")
+            self.notif.show()
+            return False
+            
         return True
 
     def handle_create_agro(self, create=False):
@@ -262,11 +346,13 @@ class CustomAgro(QWidget):
         return yaml_info["agro_yaml"]
 
     def refresh_agro_info(self):
-        # CROP
+        # Crop
         crop_name = self.crops_dropdown.currentText()
         crop_variety = self.crop_varieties_dropdown.currentText()
         crop_end_type = self.crop_end_type_dropdown.currentText()
         crop_max_duration = self.crop_max_duration_input.text()
+        crop_start_date = self.crop_start_date_input.date().toPython()
+        crop_end_date = self.crop_end_date_input.date().toPython()
         
         if crop_name and crop_name != "":
             self.agro_file_inputs["crop_name"] = crop_name
@@ -274,6 +360,10 @@ class CustomAgro(QWidget):
             self.agro_file_inputs["crop_variety"] = crop_variety
         if crop_end_type and crop_end_type != "":
             self.agro_file_inputs["crop_end_type"] = crop_end_type
+        if crop_start_date and crop_start_date != "":
+            self.agro_file_inputs["crop_start_date"] = crop_start_date
+        if crop_end_date and crop_end_date != "":
+            self.agro_file_inputs["crop_end_date"] = crop_end_date
         if crop_max_duration and crop_max_duration != "":
             try:
                 self.agro_file_inputs["max_duration"] = int(crop_max_duration)
@@ -284,46 +374,53 @@ class CustomAgro(QWidget):
                 self.crop_max_duration_input.clear()
                 return
 
-        # SITE
-
+        # Site
         site_name = self.sites_dropdown.currentText()
         site_variation = self.site_variations_dropdown.currentText()
+        site_longitude = self.site_longitude_input.text()
+        site_latitude = self.site_latitude_input.text()
+        site_year = self.site_year_input.text()
+        site_start_date = self.site_start_date_input.date().toPython()
+        site_end_date = self.site_end_date_input.date().toPython()
 
         if site_name and site_name != "":
             self.agro_file_inputs["site_name"] = site_name
         if site_variation and site_variation != "":
             self.agro_file_inputs["site_variation"] = site_variation
-        if self.site_longitude_input.text() and self.site_longitude_input.text() != "":
+        if site_longitude and site_longitude != "":
             try:
-                self.agro_file_inputs["longitude"] = int(self.site_longitude_input.text())
+                self.agro_file_inputs["longitude"] = float(site_longitude)
             except ValueError:
-                self.notif = Notif("Invalid longitude. Please enter a number.")
+                self.notif = Notif("Invalid site longitude. Please enter a number.")
                 self.notif.show()
                 self.agro_file_inputs.pop("longitude", None)
                 self.site_longitude_input.clear()
                 return
-        if self.site_latitude_input.text() and self.site_latitude_input.text() != "":
+        if site_latitude and site_latitude != "":
             try:
-                self.agro_file_inputs["latitude"] = int(self.site_latitude_input.text())
+                self.agro_file_inputs["latitude"] = float(site_latitude)
             except ValueError:
-                self.notif = Notif("Invalid latitude. Please enter a number.")
+                self.notif = Notif("Invalid site latitude. Please enter a number.")
                 self.notif.show()
                 self.agro_file_inputs.pop("latitude", None)
                 self.site_latitude_input.clear()
                 return
-        if self.site_year_input.text() and self.site_year_input.text() != "":
+        if site_year and site_year != "":
             try:
-                self.agro_file_inputs["year"] = int(self.site_year_input.text())
+                self.agro_file_inputs["year"] = int(site_year)
             except ValueError:
-                self.notif = Notif("Invalid year. Please enter a number.")
+                self.notif = Notif("Invalid site year. Please enter a number.")
                 self.notif.show()
                 self.agro_file_inputs.pop("year", None)
                 self.site_year_input.clear()
                 return
+        if site_start_date and site_start_date != "":
+            self.agro_file_inputs["site_start_date"] = site_start_date
+        if site_end_date and site_end_date != "":
+            self.agro_file_inputs["site_end_date"] = site_end_date
 
         self.handle_create_agro()
 
-    # ===== CROPS =====
     def load_crop_yaml_files(self):
         if not os.path.isdir(CROP_FOLDER_PATH):
             print("Invalid crop folder path during crop YAML loading")
@@ -365,7 +462,6 @@ class CustomAgro(QWidget):
         else:
             self.crop_varieties_dropdown.addItem("No varieties available")
 
-    # ===== SITES =====
     def load_site_yaml_files(self):
         if not os.path.isdir(SITE_FOLDER_PATH):
             print("Invalid site folder path during YAML loading")
@@ -407,28 +503,28 @@ class CustomAgro(QWidget):
         else:
             self.site_variations_dropdown.addItem("No variations available")
 
-    # ===== RUN SIMULATION =====
-    def run_simulation_1(self):
-        crop_name = self.crops_dropdown.currentText()
-        crop_variety = self.crop_varieties_dropdown.currentText()
-        site_name = self.sites_dropdown.currentText()
-        site_variation = self.site_variations_dropdown.currentText()
+    # Run Simulation -- Uses individual agrs for crop and site variables (Depricated)
+    # def run_simulation_1(self):
+    #     crop_name = self.crops_dropdown.currentText()
+    #     crop_variety = self.crop_varieties_dropdown.currentText()
+    #     site_name = self.sites_dropdown.currentText()
+    #     site_variation = self.site_variations_dropdown.currentText()
 
-        if not crop_name or not crop_variety or not site_name or not site_variation:
-            self.notif = Notif("Please select all options.")
-            self.notif.show()
-            return
+    #     if not crop_name or not crop_variety or not site_name or not site_variation:
+    #         self.notif = Notif("Please select all options.")
+    #         self.notif.show()
+    #         return
         
-        print("-WOFOST- Running custom agro simulation...")
-        print("-WOFOST- Command: python3 test_wofost.py --save-folder {} --data-file {} --env-id {} --npk.ag.crop-name {} --npk.ag.crop-variety {} --npk.ag.site-name {} --npk.ag.site-variation {}".format(
-            self.file_selections["save_folder"],
-            self.file_selections["data_file"],
-            self.env_selections["env_id"],
-            crop_name,
-            crop_variety,
-            site_name,
-            site_variation
-        ))
+    #     print("-WOFOST- Running custom agro simulation...")
+    #     print("-WOFOST- Command: python3 test_wofost.py --save-folder {} --data-file {} --env-id {} --npk.ag.crop-name {} --npk.ag.crop-variety {} --npk.ag.site-name {} --npk.ag.site-variation {}".format(
+    #         self.file_selections["save_folder"],
+    #         self.file_selections["data_file"],
+    #         self.env_selections["env_id"],
+    #         crop_name,
+    #         crop_variety,
+    #         site_name,
+    #         site_variation
+    #     ))
 
         subprocess.run([
             "python3", "test_wofost.py",
@@ -441,7 +537,8 @@ class CustomAgro(QWidget):
             "--npk.ag.site-variation", site_variation,
         ])
 
-    def run_simulation_2(self):
+    # Run Simulation -- Uses agro file inputs to create a YAML file and run the simulation
+    def run_simulation(self):
         if not self.yaml_name_input.text() or not self.yaml_name_input.text().strip():
             self.notif = Notif("Please enter a name for your custom agro file.")
             self.notif.show()
@@ -479,8 +576,28 @@ class CustomAgro(QWidget):
             self.pages["env_page"].close()
             self.close()
             return
+        
+    def run_training(self):
+        if not self.yaml_name_input.text() or not self.yaml_name_input.text().strip():
+            self.notif = Notif("Please enter a name for your custom agro file.")
+            self.notif.show()
+            return
+        
+        self.agro_file_inputs['file_name'] = self.yaml_name_input.text()
+        agro_info = self.handle_create_agro(create=True)
+        if not self.checkInputs(agro_info):
+            return
+        
+        self.env_selections["agro_file"] = self.agro_file_inputs['file_name'] + ".yaml"
+        self.train_agent_page = TrainAgentPage(
+            pages=self.pages,
+            env_selections=self.env_selections,
+            file_selections=self.file_selections,
+        )
+        self.train_agent_page.show()
+        self.hide()
 
-    # ===== NAVIGATION =====
+    # Navigation
     def go_back(self):
         self.pages["agro_page"].show()
         self.close()

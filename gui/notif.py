@@ -10,7 +10,7 @@ class Notif(QWidget):
         self.setFixedSize(300, 100)
         self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
         self.setAttribute(Qt.WA_DeleteOnClose)
-        QTimer.singleShot(timeout_ms, self.close)
+        #QTimer.singleShot(timeout_ms, self.close)
 
         notif_label = QLabel(message)
         notif_label.setAlignment(Qt.AlignCenter)

@@ -18,7 +18,7 @@ AGRO_FOLDER_PATH = "env_config/agro"
 class AgromanagementPage(QWidget):
     def __init__(self, pages, env_selections, file_selections):
         super().__init__()
-        self.setWindowTitle("Agromanagement Configuration")
+        self.setWindowTitle("WOFOSTGym GUI")
         self.setFixedSize(500, 500)
         self.env_selections = env_selections
         self.file_selections = file_selections
@@ -44,7 +44,7 @@ class AgromanagementPage(QWidget):
         # **************************
         self.selected_agro_info = QTextEdit()
         self.selected_agro_info.setReadOnly(True)
-        self.selected_agro_info.setFixedSize(QSize(400, 300))
+        self.selected_agro_info.setFixedSize(QSize(400, 250))
 
         # *************************
         #        BUTTONS
@@ -89,7 +89,12 @@ class AgromanagementPage(QWidget):
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(15)
 
+        self.header_label = QLabel("Agro File Selection")
+        self.header_label.setStyleSheet("font-size: 20px; font-weight: bold;")
+        self.header_label.setFixedHeight(20)
+
         layout.addWidget(back_button)
+        layout.addWidget(self.header_label)
         layout.addLayout(agros_layout)
         layout.addWidget(self.selected_agro_info, alignment=Qt.AlignCenter)
         layout.addLayout(button_layout)
@@ -214,6 +219,7 @@ class AgromanagementPage(QWidget):
             pages=self.pages,
             env_selections=self.env_selections,
             file_selections=self.file_selections,
+            return_loc="agro_page"
         )
         self.train_agent_page.show()
         self.hide()

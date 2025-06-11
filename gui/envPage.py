@@ -10,7 +10,7 @@ from PySide6.QtCore import QSize, Qt
 class EnvironmentPage(QWidget):
     def __init__(self, pages, file_selections):
         super().__init__()
-        self.setWindowTitle("Environment Setup")
+        self.setWindowTitle("WOFOSTGym GUI")
         self.setFixedSize(500, 500)
         self.file_selections = file_selections
         self.pages = pages
@@ -101,12 +101,17 @@ class EnvironmentPage(QWidget):
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(15)
 
+        self.header_label = QLabel("Environment Selection")
+        self.header_label.setStyleSheet("font-size: 20px; font-weight: bold;")
+        self.header_label.setFixedHeight(20)
+
         vars_layout.addLayout(env_var1_layout)
         vars_layout.addLayout(env_var2_layout)
         vars_layout.addLayout(env_var3_layout)
         vars.setLayout(vars_layout)
 
         layout.addWidget(back_button)
+        layout.addWidget(self.header_label)
         layout.addWidget(vars)
         layout.addWidget(continue_button)
         self.setLayout(layout)

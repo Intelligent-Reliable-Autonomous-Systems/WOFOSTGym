@@ -19,7 +19,7 @@ SITE_FOLDER_PATH = "env_config/site"
 class CustomConfigurationPage(QWidget):
     def __init__(self, pages, env_selections, file_selections):
         super().__init__()
-        self.setWindowTitle("Custom Configuration")
+        self.setWindowTitle("WOFOSTGym GUI")
         self.setFixedSize(1000, 500)
         self.env_selections = env_selections
         self.file_selections = file_selections
@@ -262,7 +262,12 @@ class CustomConfigurationPage(QWidget):
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(15)
 
+        self.header_label = QLabel("Custom YAML File Configuration")
+        self.header_label.setStyleSheet("font-size: 20px; font-weight: bold;")
+        self.header_label.setFixedHeight(20)
+
         layout.addWidget(back_button)
+        layout.addWidget(self.header_label)
         layout.addLayout(sub_layout)
         layout.addLayout(misc_layout)
         layout.addLayout(run_button_layout)
@@ -503,6 +508,14 @@ class CustomConfigurationPage(QWidget):
         else:
             self.site_variations_dropdown.addItem("No variations available")
 
+    # NOT CURRENTLY USED
+    # def check_save(self):
+    #     if not self.save_file_checkbox.isChecked():
+    #         if self.yaml_name_input.text() + ".yaml" in os.listdir(AGRO_FOLDER_PATH):
+    #             os.remove(os.path.join(AGRO_FOLDER_PATH, self.yaml_name_input.text() + ".yaml"))
+    #             print("-WOFOST- Agro file removed -- save option is unchecked")
+        
+
     # Run Simulation -- Uses individual agrs for crop and site variables (Depricated)
     # def run_simulation_1(self):
     #     crop_name = self.crops_dropdown.currentText()
@@ -526,16 +539,16 @@ class CustomConfigurationPage(QWidget):
     #         site_variation
     #     ))
 
-        subprocess.run([
-            "python3", "test_wofost.py",
-            "--save-folder", self.file_selections["save_folder"] + "/",
-            "--data-file", self.file_selections["data_file"],
-            "--env-id", self.env_selections["env_id"],
-            "--npk.ag.crop-name", crop_name,
-            "--npk.ag.crop-variety", crop_variety,
-            "--npk.ag.site-name", site_name,
-            "--npk.ag.site-variation", site_variation,
-        ])
+    #     subprocess.run([
+    #         "python3", "test_wofost.py",
+    #         "--save-folder", self.file_selections["save_folder"] + "/",
+    #         "--data-file", self.file_selections["data_file"],
+    #         "--env-id", self.env_selections["env_id"],
+    #         "--npk.ag.crop-name", crop_name,
+    #         "--npk.ag.crop-variety", crop_variety,
+    #         "--npk.ag.site-name", site_name,
+    #         "--npk.ag.site-variation", site_variation,
+    #     ])
 
     # Run Simulation -- Uses agro file inputs to create a YAML file and run the simulation
     def run_simulation(self):
@@ -577,6 +590,7 @@ class CustomConfigurationPage(QWidget):
             self.close()
             return
         
+        
     def run_training(self):
         if not self.yaml_name_input.text() or not self.yaml_name_input.text().strip():
             self.notif = Notif("Please enter a name for your custom agro file.")
@@ -593,6 +607,7 @@ class CustomConfigurationPage(QWidget):
             pages=self.pages,
             env_selections=self.env_selections,
             file_selections=self.file_selections,
+            return_loc="custom_config_page"
         )
         self.train_agent_page.show()
         self.hide()

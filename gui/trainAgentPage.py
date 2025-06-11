@@ -155,13 +155,14 @@ class TrainingPage(QWidget):
 
 
 class TrainAgentPage(QWidget):
-    def __init__(self, pages, file_selections, env_selections):
+    def __init__(self, pages, file_selections, env_selections, return_loc):
         super().__init__()
-        self.setWindowTitle("Train Agent")
+        self.setWindowTitle("WOFOSTGym GUI")
         self.setFixedSize(500, 500)
         self.pages = pages
         self.file_selections = file_selections
         self.env_selections = env_selections
+        self.return_loc = return_loc
         self.pages["train_agent_page"] = self
 
         # *************************
@@ -190,6 +191,7 @@ class TrainAgentPage(QWidget):
         # *************************
         back_button = QPushButton("Back")
         back_button.setFixedSize(QSize(50, 30))
+        back_button.clicked.connect(self.go_back)
 
         train_button = QPushButton("Start Training")
         train_button.clicked.connect(self.start_training)
@@ -204,7 +206,12 @@ class TrainAgentPage(QWidget):
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(15)
 
+        self.header_label = QLabel("Agent Type Selection")
+        self.header_label.setStyleSheet("font-size: 20px; font-weight: bold;")
+        self.header_label.setFixedHeight(20)
+
         layout.addWidget(back_button)
+        layout.addWidget(self.header_label)
         layout.addWidget(types)
         layout.addWidget(train_button)
         layout.addWidget(view_logs_button)
@@ -243,5 +250,9 @@ class TrainAgentPage(QWidget):
 
     # ===== NAVIGATION =====
     def go_back(self):
-        self.pages["home_page"].show()
-        self.close()
+        if self.return_loc == "custom_config_page":
+            self.pages["custom_config_page"].show()
+            self.close()
+        elif self.return_loc == "agro_page":
+            self.pages["agro_page"].show()
+            self.close()

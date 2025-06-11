@@ -2,8 +2,6 @@ import yaml
 from datetime import date
 
 AGRO_FOLDER_PATH = "env_config/agro"
-# DEFAULT_START_DATE = date(2020, 1, 1)
-# DEFAULT_END_DATE = date(2020, 12, 31)
 
 def getCropStartType(crop_name):
     if crop_name in ["grape"]:
@@ -22,15 +20,15 @@ def createAgroYaml(agroInfo={}, create=False):
                 "year": agroInfo.get("year", "N/A"),
                 "site_name": agroInfo.get("site_name", "N/A"),
                 "site_variation": agroInfo.get("site_variation", "N/A"),
-                "site_start_date": date(2020, 1, 1),
-                "site_end_date": date(2020, 12, 31),
+                "site_start_date": agroInfo.get("site_start_date", date(2020, 1, 1)),
+                "site_end_date": agroInfo.get("site_end_date", date(2020, 12, 31)),
             },
             "CropCalendar": {
                 "crop_name": crop_name,
                 "crop_variety": agroInfo.get("crop_variety", "N/A"),
-                "crop_start_date": date(2020, 1, 1),
+                "crop_start_date": agroInfo.get("crop_start_date", date(2020, 1, 1)),
                 "crop_start_type": crop_start_type,
-                "crop_end_date": date(2020, 12, 31),
+                "crop_end_date": agroInfo.get("crop_end_date", date(2020, 12, 31)),
                 "crop_end_type": agroInfo.get("crop_end_type", "N/A"),
                 "max_duration": agroInfo.get("max_duration", "N/A"),
             }

@@ -1,5 +1,4 @@
 import sys
-import subprocess
 from envPage import EnvironmentPage
 from trainAgentPage import TrainAgentPage
 from notif import Notif
@@ -15,7 +14,25 @@ SAVES_FOLDER_NAME = "saves"
 class HomePage(QWidget):
     def __init__(self):
         super().__init__()
+        self.setWindowTitle("WOFOSTGym GUI")
+        self.setFixedSize(500, 500)
         self.pages = {"home_page": self}
+
+        # *************************
+        #        HEADERS
+        # *************************
+
+        # Main header
+        header_label = QLabel("WOFOSTGym Simulation Tool")
+        header_label.setStyleSheet("font-size: 20px; font-weight: bold;")
+        header_label.setFixedHeight(30)
+
+        # Description
+        description_label = QLabel("Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
+                                  "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ")
+        description_label.setWordWrap(True)
+        description_label.setStyleSheet("font-size: 12px; color: gray;")
+        description_label.setFixedHeight(40)
 
         # *************************
         #        INPUTS
@@ -23,7 +40,7 @@ class HomePage(QWidget):
         inputs = QGroupBox("")
         inputs_layout = QVBoxLayout()
 
-        # ===== SAVE FOLDER LOCATION =====
+        # Save Folder
         self.save_folder_loc_input_box = QLineEdit()
         self.save_folder_loc_input_box.setPlaceholderText("Enter folder location...")
         self.save_folder_loc_input_box.setFixedSize(QSize(200, 30))
@@ -34,7 +51,7 @@ class HomePage(QWidget):
         save_folder_layout.addWidget(self.save_folder_loc_label)
         save_folder_layout.addWidget(self.save_folder_loc_input_box)
 
-        ## ===== DATA FILE NAME =====
+        # Data File Name
         self.data_file_name_input_box = QLineEdit()
         self.data_file_name_input_box.setPlaceholderText("Enter file name...")
         self.data_file_name_input_box.setFixedSize(QSize(200, 30))
@@ -44,8 +61,7 @@ class HomePage(QWidget):
         data_file_layout = QHBoxLayout()
         data_file_layout.addWidget(self.data_file_name_label)
         data_file_layout.addWidget(self.data_file_name_input_box)
-
-        # ===== LAYOUT =====
+        
         inputs_layout.addLayout(save_folder_layout)
         inputs_layout.addLayout(data_file_layout)
         inputs.setLayout(inputs_layout)
@@ -55,22 +71,13 @@ class HomePage(QWidget):
         # *************************
         self.gen_data_button = QPushButton("Generate Data")
         self.gen_data_button.clicked.connect(self.nav_gen_data)
-        self.run_sim_button = QPushButton("Single Simulation")
-        self.run_sim_button.clicked.connect(self.nav_single_sim)
-        self.train_agent_button = QPushButton("Train Agent")
-        self.train_agent_button.clicked.connect(self.nav_train_agent)
-        # self.view_results_button = QPushButton("View Results")
-        # self.view_results_button.clicked.connect(self.nav_view_results)
 
-        for btn in [self.gen_data_button, self.run_sim_button, # self.view_results_button #
-                    self.train_agent_button]:
-            btn.setFixedSize(QSize(120, 30))
+        self.run_process_button = QPushButton("Run Sim/Train")
+        self.run_process_button.clicked.connect(self.run_process)
 
         button_layout = QHBoxLayout()
         button_layout.addWidget(self.gen_data_button)
-        button_layout.addWidget(self.run_sim_button)
-        button_layout.addWidget(self.train_agent_button)
-        button_layout.setSpacing(15)
+        button_layout.addWidget(self.run_process_button)
 
         # *************************
         #        MAIN LAYOUT
@@ -79,12 +86,13 @@ class HomePage(QWidget):
         main_layout.setSpacing(20)
         main_layout.setContentsMargins(20, 20, 20, 20)
 
+        main_layout.addWidget(header_label)
+        main_layout.addWidget(description_label)
         main_layout.addWidget(inputs)
         main_layout.addLayout(button_layout)
 
         self.setLayout(main_layout)
-        self.setWindowTitle("WOFOSTGym GUI")
-        self.setFixedSize(400, 200)
+
 
     # *************************
     #        FUNCTIONS
@@ -92,7 +100,7 @@ class HomePage(QWidget):
     def nav_gen_data(self):
         pass
 
-    def nav_single_sim(self):
+    def run_process(self):
         if not self.save_folder_loc_input_box.text() or not self.data_file_name_input_box.text():
             self.notif = Notif("Please fill in all fields.")
             self.notif.show()
@@ -100,26 +108,11 @@ class HomePage(QWidget):
         
         file_selections = {
             "save_folder": "sim_runs/" + self.save_folder_loc_input_box.text(),
-            "data_file": self.data_file_name_input_box.text()
+            "data_file": self.data_file_name_input_box.text(),
         }
 
         self.env_page = EnvironmentPage(pages=self.pages, file_selections=file_selections)
         self.env_page.show()
-        self.hide()
-
-    def nav_train_agent(self):
-        if not self.save_folder_loc_input_box.text():
-            self.notif = Notif("Please enter a save folder.")
-            self.notif.show()
-            return
-        
-        file_selections = {
-            "save_folder": "training_logs/" + self.save_folder_loc_input_box.text(),
-            "data_file": self.data_file_name_input_box.text()
-        }
-
-        self.train_agent_page = TrainAgentPage(pages=self.pages, file_selections=file_selections)
-        self.train_agent_page.show()
         self.hide()
 
 

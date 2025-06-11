@@ -22,14 +22,15 @@ def get_latest_logdir(base_dir):
         return None
 
 class TrainingPage(QWidget):
-    def __init__(self, pages, file_selections, agent_type):
+    def __init__(self, pages, file_selections, env_selections, agent_type):
         super().__init__()
         self.setWindowTitle("Training Controller")
-        self.setFixedSize(400, 400)
+        self.setFixedSize(400, 200)
         self.agent_type = agent_type
+        self.file_selections = file_selections
+        self.env_selections = env_selections
         self.pages = pages
         self.pages["training_page"] = self
-        self.file_selections = file_selections
 
         self.label = QLabel("Training in progress...")
 
@@ -66,13 +67,19 @@ class TrainingPage(QWidget):
         layout.addLayout(button_layout)
         self.setLayout(layout)
 
+        # *************************
+        #       INITIALIZATION
+        # *************************
         self.train_proc = subprocess.Popen(
-            ["python", "train_agent.py", "--agent_type", self.agent_type,
-             "--save-folder", self.file_selections["save_folder"] + "/"],
+            ["python", "train_agent.py", 
+             "--agent_type", self.agent_type,
+             "--save-folder", self.file_selections["save_folder"] + "/",
+             "--env-id", self.env_selections["env_id"],
+             "--agro-file", self.env_selections["agro_file"]],
         )
-
-        print("-WOFOST- Command: python train_agent.py --agent_type {} --save-folder {}".format(
-            self.agent_type, self.file_selections["save_folder"] + "/"
+        print("-WOFOST- Training process started with agent type:", self.agent_type)
+        print("-WOFOST- Command: python train_agent.py --agent_type {} --save-folder {} --env-id {} --agro-file {}".format(
+            self.agent_type, self.file_selections["save_folder"] + "/", self.env_selections["env_id"], self.env_selections["agro_file"]
         ))
 
         self.timer = QTimer(self)
@@ -84,7 +91,6 @@ class TrainingPage(QWidget):
     # *************************
     #       MAIN LAYOUT
     # *************************
-
     def check_training_status(self):
         if self.train_proc and self.train_proc.poll() is not None:
             exit_code = self.train_proc.returncode
@@ -149,28 +155,28 @@ class TrainingPage(QWidget):
 
 
 class TrainAgentPage(QWidget):
-    def __init__(self, pages, file_selections):
+    def __init__(self, pages, file_selections, env_selections):
         super().__init__()
         self.setWindowTitle("Train Agent")
-        self.setFixedSize(400, 400)
-        self.file_selections = file_selections
+        self.setFixedSize(500, 500)
         self.pages = pages
+        self.file_selections = file_selections
+        self.env_selections = env_selections
         self.pages["train_agent_page"] = self
 
         # *************************
-        #        VARIABLES
+        #         INPUTS
         # *************************
         types = QGroupBox("")
         types_layout = QVBoxLayout()
 
-        # ===== AGENT TYPE =====
         self.types_label = QLabel("Agent Type:")
         self.types_label.setFixedSize(QSize(100, 30))
         self.types_dropdown = QComboBox()
         self.types_dropdown.addItems([
-            "PPO", "SAC", "DQN", "GAIL", "AIRL", "BC"
+            "PPO", "SAC", "DQN", 
+            #"GAIL", "AIRL", "BC"
         ])
-        self.types_dropdown.setCurrentIndex(-1)
 
         types_layout = QHBoxLayout()
         types_layout.addWidget(self.types_label)
@@ -184,7 +190,6 @@ class TrainAgentPage(QWidget):
         # *************************
         back_button = QPushButton("Back")
         back_button.setFixedSize(QSize(50, 30))
-        back_button.clicked.connect(self.go_back)
 
         train_button = QPushButton("Start Training")
         train_button.clicked.connect(self.start_training)
@@ -205,22 +210,23 @@ class TrainAgentPage(QWidget):
         layout.addWidget(view_logs_button)
         self.setLayout(layout)
 
+        # *************************
+        #       INITIALIZATION
+        # *************************
+
+        self.types_dropdown.setCurrentIndex(-1)
+
     # *************************
     #       FUNCTIONS
     # *************************
-
-    # ===== START TRAINING =====
     def start_training(self):
         if self.types_dropdown.currentIndex() == -1:
             self.notif = Notif("Please select an agent type.")
             self.notif.show()
             return
         
-        print("-WOFOST- Training started with agent type:", self.types_dropdown.currentText())
-
-        self.training_page = TrainingPage(pages=self.pages, file_selections=self.file_selections,
+        self.training_page = TrainingPage(pages=self.pages, file_selections=self.file_selections, env_selections=self.env_selections,
                                           agent_type=self.types_dropdown.currentText())
-        
         self.training_page.show()
         self.close()
 

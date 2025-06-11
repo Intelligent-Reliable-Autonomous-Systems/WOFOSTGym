@@ -12,6 +12,7 @@ from ..util import Afgen, DotMap
 
 from .. import exceptions as exc
 
+
 class pFCurve(Afgen):
     """Pf curve should check that:
     - length of array is even
@@ -20,12 +21,13 @@ class pFCurve(Afgen):
     - SM/cond values should decrease with increase pF
 
     """
+
     pass
 
-class MFPCurve(Afgen):
-    """Computes Matrix Flow Potential using a Gaussian integration over the pfCurve
 
-    """
+class MFPCurve(Afgen):
+    """Computes Matrix Flow Potential using a Gaussian integration over the pfCurve"""
+
     elog10 = 2.302585092994
     Pgauss = (0.0469100770, 0.2307653449, 0.5000000000, 0.7692346551, 0.9530899230)
     Wgauss = (0.1184634425, 0.2393143352, 0.2844444444, 0.2393143352, 0.1184634425)
@@ -36,7 +38,7 @@ class MFPCurve(Afgen):
         MFPfromPF = np.zeros_like(SMfromPF)
 
         # zero MFP at highest pF
-        MFPfromPF[-1] = 0.
+        MFPfromPF[-1] = 0.0
         MFPfromPF[-2] = SMfromPF[-2]
 
         for ip in range(len(SMfromPF) - 3, 0, -2):
@@ -48,7 +50,7 @@ class MFPCurve(Afgen):
             for i in range(len(self.Pgauss)):
                 PFg = SMfromPF[ip - 1] + self.Pgauss[i] * DeltaPF
                 CON = 10.0 ** CONDfromPF(PFg)
-                add += CON * 10.0 ** PFg * self.elog10 * self.Wgauss[i]
+                add += CON * 10.0**PFg * self.elog10 * self.Wgauss[i]
             MFPfromPF[ip] = add * DeltaPF + MFPfromPF[ip + 2]
         Afgen.__init__(self, MFPfromPF)
 
@@ -100,6 +102,7 @@ class SoilLayer(HasTraits):
 
     Finally `rooting_status` is initialized to None (not yet known at initialization).
     """
+
     SMfromPF = Instance(pFCurve)  # soil moisture content as function of pF
     CONDfromPF = Instance(pFCurve)  # conductivity as function of pF
     PFfromSM = Instance(Afgen)  # Inverse from SMfromPF
@@ -110,7 +113,14 @@ class SoilLayer(HasTraits):
     Soil_pH = Float()  # pH of the soil layer
     CRAIRC = Float()  # Critical air content
     Thickness = Float()
-    rooting_status = Enum(["rooted","partially rooted","potentially rooted","never rooted",])
+    rooting_status = Enum(
+        [
+            "rooted",
+            "partially rooted",
+            "potentially rooted",
+            "never rooted",
+        ]
+    )
 
     def __init__(self, layer, PFFieldCapacity, PFWiltingPoint):
         self.SMfromPF = pFCurve(layer.SMfromPF)
@@ -151,8 +161,7 @@ class SoilLayer(HasTraits):
         return self.RHOD * 1e-3 * 1e06
 
     def _invert_pF(self, SMfromPF):
-        """Inverts the SMfromPF table to get pF from SM
-        """
+        """Inverts the SMfromPF table to get pF from SM"""
         l = []
         for t in zip(reversed(SMfromPF[1::2]), reversed(SMfromPF[0::2])):
             l.extend(t)
@@ -162,10 +171,7 @@ class SoilLayer(HasTraits):
         return self._hash
 
     def __eq__(self, other):
-        return (
-                self.__class__ == other.__class__ and
-                self._hash == other._hash
-        )
+        return self.__class__ == other.__class__ and self._hash == other._hash
 
 
 class SoilProfile(list):
@@ -186,7 +192,7 @@ class SoilProfile(list):
     organic carbon (FSOMI).
 
     """
-    
+
     def __init__(self, parvalues):
         list.__init__(self)
 

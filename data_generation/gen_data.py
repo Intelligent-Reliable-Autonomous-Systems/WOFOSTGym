@@ -23,9 +23,11 @@ import utils
 import pcse_gym.policies as policies
 from rl_algs.rl_utils import make_env
 
+
 @dataclass
 class DataArgs(utils.Args):
     """File extension (.npz or .csv)"""
+
     """.npz files will have (obs, action, reward, next_obs, done, info) tuples"""
     """while .csv files will have daily observations"""
     file_type: Optional[str] = "npz"
@@ -59,6 +61,7 @@ class DataArgs(utils.Args):
     """Cuda setting for RL agents"""
     cuda = True
 
+
 def csv(env, args, pol):
     """
     Generate data from a policy and save to .csv format
@@ -67,17 +70,17 @@ def csv(env, args, pol):
     assert args.save_folder.endswith("/"), f"Folder args.save_folder `{args.save_folder}` must end with `/`"
     assert isinstance(args.data_file, str), f"File args.data_file `{args.data_file}` must be of type `str`"
 
-    years = np.arange(start=args.year_low,stop=args.year_high+1,step=1)
-    latitudes = np.arange(start=args.lat_low,stop=args.lat_high+.5,step=.5)
-    longitudes = np.arange(start=args.lon_low,stop=args.lon_high+.5,step=.5)
+    years = np.arange(start=args.year_low, stop=args.year_high + 1, step=1)
+    latitudes = np.arange(start=args.lat_low, stop=args.lat_high + 0.5, step=0.5)
+    longitudes = np.arange(start=args.lon_low, stop=args.lon_high + 0.5, step=0.5)
 
-    lat_long = [(i,j) for i in latitudes for j in longitudes]
+    lat_long = [(i, j) for i in latitudes for j in longitudes]
     loc_yr = [[loc, yr] for yr in years for loc in lat_long]
 
     obs_arr = []
     _, _ = env.reset()
     for pair in loc_yr:
-        obs, _ = env.reset(**{'year':pair[1], 'location':pair[0]})
+        obs, _ = env.reset(**{"year": pair[1], "location": pair[0]})
 
         done = False
         while not done:
@@ -93,10 +96,11 @@ def csv(env, args, pol):
                 obs, _ = env.reset()
                 break
 
-    df = pd.DataFrame(data=obs_arr, columns=env.unwrapped.output_vars+env.unwrapped.weather_vars+["DAYS ELAPSED"])
-    df.to_csv(f'{args.save_folder}{args.data_file}.csv', index=False)
-    
+    df = pd.DataFrame(data=obs_arr, columns=env.unwrapped.output_vars + env.unwrapped.weather_vars + ["DAYS ELAPSED"])
+    df.to_csv(f"{args.save_folder}{args.data_file}.csv", index=False)
+
     return df
+
 
 def npz(env, args, pol):
     """
@@ -106,11 +110,11 @@ def npz(env, args, pol):
     assert args.save_folder.endswith("/"), f"Folder args.save_folder `{args.save_folder}` must end with `/`"
     assert isinstance(args.data_file, str), f"File args.data_file `{args.data_file}` must be of type `str`"
 
-    years = np.arange(start=args.year_low,stop=args.year_high+1,step=1)
-    latitudes = np.arange(start=args.lat_low,stop=args.lat_high+.5,step=.5)
-    longitudes = np.arange(start=args.lon_low,stop=args.lon_high+.5,step=.5)
+    years = np.arange(start=args.year_low, stop=args.year_high + 1, step=1)
+    latitudes = np.arange(start=args.lat_low, stop=args.lat_high + 0.5, step=0.5)
+    longitudes = np.arange(start=args.lon_low, stop=args.lon_high + 0.5, step=0.5)
 
-    lat_long = [(i,j) for i in latitudes for j in longitudes] 
+    lat_long = [(i, j) for i in latitudes for j in longitudes]
     loc_yr = [[loc, yr] for yr in years for loc in lat_long]
 
     obs_arr = []
@@ -121,24 +125,24 @@ def npz(env, args, pol):
     info_arr = []
 
     for pair in loc_yr:
-        obs, _ = env.reset(**{'year':pair[1], 'location':pair[0]})
+        obs, _ = env.reset(**{"year": pair[1], "location": pair[0]})
 
         term, trunc = False, False
         if hasattr(pol, "lstm"):
             next_lstm_state = (
-            torch.zeros(policy.lstm.num_layers, 1, policy.lstm.hidden_size).to(device),
-            torch.zeros(policy.lstm.num_layers, 1, policy.lstm.hidden_size).to(device),
+                torch.zeros(policy.lstm.num_layers, 1, policy.lstm.hidden_size).to(device),
+                torch.zeros(policy.lstm.num_layers, 1, policy.lstm.hidden_size).to(device),
             )  # hidden and cell states (see https://youtu.be/8HyCNIVRbSU)
 
         while not term:
             if args.agent_type:
-                obs = torch.from_numpy(obs).float().to('cuda')
+                obs = torch.from_numpy(obs).float().to("cuda")
 
             if hasattr(pol, "lstm"):
                 next_done = np.logical_or([term], [trunc])
                 next_done = torch.Tensor(next_done).to(device)
                 action, next_lstm_state = policy.get_action(obs, next_lstm_state, next_done)
-            else: 
+            else:
                 action = pol.get_action(obs)
             next_obs, reward, term, trunc, info = env.step(action)
 
@@ -161,13 +165,21 @@ def npz(env, args, pol):
             info_arr.append(info)
 
             obs = next_obs
-    
+
             if term:
                 obs, _ = env.reset()
                 break
-    np.savez(f"{args.save_folder}{args.data_file}.npz", obs=np.array(obs_arr), next_obs=np.array(next_obs_arr), \
-             actions=np.array(action_arr), rewards=np.array(rewards_arr), dones=np.array(dones_arr), infos=np.array(info_arr), 
-             output_vars=np.array(env.unwrapped.get_output_vars()))
+    np.savez(
+        f"{args.save_folder}{args.data_file}.npz",
+        obs=np.array(obs_arr),
+        next_obs=np.array(next_obs_arr),
+        actions=np.array(action_arr),
+        rewards=np.array(rewards_arr),
+        dones=np.array(dones_arr),
+        infos=np.array(info_arr),
+        output_vars=np.array(env.unwrapped.get_output_vars()),
+    )
+
 
 if __name__ == "__main__":
     """
@@ -183,24 +195,28 @@ if __name__ == "__main__":
 
     env.random_reset = False
     env.domain_rand = False
-    if args.policy_name: # Pre specified policies
+    if args.policy_name:  # Pre specified policies
         env = pcse_gym.wrappers.NPKDictObservationWrapper(env)
         env = pcse_gym.wrappers.NPKDictActionWrapper(env)
         try:
             policy_constr = utils.get_classes(policies)[args.policy_name]
-            kwargs = {"amount":args.amount, "interval":args.interval, "threshold":args.threshold}
+            kwargs = {"amount": args.amount, "interval": args.interval, "threshold": args.threshold}
             policy = policy_constr(env, **kwargs)
         except:
-            msg = f'No policy {args.policy_name} found in policies.py'
+            msg = f"No policy {args.policy_name} found in policies.py"
             raise Exception(msg)
 
-    else: # PyTorch Agents
-        assert isinstance(args.agent_path, str), f" `--args.agent-path` is `{args.agent_path}` (incorrectly specified) and no Pre Specified Policy is provided"
+    else:  # PyTorch Agents
+        assert isinstance(
+            args.agent_path, str
+        ), f" `--args.agent-path` is `{args.agent_path}` (incorrectly specified) and no Pre Specified Policy is provided"
         assert os.path.isfile(f"{os.getcwd()}/{args.agent_path}"), f"`{args.agent_path}` is not a valid file"
         assert args.agent_path.endswith(".pt"), f"`{args.agent_path}` must be a valid `.pt` file"
 
-        envs = gym.vector.SyncVectorEnv([make_env(args) for i in range(1)],)
-        
+        envs = gym.vector.SyncVectorEnv(
+            [make_env(args) for i in range(1)],
+        )
+
         try:
             ag_constr = utils.get_valid_agents()[args.agent_type]
             policy = ag_constr(envs)
@@ -218,14 +234,11 @@ if __name__ == "__main__":
         except:
             msg = "Error in loading state dict. Likely caused by loading an agent.pt file with incompatible `args.agent_type`"
             raise Exception(msg)
-        
-    try: 
+
+    try:
         data_func = utils.get_functions(__import__(__name__))[args.file_type]
     except:
         msg = f"File Output type `{args.file_type}` not supported, please check `--args.file-type`"
         raise Exception(msg)
 
     data_func(env, args, policy)
-
-
-

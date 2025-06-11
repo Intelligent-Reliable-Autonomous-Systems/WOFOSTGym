@@ -3,13 +3,13 @@
 Written by: Allard de Wit (allard.dewit@wur.nl), April 2014
 Modified by Will Solow, 2024
 """
+
 from math import exp
 from datetime import date
 
 from ..utils.traitlets import Float, Int, Bool
 from ..utils.decorators import prepare_rates, prepare_states
-from ..base import ParamTemplate, StatesTemplate, RatesTemplate, \
-                         SimulationObject, VariableKiosk
+from ..base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject, VariableKiosk
 from ..util import limit, AfgenTrait
 from ..nasapower import WeatherDataProvider
 
@@ -19,7 +19,7 @@ def SWEAF(ET0, DEPNR):
 
     :param ET0: The evapotranpiration from a reference crop.
     :param DEPNR: The crop dependency number.
-    
+
     The fraction of easily available soil water between field capacity and
     wilting point is a function of the potential evapotranspiration rate
     (for a closed canopy) in cm/day, ET0, and the crop group number, DEPNR
@@ -31,13 +31,14 @@ def SWEAF(ET0, DEPNR):
     A = 0.76
     B = 1.5
     # curve for CGNR 5, and other curves at fixed distance below it
-    sweaf = 1./(A+B*ET0) - (5.-DEPNR)*0.10
+    sweaf = 1.0 / (A + B * ET0) - (5.0 - DEPNR) * 0.10
 
     # Correction for lower curves (CGNR less than 3)
-    if (DEPNR < 3.):
-        sweaf += (ET0-0.6)/(DEPNR*(DEPNR+3.))
+    if DEPNR < 3.0:
+        sweaf += (ET0 - 0.6) / (DEPNR * (DEPNR + 3.0))
 
     return limit(0.10, 0.95, sweaf)
+
 
 class EvapotranspirationCO2(SimulationObject):
     """Calculation of evaporation (water and soil) and transpiration rates
@@ -120,34 +121,34 @@ class EvapotranspirationCO2(SimulationObject):
     _IDOST = Int(0)
 
     class Parameters(ParamTemplate):
-        CFET    = Float(-99.)
-        DEPNR   = Float(-99.)
-        KDIFTB  = AfgenTrait()
-        IAIRDU  = Float(-99.)
-        IOX     = Float(-99.)
-        CRAIRC  = Float(-99.)
-        SM0     = Float(-99.)
-        SMW     = Float(-99.)
-        SMFCF   = Float(-99.)
-        CO2     = Float(-99.)
+        CFET = Float(-99.0)
+        DEPNR = Float(-99.0)
+        KDIFTB = AfgenTrait()
+        IAIRDU = Float(-99.0)
+        IOX = Float(-99.0)
+        CRAIRC = Float(-99.0)
+        SM0 = Float(-99.0)
+        SMW = Float(-99.0)
+        SMFCF = Float(-99.0)
+        CO2 = Float(-99.0)
         CO2TRATB = AfgenTrait()
 
     class RateVariables(RatesTemplate):
-        EVWMX = Float(-99.)
-        EVSMX = Float(-99.)
-        TRAMX = Float(-99.)
-        TRA   = Float(-99.)
-        IDOS  = Bool(False)
-        IDWS  = Bool(False)
-        RFWS = Float(-99.)
-        RFOS = Float(-99.)
-        RFTRA = Float(-99.)
+        EVWMX = Float(-99.0)
+        EVSMX = Float(-99.0)
+        TRAMX = Float(-99.0)
+        TRA = Float(-99.0)
+        IDOS = Bool(False)
+        IDWS = Bool(False)
+        RFWS = Float(-99.0)
+        RFOS = Float(-99.0)
+        RFTRA = Float(-99.0)
 
     class StateVariables(StatesTemplate):
-        IDOST  = Int(-99)
-        IDWST  = Int(-99)
+        IDOST = Int(-99)
+        IDWST = Int(-99)
 
-    def initialize(self, day:date, kiosk:VariableKiosk, parvalues:dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -155,17 +156,16 @@ class EvapotranspirationCO2(SimulationObject):
 
         self.kiosk = kiosk
         self.params = self.Parameters(parvalues)
-    
-        self.states = self.StateVariables(kiosk,
-                    publish=["IDOST", "IDWST"], IDOST=-999, IDWST=-999)
 
-        self.rates = self.RateVariables(kiosk, 
-                    publish=["EVWMX", "EVSMX", "TRAMX", "TRA", "IDOS", 
-                             "IDWS", "RFWS", "RFOS", "RFTRA"])
+        self.states = self.StateVariables(kiosk, publish=["IDOST", "IDWST"], IDOST=-999, IDWST=-999)
+
+        self.rates = self.RateVariables(
+            kiosk, publish=["EVWMX", "EVSMX", "TRAMX", "TRA", "IDOS", "IDWS", "RFWS", "RFOS", "RFTRA"]
+        )
 
     @prepare_rates
-    def __call__(self, day:date, drv:WeatherDataProvider):
-        """Calls the Evapotranspiration object to compute value to be returned to 
+    def __call__(self, day: date, drv: WeatherDataProvider):
+        """Calls the Evapotranspiration object to compute value to be returned to
         model
         """
         p = self.params
@@ -176,51 +176,50 @@ class EvapotranspirationCO2(SimulationObject):
         RF_TRAMX_CO2 = p.CO2TRATB(p.CO2)
 
         # crop specific correction on potential transpiration rate
-        ET0_CROP = max(0., p.CFET * drv.ET0)
+        ET0_CROP = max(0.0, p.CFET * drv.ET0)
 
         # maximum evaporation and transpiration rates
-        KGLOB = 0.75*p.KDIFTB(k.DVS)
+        KGLOB = 0.75 * p.KDIFTB(k.DVS)
         EKL = exp(-KGLOB * k.LAI)
         r.EVWMX = drv.E0 * EKL
-        r.EVSMX = max(0., drv.ES0 * EKL)
-        r.TRAMX = ET0_CROP * (1.-EKL) * RF_TRAMX_CO2
+        r.EVSMX = max(0.0, drv.ES0 * EKL)
+        r.TRAMX = ET0_CROP * (1.0 - EKL) * RF_TRAMX_CO2
 
         # Critical soil moisture
         SWDEP = SWEAF(ET0_CROP, p.DEPNR)
 
-        SMCR = (1.-SWDEP)*(p.SMFCF-p.SMW) + p.SMW
+        SMCR = (1.0 - SWDEP) * (p.SMFCF - p.SMW) + p.SMW
 
         SM = k.MSM_MEAN if "MSM_MEAN" in k else k.SM
         # Reduction factor for transpiration in case of water shortage (RFWS)
-        r.RFWS = limit(0., 1., (SM-p.SMW)/(SMCR-p.SMW))
+        r.RFWS = limit(0.0, 1.0, (SM - p.SMW) / (SMCR - p.SMW))
 
         # reduction in transpiration in case of oxygen shortage (RFOS)
         # for non-rice crops, and possibly deficient land drainage
-        r.RFOS = 1.
+        r.RFOS = 1.0
         if p.IAIRDU == 0 and p.IOX == 1:
-            RFOSMX = limit(0., 1., (p.SM0 - SM)/p.CRAIRC)
+            RFOSMX = limit(0.0, 1.0, (p.SM0 - SM) / p.CRAIRC)
             # maximum reduction reached after 4 days
             DSOS = k.DSOS if "DSOS" in k else 0
-            r.RFOS = RFOSMX + (1. - min(DSOS, 4)/4.)*(1.-RFOSMX)
+            r.RFOS = RFOSMX + (1.0 - min(DSOS, 4) / 4.0) * (1.0 - RFOSMX)
 
         # Transpiration rate multiplied with reduction factors for oxygen and water
         r.RFTRA = r.RFOS * r.RFWS
         r.TRA = r.TRAMX * r.RFTRA
 
         # Counting stress days
-        if r.RFWS < 1.:
+        if r.RFWS < 1.0:
             r.IDWS = True
             self._IDWST += 1
-        if r.RFOS < 1.:
+        if r.RFOS < 1.0:
             r.IDOS = True
             self._IDOST += 1
 
         return r.TRA, r.TRAMX
 
     @prepare_states
-    def finalize(self, day:date):
-        """Finalize states at end of simulation
-        """
+    def finalize(self, day: date):
+        """Finalize states at end of simulation"""
 
         self.states.IDWST = self._IDWST
         self.states.IDOST = self._IDOST
@@ -228,12 +227,11 @@ class EvapotranspirationCO2(SimulationObject):
         SimulationObject.finalize(self, day)
 
     def reset(self):
-        """Reset states and rates
-        """
+        """Reset states and rates"""
         s = self.states
         r = self.rates
-        s.IDOST=-999
-        s.IDWST=-999
+        s.IDOST = -999
+        s.IDWST = -999
 
         r.EVWMX = r.EVSMX = r.TRAMX = r.TRA = r.RFWS = r.RFOS = r.RFTRA = 0
         r.IDOS = r.IDWS = False

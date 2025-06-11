@@ -1,6 +1,6 @@
 """
 File for testing the installation and setup of the WOFOST Gym Environment
-with a few simple plots for output 
+with a few simple plots for output
 
 Written by: Will Solow, 2024
 
@@ -18,7 +18,7 @@ import vis_data
 
 if __name__ == "__main__":
     args = tyro.cli(utils.Args)
-    
+
     env = utils.make_gym_env(args)
     env = utils.wrap_env_reward(env, args)
     env = pcse_gym.wrappers.NPKDictActionWrapper(env)
@@ -29,7 +29,7 @@ if __name__ == "__main__":
     elif isinstance(env.unwrapped, Plant_NPK_Env):
         policy = policies.No_Action_Plant(env)
     else:
-        policy = policies.Interval_NW(env,amount=2,interval=1)
+        policy = policies.Interval_NW(env, amount=2, interval=1)
 
     obs, _ = env.reset()
 
@@ -64,6 +64,4 @@ if __name__ == "__main__":
     dones_arr = np.array(dones_arr)
 
     utils.save_file_npz(args, obs_arr, action_arr, reward_arr, next_obs_arr, dones_arr, env.unwrapped.get_output_vars())
-    vis_data.plot_output(args, output_vars=env.unwrapped.get_output_vars(), obs=obs_arr, rewards=reward_arr,save=True)
-    
- 
+    vis_data.plot_output(args, output_vars=env.unwrapped.get_output_vars(), obs=obs_arr, rewards=reward_arr, save=True)

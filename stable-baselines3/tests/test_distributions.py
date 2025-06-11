@@ -164,7 +164,9 @@ def test_categorical(dist, CAT_ACTIONS):
         BernoulliDistribution(N_ACTIONS).proba_distribution(th.rand(N_ACTIONS)),
         CategoricalDistribution(N_ACTIONS).proba_distribution(th.rand(N_ACTIONS)),
         DiagGaussianDistribution(N_ACTIONS).proba_distribution(th.rand(N_ACTIONS), th.rand(N_ACTIONS)),
-        MultiCategoricalDistribution([N_ACTIONS, N_ACTIONS]).proba_distribution(th.rand(1, sum([N_ACTIONS, N_ACTIONS]))),
+        MultiCategoricalDistribution([N_ACTIONS, N_ACTIONS]).proba_distribution(
+            th.rand(1, sum([N_ACTIONS, N_ACTIONS]))
+        ),
         SquashedDiagGaussianDistribution(N_ACTIONS).proba_distribution(th.rand(N_ACTIONS), th.rand(N_ACTIONS)),
         StateDependentNoiseDistribution(N_ACTIONS).proba_distribution(
             th.rand(N_ACTIONS), th.rand([N_ACTIONS, N_ACTIONS]), th.rand([N_ACTIONS, N_ACTIONS])

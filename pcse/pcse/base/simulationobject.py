@@ -6,16 +6,18 @@ when creating PCSE simulation units.
 Written by: Allard de Wit (allard.dewit@wur.nl), April 2014
 Modified by Will Solow, 2024
 """
+
 import types
 import logging
 from datetime import date
 
 from .dispatcher import DispatcherObject
-from ..utils.traitlets import (HasTraits,Instance, Dict)
+from ..utils.traitlets import HasTraits, Instance, Dict
 from ..utils import exceptions as exc
 from .variablekiosk import VariableKiosk
 from .states_rates import StatesTemplate, RatesTemplate, ParamTemplate
 from .parameter_providers import ParameterProvider
+
 
 class SimulationObject(HasTraits, DispatcherObject):
     """Base class for PCSE simulation objects.
@@ -41,7 +43,7 @@ class SimulationObject(HasTraits, DispatcherObject):
 
     def __init__(self, day: date, kiosk: VariableKiosk, *args, **kwargs):
         """Initialize Simulation Object
-        
+
         Args:
             day    - current date
             kiosk  - a variable kiosk object
@@ -52,15 +54,13 @@ class SimulationObject(HasTraits, DispatcherObject):
         # Check that day variable is specified
         if not isinstance(day, date):
             this = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
-            msg = ("%s should be instantiated with the simulation start " +
-                   "day as first argument!")
+            msg = "%s should be instantiated with the simulation start " + "day as first argument!"
             raise exc.PCSEError(msg % this)
 
         # Check that kiosk variable is specified and assign to self
         if not isinstance(kiosk, VariableKiosk):
             this = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
-            msg = ("%s should be instantiated with the VariableKiosk " +
-                   "as second argument!")
+            msg = "%s should be instantiated with the VariableKiosk " + "as second argument!"
             raise exc.PCSEError(msg % this)
         self.kiosk = kiosk
 
@@ -73,10 +73,9 @@ class SimulationObject(HasTraits, DispatcherObject):
 
     @property
     def logger(self):
-        loggername = "%s.%s" % (self.__class__.__module__,
-                                self.__class__.__name__)
+        loggername = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         return logging.getLogger(loggername)
-    
+
     def reset(self):
         """
         Reset states and rates
@@ -117,7 +116,7 @@ class SimulationObject(HasTraits, DispatcherObject):
             raise AttributeError(msg)
 
     def get_variable(self, varname):
-        """ Return the value of the specified state or rate variable.
+        """Return the value of the specified state or rate variable.
 
         :param varname: Name of the variable.
 
@@ -140,7 +139,7 @@ class SimulationObject(HasTraits, DispatcherObject):
         return value
 
     def set_variable(self, varname, value, incr):
-        """ Sets the value of the specified state or rate variable.
+        """Sets the value of the specified state or rate variable.
 
         :param varname: Name of the variable to be updated (string).
         :param value: Value that it should be updated to (float)
@@ -171,22 +170,25 @@ class SimulationObject(HasTraits, DispatcherObject):
             method_obj = getattr(self, method_name)
             rv = method_obj(value)
             if not isinstance(rv, dict):
-                msg = ("Method %s on '%s' should return a dict with the increment of the " +
-                       "updated state variables!") % (method_name, self.__class__.__name__)
+                msg = (
+                    "Method %s on '%s' should return a dict with the increment of the " + "updated state variables!"
+                ) % (method_name, self.__class__.__name__)
                 raise exc.PCSEError(msg)
             incr.update(rv)
         except AttributeError:  # method is not present: just continue
             pass
         except TypeError:  # method is present but is not callable: error!
-            msg = ("Method '%s' on '%s' could not be called by 'set_variable()': " +
-                   "check your code!") % (method_name, self.__class__.__name__)
+            msg = ("Method '%s' on '%s' could not be called by 'set_variable()': " + "check your code!") % (
+                method_name,
+                self.__class__.__name__,
+            )
             raise exc.PCSEError(msg)
 
         for simobj in self.subSimObjects:
             simobj.set_variable(varname, value, incr)
 
     def _delete(self):
-        """ Runs the _delete() methods on the states/rates objects and recurses
+        """Runs the _delete() methods on the states/rates objects and recurses
         trough the list of subSimObjects.
         """
         if self.states is not None:
@@ -200,8 +202,7 @@ class SimulationObject(HasTraits, DispatcherObject):
 
     @property
     def subSimObjects(self):
-        """ Return SimulationObjects embedded within self.
-        """
+        """Return SimulationObjects embedded within self."""
 
         subSimObjects = []
         defined_traits = self.__dict__["_trait_values"]
@@ -211,8 +212,7 @@ class SimulationObject(HasTraits, DispatcherObject):
         return subSimObjects
 
     def finalize(self, day):
-        """ Run the _finalize call on subsimulation objects
-        """
+        """Run the _finalize call on subsimulation objects"""
         # Update the states object with the values stored in the _for_finalize dictionary
         if self.states is not None:
             self.states.unlock()
@@ -244,8 +244,7 @@ class SimulationObject(HasTraits, DispatcherObject):
                 simobj.touch()
 
     def zerofy(self):
-        """Zerofy the value of all rate variables of this and any sub-SimulationObjects.
-        """
+        """Zerofy the value of all rate variables of this and any sub-SimulationObjects."""
 
         if self.rates is not None:
             self.rates.zerofy()
@@ -254,7 +253,6 @@ class SimulationObject(HasTraits, DispatcherObject):
         if self.subSimObjects is not None:
             for simobj in self.subSimObjects:
                 simobj.zerofy()
-
 
 
 class AncillaryObject(HasTraits, DispatcherObject):
@@ -277,8 +275,7 @@ class AncillaryObject(HasTraits, DispatcherObject):
         # Check that kiosk variable is specified and assign to self
         if not isinstance(kiosk, VariableKiosk):
             this = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
-            msg = "%s should be instantiated with the VariableKiosk " \
-                  "as second argument!"
+            msg = "%s should be instantiated with the VariableKiosk " "as second argument!"
             raise RuntimeError(msg % this)
 
         self.kiosk = kiosk
@@ -287,13 +284,11 @@ class AncillaryObject(HasTraits, DispatcherObject):
 
     @property
     def logger(self):
-        loggername = "%s.%s" % (self.__class__.__module__,
-                                self.__class__.__name__)
+        loggername = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         return logging.getLogger(loggername)
 
     def __setattr__(self, attr, value):
-        """Set attribute of variable to specified value
-        """
+        """Set attribute of variable to specified value"""
         if attr.startswith("_"):
             HasTraits.__setattr__(self, attr, value)
         elif hasattr(self, attr):

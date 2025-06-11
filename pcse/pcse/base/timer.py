@@ -4,6 +4,7 @@ the course of the WOFOST model
 Written by: Allard de Wit (allard.dewit@wur.nl), April 2014
 Modified by Will Solow, 2024
 """
+
 from __future__ import print_function
 from datetime import date, timedelta
 
@@ -11,24 +12,25 @@ from ..base import AncillaryObject, VariableKiosk
 from ..utils.traitlets import Instance, Bool, Int, Enum
 from ..utils import signals
 
+
 class Timer(AncillaryObject):
     """This class implements a basic timer for use with the WOFOST crop model.
-    
+
     This object implements a simple timer that increments the current time with
     a fixed time-step of one day at each call and returns its value. Moreover,
     it generates OUTPUT signals in daily, dekadal or monthly time-steps that
     can be caught in order to store the state of the simulation for later use.
-        
+
     Initializing the timer::
 
         timer = Timer(start_date, kiosk, final_date, mconf)
         CurrentDate = timer()
-        
+
     **Signals sent or handled:**
- 
+
         * "OUTPUT": sent when the condition for generating output is True
           which depends on the output type and interval.
-  """
+    """
 
     start_date = Instance(date)
     end_date = Instance(date)
@@ -66,7 +68,7 @@ class Timer(AncillaryObject):
         self.output_weekday = mconf.OUTPUT_WEEKDAY
         self.interval_days = mconf.OUTPUT_INTERVAL_DAYS
         self.time_step = timedelta(days=1)
-    
+
     def reset(self):
         """
         Reset the timer
@@ -92,7 +94,7 @@ class Timer(AncillaryObject):
                     output = True
             elif self.interval_type == "weekly":
                 if Timer.is_a_week(self.current_date, self.output_weekday):
-                    output = True 
+                    output = True
             elif self.interval_type == "dekadal":
                 if Timer.is_a_dekad(self.current_date):
                     output = True
@@ -103,25 +105,24 @@ class Timer(AncillaryObject):
         # Send output signal if True
         if output:
             self._send_signal(signal=signals.output)
-            
+
         # If end date is reached send the terminate signal
         if self.current_date >= self.end_date:
             msg = "Reached end of simulation period as specified by END_DATE."
             self.logger.info(msg)
             self._send_signal(signal=signals.terminate)
-            
+
         return self.current_date, float(self.time_step.days)
-    
+
     @staticmethod
     def is_a_month(day):
         """Returns True if the date is on the last day of a month."""
 
-        if day.month==12:
+        if day.month == 12:
             if day == date(day.year, day.month, 31):
                 return True
         else:
-            if (day == date(day.year, day.month+1, 1) -
-                    timedelta(days=1)):
+            if day == date(day.year, day.month + 1, 1) - timedelta(days=1):
                 return True
         return False
 
@@ -150,10 +151,6 @@ class Timer(AncillaryObject):
                 return True
             elif day == date(day.year, day.month, 20):
                 return True
-            elif (day == date(day.year, day.month+1, 1) -
-                        timedelta(days=1)):
+            elif day == date(day.year, day.month + 1, 1) - timedelta(days=1):
                 return True
         return False
-
-
-

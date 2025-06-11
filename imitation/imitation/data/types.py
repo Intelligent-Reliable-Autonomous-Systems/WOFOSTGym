@@ -55,9 +55,7 @@ class DictObs:
         return cls.stack(map(cls, obs_list))
 
     def __post_init__(self):
-        if not all(
-            isinstance(v, (np.ndarray, numbers.Number)) for v in self._d.values()
-        ):
+        if not all(isinstance(v, (np.ndarray, numbers.Number)) for v in self._d.values()):
             raise TypeError("Values must be NumPy arrays")
 
     def __len__(self):
@@ -185,20 +183,14 @@ class DictObs:
     def stack(cls, dictobs_list: Iterable["DictObs"], axis=0) -> "DictObs":
         """Returns a single dictobs stacking the arrays by key."""
         return cls(
-            {
-                k: np.stack(arr_list, axis=axis)
-                for k, arr_list in cls._unravel(dictobs_list).items()
-            },
+            {k: np.stack(arr_list, axis=axis) for k, arr_list in cls._unravel(dictobs_list).items()},
         )
 
     @classmethod
     def concatenate(cls, dictobs_list: Iterable["DictObs"], axis=0) -> "DictObs":
         """Returns a single dictobs concatenating the arrays by key."""
         return cls(
-            {
-                k: np.concatenate(arr_list, axis=axis)
-                for k, arr_list in cls._unravel(dictobs_list).items()
-            },
+            {k: np.concatenate(arr_list, axis=axis) for k, arr_list in cls._unravel(dictobs_list).items()},
         )
 
 
@@ -239,13 +231,11 @@ def stack_maybe_dictobs(arrs: List[ObsVar]) -> ObsVar:
 @overload
 def maybe_unwrap_dictobs(  # type: ignore[misc]
     maybe_dictobs: DictObs,
-) -> Dict[str, np.ndarray]:
-    ...
+) -> Dict[str, np.ndarray]: ...
 
 
 @overload
-def maybe_unwrap_dictobs(maybe_dictobs: T) -> T:
-    ...
+def maybe_unwrap_dictobs(maybe_dictobs: T) -> T: ...
 
 
 def maybe_unwrap_dictobs(maybe_dictobs):
@@ -259,13 +249,11 @@ def maybe_unwrap_dictobs(maybe_dictobs):
 
 
 @overload
-def maybe_wrap_in_dictobs(obs: Union[Dict[str, np.ndarray], DictObs]) -> DictObs:
-    ...
+def maybe_wrap_in_dictobs(obs: Union[Dict[str, np.ndarray], DictObs]) -> DictObs: ...
 
 
 @overload
-def maybe_wrap_in_dictobs(obs: np.ndarray) -> np.ndarray:
-    ...
+def maybe_wrap_in_dictobs(obs: np.ndarray) -> np.ndarray: ...
 
 
 def maybe_wrap_in_dictobs(
@@ -394,13 +382,11 @@ class Trajectory:
         """Performs input validation: check shapes are as specified in docstring."""
         if len(self.obs) != len(self.acts) + 1:
             raise ValueError(
-                "expected one more observations than actions: "
-                f"{len(self.obs)} != {len(self.acts)} + 1",
+                "expected one more observations than actions: " f"{len(self.obs)} != {len(self.acts)} + 1",
             )
         if self.infos is not None and len(self.infos) != len(self.acts):
             raise ValueError(
-                "infos when present must be present for each action: "
-                f"{len(self.infos)} != {len(self.acts)}",
+                "infos when present must be present for each action: " f"{len(self.infos)} != {len(self.acts)}",
             )
         if len(self.acts) == 0:
             raise ValueError("Degenerate trajectory: must have at least one action.")
@@ -408,8 +394,7 @@ class Trajectory:
     def __setstate__(self, state):
         if "terminal" not in state:
             warnings.warn(
-                "Loading old version of Trajectory."
-                "Support for this will be removed in future versions.",
+                "Loading old version of Trajectory." "Support for this will be removed in future versions.",
                 DeprecationWarning,
             )
             state["terminal"] = True
@@ -419,8 +404,7 @@ class Trajectory:
 def _rews_validation(rews: np.ndarray, acts: np.ndarray):
     if rews.shape != (len(acts),):
         raise ValueError(
-            "rewards must be 1D array, one entry for each action: "
-            f"{rews.shape} != ({len(acts)},)",
+            "rewards must be 1D array, one entry for each action: " f"{rews.shape} != ({len(acts)},)",
         )
     if not np.issubdtype(rews.dtype, np.floating):
         raise ValueError(f"rewards dtype {rews.dtype} not a float")
@@ -461,10 +445,7 @@ def transitions_collate_fn(
         list of dicts. (The default behavior would recursively collate every
         info dict into a single dict, which is incorrect.)
     """
-    batch_acts_and_dones = [
-        {k: np.array(v) for k, v in sample.items() if k in ["acts", "dones"]}
-        for sample in batch
-    ]
+    batch_acts_and_dones = [{k: np.array(v) for k, v in sample.items() if k in ["acts", "dones"]} for sample in batch]
 
     result = th_data.dataloader.default_collate(batch_acts_and_dones)
     assert isinstance(result, dict)
@@ -527,14 +508,12 @@ class TransitionsMinimal(th_data.Dataset, Sequence[Mapping[str, np.ndarray]]):
 
         if len(self.obs) != len(self.acts):
             raise ValueError(
-                "obs and acts must have same number of timesteps: "
-                f"{len(self.obs)} != {len(self.acts)}",
+                "obs and acts must have same number of timesteps: " f"{len(self.obs)} != {len(self.acts)}",
             )
 
         if len(self.infos) != len(self.obs):
             raise ValueError(
-                "obs and infos must have same number of timesteps: "
-                f"{len(self.obs)} != {len(self.infos)}",
+                "obs and infos must have same number of timesteps: " f"{len(self.obs)} != {len(self.infos)}",
             )
 
     # TODO(adam): uncomment below once pytype bug fixed in
@@ -603,18 +582,15 @@ class Transitions(TransitionsMinimal):
         super().__post_init__()
         if self.obs.shape != self.next_obs.shape:
             raise ValueError(
-                "obs and next_obs must have same shape: "
-                f"{self.obs.shape} != {self.next_obs.shape}",
+                "obs and next_obs must have same shape: " f"{self.obs.shape} != {self.next_obs.shape}",
             )
         if self.obs.dtype != self.next_obs.dtype:
             raise ValueError(
-                "obs and next_obs must have the same dtype: "
-                f"{self.obs.dtype} != {self.next_obs.dtype}",
+                "obs and next_obs must have the same dtype: " f"{self.obs.dtype} != {self.next_obs.dtype}",
             )
         if self.dones.shape != (len(self.acts),):
             raise ValueError(
-                "dones must be 1D array, one entry for each timestep: "
-                f"{self.dones.shape} != ({len(self.acts)},)",
+                "dones must be 1D array, one entry for each timestep: " f"{self.dones.shape} != ({len(self.acts)},)",
             )
         if self.dones.dtype != bool:
             raise ValueError(f"dones must be boolean, not {self.dones.dtype}")

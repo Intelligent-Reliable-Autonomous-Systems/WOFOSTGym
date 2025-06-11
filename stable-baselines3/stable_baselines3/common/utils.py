@@ -327,7 +327,9 @@ def is_vectorized_multibinary_observation(observation: np.ndarray, observation_s
     """
     if observation.shape == observation_space.shape:
         return False
-    elif len(observation.shape) == len(observation_space.shape) + 1 and observation.shape[1:] == observation_space.shape:
+    elif (
+        len(observation.shape) == len(observation_space.shape) + 1 and observation.shape[1:] == observation_space.shape
+    ):
         return True
     else:
         raise ValueError(
@@ -404,7 +406,9 @@ def is_vectorized_observation(observation: Union[int, np.ndarray], observation_s
             return is_vec_obs_func(observation, observation_space)  # type: ignore[operator]
     else:
         # for-else happens if no break is called
-        raise ValueError(f"Error: Cannot determine if the observation is vectorized with the space type {observation_space}.")
+        raise ValueError(
+            f"Error: Cannot determine if the observation is vectorized with the space type {observation_space}."
+        )
 
 
 def safe_mean(arr: Union[np.ndarray, list, deque]) -> float:

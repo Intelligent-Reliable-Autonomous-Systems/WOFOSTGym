@@ -18,15 +18,17 @@ import os, sys
 from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
-import wandb 
-import pandas as pd 
+import wandb
+import pandas as pd
 from matplotlib.colors import LinearSegmentedColormap
 import matplotlib.colors as mcolors
 from matplotlib.lines import Line2D
 
+
 @dataclass
 class PlotArgs(utils.Args):
     """Type of plot"""
+
     plt: Optional[str] = None
 
     """Where to save figures"""
@@ -38,7 +40,8 @@ class PlotArgs(utils.Args):
     """Save file name"""
     save_name: Optional[str] = None
 
-def load_scalars_from_runs(log_dirs:list=None, scalar_name:str=None):
+
+def load_scalars_from_runs(log_dirs: list = None, scalar_name: str = None):
     """
     Load scalars from multiple TensorBoard log directories.
 
@@ -54,9 +57,9 @@ def load_scalars_from_runs(log_dirs:list=None, scalar_name:str=None):
         # Load TensorBoard events
         event_acc = EventAccumulator(log_dir)
         event_acc.Reload()
-        
+
         # Check if the scalar exists
-        if scalar_name not in event_acc.Tags().get('scalars', []):
+        if scalar_name not in event_acc.Tags().get("scalars", []):
             continue
 
         # Retrieve scalar data
@@ -67,6 +70,7 @@ def load_scalars_from_runs(log_dirs:list=None, scalar_name:str=None):
 
     return data
 
+
 def plot_scalars(data, names, args, log_scale=False):
     """
     Plot scalar data on a single matplotlib plot.
@@ -76,20 +80,23 @@ def plot_scalars(data, names, args, log_scale=False):
     """
     plt.figure(figsize=(10, 6))
     if log_scale:
-        plt.yscale('symlog')
-    for i,d in enumerate(data.items()):
+        plt.yscale("symlog")
+    for i, d in enumerate(data.items()):
         log_dir, (steps, values) = d
         avg, std = running_average(values)
 
-        plt.plot(steps, avg, label=names[i],color=utils.COLORS[i])
-        plt.fill_between(steps, avg+std, avg-std, color=utils.COLORS[i],alpha=.6)
-    
-    
-    plt.xlim((0,1000000))
+        plt.plot(steps, avg, label=names[i], color=utils.COLORS[i])
+        plt.fill_between(steps, avg + std, avg - std, color=utils.COLORS[i], alpha=0.6)
+
+    plt.xlim((0, 1000000))
     plt.xlabel("Episode Steps")
     plt.ylabel("Reward (Yield)")
-    plt.legend(handlelength=1,ncol=2,)
+    plt.legend(
+        handlelength=1,
+        ncol=2,
+    )
     plt.savefig(f"paper_data/fig/{args.save_name}.png")
+
 
 def plot_reward_log(data, names, args):
     """
@@ -98,52 +105,60 @@ def plot_reward_log(data, names, args):
     Args:
         data (dict): Dictionary with log directory names as keys and (steps, values) tuples as values
     """
-    fig,ax = plt.subplots(1,2, figsize=(14,3))
+    fig, ax = plt.subplots(1, 2, figsize=(14, 3))
 
     names = np.tile(names, 2)
 
     fnt_size = 12
-    lb_size=12
-    for i,d in enumerate(data.items()):
+    lb_size = 12
+    for i, d in enumerate(data.items()):
         log_dir, (steps, values) = d
         avg, std = running_average(values)
-        
-        ax[0].set_yscale('symlog')
-        ax[1].set_yscale('symlog')
+
+        ax[0].set_yscale("symlog")
+        ax[1].set_yscale("symlog")
         if i > 2:
             formatter = ticker.ScalarFormatter(useMathText=True)
-            formatter.set_powerlimits((4, 4))  
+            formatter.set_powerlimits((4, 4))
             ax[1].yaxis.set_major_formatter(formatter)
             formatter = ticker.ScalarFormatter(useMathText=True)
-            formatter.set_powerlimits((4, 6))  
+            formatter.set_powerlimits((4, 6))
             ax[1].xaxis.set_major_formatter(formatter)
-            ax[1].plot(steps, avg, label=names[i],color=utils.COLORS[i-2])
-            #ax[1].fill_between(steps, avg+std, avg-std, color=utils.COLORS[i-2],alpha=.4)
+            ax[1].plot(steps, avg, label=names[i], color=utils.COLORS[i - 2])
+            # ax[1].fill_between(steps, avg+std, avg-std, color=utils.COLORS[i-2],alpha=.4)
         else:
             formatter = ticker.ScalarFormatter(useMathText=True)
-            formatter.set_powerlimits((4, 4))  
+            formatter.set_powerlimits((4, 4))
             ax[0].yaxis.set_major_formatter(formatter)
             formatter = ticker.ScalarFormatter(useMathText=True)
-            formatter.set_powerlimits((4, 6))  
+            formatter.set_powerlimits((4, 6))
             ax[0].xaxis.set_major_formatter(formatter)
-            ax[0].plot(steps, avg, label=names[i],color=utils.COLORS[i])
-            #ax[0].fill_between(steps, avg+std, avg-std, color=utils.COLORS[i],alpha=.4)
-    
-    
-    ax[0].set_xlim((0,1000000))
-    ax[1].set_xlim((0,1000000))
+            ax[0].plot(steps, avg, label=names[i], color=utils.COLORS[i])
+            # ax[0].fill_between(steps, avg+std, avg-std, color=utils.COLORS[i],alpha=.4)
 
-    ax[0].set_yticks([-1e6, -1e4, -1e2, 0, 1e2, 1e4], labels=[f"$-10^6$", f"$-10^4$", f"$-10^2$", f"$0$", f"$10^2$",f"$10^4$" ], fontsize=lb_size)
-    ax[1].set_yticks([-1e6, -1e4, -1e2, 0, 1e2, 1e4], labels=[f"$-10^6$", f"$-10^4$", f"$-10^2$", f"$0$", f"$10^2$",f"$10^4$" ], fontsize=lb_size)
-    ax[0].tick_params(axis='x', labelsize=lb_size)
-    ax[1].tick_params(axis='x', labelsize=lb_size)
+    ax[0].set_xlim((0, 1000000))
+    ax[1].set_xlim((0, 1000000))
+
+    ax[0].set_yticks(
+        [-1e6, -1e4, -1e2, 0, 1e2, 1e4],
+        labels=[f"$-10^6$", f"$-10^4$", f"$-10^2$", f"$0$", f"$10^2$", f"$10^4$"],
+        fontsize=lb_size,
+    )
+    ax[1].set_yticks(
+        [-1e6, -1e4, -1e2, 0, 1e2, 1e4],
+        labels=[f"$-10^6$", f"$-10^4$", f"$-10^2$", f"$0$", f"$10^2$", f"$10^4$"],
+        fontsize=lb_size,
+    )
+    ax[0].tick_params(axis="x", labelsize=lb_size)
+    ax[1].tick_params(axis="x", labelsize=lb_size)
     ax[0].set_xlabel("Episode Steps", fontsize=fnt_size)
     ax[1].set_xlabel("Episode Steps", fontsize=fnt_size)
     ax[0].set_ylabel("Reward (Yield) (Log Scale)", fontsize=fnt_size)
     ax[1].set_ylabel("Reward (Yield) (Log Scale)", fontsize=fnt_size)
-    ax[0].legend(handlelength=1,ncol=2,fontsize=fnt_size, loc='lower right')
-    ax[1].legend(handlelength=1,ncol=2,fontsize=fnt_size, loc='lower right')
-    plt.savefig(f"{args.save_name}.png", bbox_inches='tight')
+    ax[0].legend(handlelength=1, ncol=2, fontsize=fnt_size, loc="lower right")
+    ax[1].legend(handlelength=1, ncol=2, fontsize=fnt_size, loc="lower right")
+    plt.savefig(f"{args.save_name}.png", bbox_inches="tight")
+
 
 def plot_reward_figs_two(data, names, args):
     """
@@ -155,61 +170,61 @@ def plot_reward_figs_two(data, names, args):
 
     rews = [1586094, 725497, 53314, 141584, 46941, 130114]
 
-    fig,ax = plt.subplots(1,2, figsize=(14,3))
+    fig, ax = plt.subplots(1, 2, figsize=(14, 3))
 
     names = np.tile(names, 2)
 
     fnt_size = 12
-    lb_size=12
-    for i,d in enumerate(data.items()):
+    lb_size = 12
+    for i, d in enumerate(data.items()):
         log_dir, (steps, values) = d
-        avg, std = running_average(values,window_size=150)
+        avg, std = running_average(values, window_size=150)
         if i > 3:
             formatter = ticker.ScalarFormatter(useMathText=True)
-            formatter.set_powerlimits((4, 4))  
+            formatter.set_powerlimits((4, 4))
             ax[1].yaxis.set_major_formatter(formatter)
             formatter = ticker.ScalarFormatter(useMathText=True)
-            formatter.set_powerlimits((4, 6))  
+            formatter.set_powerlimits((4, 6))
             ax[1].xaxis.set_major_formatter(formatter)
-            ax[1].plot(steps, avg, label=names[i],color=utils.COLORS[i-4])
-            ax[1].fill_between(steps, avg+std, avg-std, color=utils.COLORS[i-4],alpha=.4)
+            ax[1].plot(steps, avg, label=names[i], color=utils.COLORS[i - 4])
+            ax[1].fill_between(steps, avg + std, avg - std, color=utils.COLORS[i - 4], alpha=0.4)
 
         else:
             formatter = ticker.ScalarFormatter(useMathText=True)
-            formatter.set_powerlimits((4, 4))  
+            formatter.set_powerlimits((4, 4))
             ax[0].yaxis.set_major_formatter(formatter)
             formatter = ticker.ScalarFormatter(useMathText=True)
-            formatter.set_powerlimits((4, 6))  
+            formatter.set_powerlimits((4, 6))
             ax[0].xaxis.set_major_formatter(formatter)
-            ax[0].plot(steps, avg, label=names[i],color=utils.COLORS[i])
-            ax[0].fill_between(steps, avg+std, avg-std, color=utils.COLORS[i],alpha=.4)
-    
-    
-    #ax[0].axhline(rews[0], color='black', linestyle='--', label='Potential')
-    ax[0].axhline(rews[2], color='g', linestyle='--', label='BiWeekly NW')
-    ax[0].axhline(rews[4], color='c', linestyle='--', label='Monthly W')
-    ax[1].axhline(rews[1], color='black', linestyle='--', label='Wheat Potential')
-    ax[1].axhline(rews[3], color='g', linestyle='--', label='BiWeekly NW')
-    ax[1].axhline(rews[5], color='c', linestyle='--', label='Monthly W')
+            ax[0].plot(steps, avg, label=names[i], color=utils.COLORS[i])
+            ax[0].fill_between(steps, avg + std, avg - std, color=utils.COLORS[i], alpha=0.4)
 
-    ax[0].set_xlim((0,5000000))
-    ax[1].set_xlim((0,5000000))
+    # ax[0].axhline(rews[0], color='black', linestyle='--', label='Potential')
+    ax[0].axhline(rews[2], color="g", linestyle="--", label="BiWeekly NW")
+    ax[0].axhline(rews[4], color="c", linestyle="--", label="Monthly W")
+    ax[1].axhline(rews[1], color="black", linestyle="--", label="Wheat Potential")
+    ax[1].axhline(rews[3], color="g", linestyle="--", label="BiWeekly NW")
+    ax[1].axhline(rews[5], color="c", linestyle="--", label="Monthly W")
+
+    ax[0].set_xlim((0, 5000000))
+    ax[1].set_xlim((0, 5000000))
     ax[0].set_title("Jujube Over Three Seasons", fontsize=fnt_size)
     ax[1].set_title("Grapevine Over One Season", fontsize=fnt_size)
 
-    #ax[0].set_yticks([0,1e4, 2e4, 3e4], labels=['0', f'$1\cdot10^4$', f'$2\cdot10^4$', f'$3\cdot10^4$'],fontsize=lb_size)
-    #ax[1].set_yticks([-1e6, -1e4, -1e2, 0, 1e2, 1e4], labels=[f"$-10^6$", f"$-10^4$", f"$-10^2$", f"$0$", f"$10^2$",f"$10^4$" ], fontsize=lb_size)
-    ax[1].tick_params(axis='y', labelsize=lb_size)
-    ax[0].tick_params(axis='y', labelsize=lb_size)
-    ax[0].tick_params(axis='x', labelsize=lb_size)
-    ax[1].tick_params(axis='x', labelsize=lb_size)
+    # ax[0].set_yticks([0,1e4, 2e4, 3e4], labels=['0', f'$1\cdot10^4$', f'$2\cdot10^4$', f'$3\cdot10^4$'],fontsize=lb_size)
+    # ax[1].set_yticks([-1e6, -1e4, -1e2, 0, 1e2, 1e4], labels=[f"$-10^6$", f"$-10^4$", f"$-10^2$", f"$0$", f"$10^2$",f"$10^4$" ], fontsize=lb_size)
+    ax[1].tick_params(axis="y", labelsize=lb_size)
+    ax[0].tick_params(axis="y", labelsize=lb_size)
+    ax[0].tick_params(axis="x", labelsize=lb_size)
+    ax[1].tick_params(axis="x", labelsize=lb_size)
     ax[0].set_xlabel("Episode Steps", fontsize=fnt_size)
     ax[1].set_xlabel("Episode Steps", fontsize=fnt_size)
     ax[0].set_ylabel("Reward (Yield)", fontsize=fnt_size)
     ax[1].set_ylabel("Reward (Yield)", fontsize=fnt_size)
-    ax[0].legend(handlelength=1,ncol=2,fontsize=fnt_size)
-    ax[1].legend(handlelength=1,ncol=2,fontsize=fnt_size)
-    plt.savefig(f"{args.save_name}.png", bbox_inches='tight')
+    ax[0].legend(handlelength=1, ncol=2, fontsize=fnt_size)
+    ax[1].legend(handlelength=1, ncol=2, fontsize=fnt_size)
+    plt.savefig(f"{args.save_name}.png", bbox_inches="tight")
+
 
 def running_average(arr, window_size=50):
     """
@@ -221,8 +236,8 @@ def running_average(arr, window_size=50):
     half_window = (window_size - 1) // 2
     arr = np.array(arr)
     # Compute running sums and running sums of squares
-    cumsum = np.cumsum(np.pad(arr, (1, 0), mode='constant', constant_values=0))
-    cumsum_sq = np.cumsum(np.pad(arr**2, (1, 0), mode='constant', constant_values=0))
+    cumsum = np.cumsum(np.pad(arr, (1, 0), mode="constant", constant_values=0))
+    cumsum_sq = np.cumsum(np.pad(arr**2, (1, 0), mode="constant", constant_values=0))
 
     # Compute the sum within each window
     sum_in_window = cumsum[window_size:] - cumsum[:-window_size]
@@ -233,13 +248,13 @@ def running_average(arr, window_size=50):
     running_std = np.sqrt((sum_sq_in_window / window_size) - running_avg**2)
 
     # Pad results to match the original array size
-    running_avg = np.pad(running_avg, (half_window, len(arr) - len(running_avg) - half_window), mode='edge')
-    running_std = np.pad(running_std, (half_window, len(arr) - len(running_std) - half_window), mode='edge')
+    running_avg = np.pad(running_avg, (half_window, len(arr) - len(running_avg) - half_window), mode="edge")
+    running_std = np.pad(running_std, (half_window, len(arr) - len(running_std) - half_window), mode="edge")
 
     return running_avg, running_std
 
-def wandb_plot_scalars():
 
+def wandb_plot_scalars():
 
     api = wandb.Api()
 
@@ -254,22 +269,26 @@ def wandb_plot_scalars():
     # Convert to DataFrame and save
     df = pd.DataFrame(data)
     df.to_csv("wandb_project_data.csv", index=False)
-    elapsed_time = np.array(df['charts/elapsed_time'].values) / 1e6
-    
+    elapsed_time = np.array(df["charts/elapsed_time"].values) / 1e6
+
     x = np.arange(1e6)
-    fnt=16
+    fnt = 16
     fig, ax = plt.subplots(1, figsize=(8, 4))
-    plt.rcParams.update({'font.size': fnt})
-    ax.tick_params(axis='both', labelsize=14)
-    ax.plot(x, elapsed_time[0]*x, c=utils.COLORS[1], label="CyclesGym")
-    ax.plot(x, elapsed_time[1]*x, c=utils.COLORS[2], label="WOFOSTGym")
+    plt.rcParams.update({"font.size": fnt})
+    ax.tick_params(axis="both", labelsize=14)
+    ax.plot(x, elapsed_time[0] * x, c=utils.COLORS[1], label="CyclesGym")
+    ax.plot(x, elapsed_time[1] * x, c=utils.COLORS[2], label="WOFOSTGym")
 
     ax.set_xlabel("Episode Steps", fontsize=fnt)
     ax.set_ylabel("Elapsed Time (s)", fontsize=fnt)
-    ax.legend(handlelength=1,ncol=2,)
-    plt.savefig(f"{args.save_name}.png", bbox_inches='tight')
+    ax.legend(
+        handlelength=1,
+        ncol=2,
+    )
+    plt.savefig(f"{args.save_name}.png", bbox_inches="tight")
     plt.show()
-    
+
+
 def plot_reward_log_runoffbar(data, names, args):
     """
     Plot log of reward and a barplot of days of runoff
@@ -277,67 +296,74 @@ def plot_reward_log_runoffbar(data, names, args):
     Args:
         data (dict): Dictionary with log directory names as keys and (steps, values) tuples as values
     """
-    fig,ax = plt.subplots(1,2, figsize=(14,3))
+    fig, ax = plt.subplots(1, 2, figsize=(14, 3))
     old_names = names
     names = np.tile(names, 2)
 
     fnt_size = 12
-    lb_size=12
+    lb_size = 12
 
     loc_mean, loc_std = load_bar_data()
     loc_mean = np.array([5, 3, 4, 1])
-    loc_std = np.array([1, .5, .25, .1])
+    loc_std = np.array([1, 0.5, 0.25, 0.1])
     x = np.arange(len(loc_mean))
     for i in x:
-        ax[1].bar(x[i] , loc_mean[i], color=utils.COLORS[i],alpha=.6)
-    ax[1].errorbar(x, loc_mean, loc_std, color='k',fmt='none',capsize=8)
+        ax[1].bar(x[i], loc_mean[i], color=utils.COLORS[i], alpha=0.6)
+    ax[1].errorbar(x, loc_mean, loc_std, color="k", fmt="none", capsize=8)
     ax[1].set_ylabel("Days with Runoff", fontsize=fnt_size)
     ax[1].set_xticks(x, labels=old_names, fontsize=12)
 
-    for i,d in enumerate(data.items()):
+    for i, d in enumerate(data.items()):
         log_dir, (steps, values) = d
-        avg, std = running_average(values,window_size=150)
-        
-        ax[0].set_yscale('symlog')
+        avg, std = running_average(values, window_size=150)
+
+        ax[0].set_yscale("symlog")
 
         formatter = ticker.ScalarFormatter(useMathText=True)
-        formatter.set_powerlimits((4, 4))  
+        formatter.set_powerlimits((4, 4))
         ax[0].yaxis.set_major_formatter(formatter)
         formatter = ticker.ScalarFormatter(useMathText=True)
-        formatter.set_powerlimits((4, 6))  
+        formatter.set_powerlimits((4, 6))
         ax[0].xaxis.set_major_formatter(formatter)
-        ax[0].plot(steps, avg, label=names[i],color=utils.COLORS[i])
-        ax[0].fill_between(steps, avg+std, avg-std, color=utils.COLORS[i],alpha=.4)
+        ax[0].plot(steps, avg, label=names[i], color=utils.COLORS[i])
+        ax[0].fill_between(steps, avg + std, avg - std, color=utils.COLORS[i], alpha=0.4)
 
-    ax[0].set_xlim((0,5000000))
+    ax[0].set_xlim((0, 5000000))
     ax[0].set_title("Potato Over One Seasons", fontsize=fnt_size)
     ax[1].set_title("Average Days with Runoff", fontsize=fnt_size)
     ax[1].set_xlabel("Relevant State Features in Each Environment", fontsize=fnt_size)
 
-    ax[0].set_yticks([-1e4, -1e2, 0, 1e2, 1e4], labels=[f"$-10^4$", f"$-10^2$", f"$0$", f"$10^2$",f"$10^4$" ], fontsize=lb_size)
-    ax[0].tick_params(axis='x', labelsize=lb_size)
+    ax[0].set_yticks(
+        [-1e4, -1e2, 0, 1e2, 1e4], labels=[f"$-10^4$", f"$-10^2$", f"$0$", f"$10^2$", f"$10^4$"], fontsize=lb_size
+    )
+    ax[0].tick_params(axis="x", labelsize=lb_size)
     ax[0].set_xlabel("Episode Steps", fontsize=fnt_size)
     ax[0].set_ylabel("Reward", fontsize=fnt_size)
-    ax[0].legend(handlelength=1,ncol=2,fontsize=fnt_size, loc='lower right')
-    plt.savefig(f"{args.save_name}.png", bbox_inches='tight')
+    ax[0].legend(handlelength=1, ncol=2, fontsize=fnt_size, loc="lower right")
+    plt.savefig(f"{args.save_name}.png", bbox_inches="tight")
+
 
 def load_bar_data(directories=["experiments/data"], ag_type="RPPO"):
     """
     Walk through directories to get all npz files
     """
 
-    # Get all NPZ files 
+    # Get all NPZ files
     npz_files = []
     for directory in directories:
         for root, _, files in os.walk(directory):
             for file in files:
-                if file.endswith('.npz'):
+                if file.endswith(".npz"):
                     npz_files.append(os.path.join(root, file))
 
     # Group all files
-    grouped_files = [[],[],[],[]]
-    prefixes = [f'experiments/data/Potato/{ag_type}/potato_all', f'experiments/data/Potato/{ag_type}/potato_rain_totn', 
-                f'experiments/data/Potato/{ag_type}/potato_totn', f'experiments/data/Potato/{ag_type}/potato_rain']
+    grouped_files = [[], [], [], []]
+    prefixes = [
+        f"experiments/data/Potato/{ag_type}/potato_all",
+        f"experiments/data/Potato/{ag_type}/potato_rain_totn",
+        f"experiments/data/Potato/{ag_type}/potato_totn",
+        f"experiments/data/Potato/{ag_type}/potato_rain",
+    ]
     for n in npz_files:
         if prefixes[0] in n:
             grouped_files[0].append(n)
@@ -348,24 +374,25 @@ def load_bar_data(directories=["experiments/data"], ag_type="RPPO"):
         elif prefixes[3] in n:
             grouped_files[3].append(n)
 
-    constraint_vios = [[],[],[],[]]
+    constraint_vios = [[], [], [], []]
 
     for i, g in enumerate(grouped_files):
         for j, n in enumerate(g):
-            file = np.load(n, allow_pickle=True)             
+            file = np.load(n, allow_pickle=True)
             rewards = file["rewards"]
             dones = file["dones"]
 
-            splits = np.where(dones)[0]+1
+            splits = np.where(dones)[0] + 1
             split_rews = np.split(rewards, [s for s in splits if 0 < s < len(rewards)])
 
             for s in split_rews:
                 constraint_vios[i].append(len(np.argwhere(s < 0)))
-    
+
     loc_mean = np.mean(constraint_vios, axis=1)
     loc_std = np.std(constraint_vios, axis=1)
 
     return loc_mean, loc_std
+
 
 def plot_reward_log_hist(data, names, args):
     """
@@ -374,24 +401,23 @@ def plot_reward_log_hist(data, names, args):
     Args:
         data (dict): Dictionary with log directory names as keys and (steps, values) tuples as values
     """
-    fig,ax = plt.subplots(1,2, figsize=(14,3))
+    fig, ax = plt.subplots(1, 2, figsize=(14, 3))
 
     names = np.tile(names, 2)
 
     fnt_size = 12
-    lb_size=12
+    lb_size = 12
 
-    means = load_hist_data(directories=['experiments/data'], prefixes=['experiments/data/Pear'])
+    means = load_hist_data(directories=["experiments/data"], prefixes=["experiments/data/Pear"])
     loc_mean = np.array([5, 3, 4, 1])
-    loc_std = np.array([1, .5, .25, .1])
+    loc_std = np.array([1, 0.5, 0.25, 0.1])
     x = np.arange(len(loc_mean))
 
     nrows = 1
-    ncols=means[0].shape[0]
+    ncols = means[0].shape[0]
     Z = means[0].reshape(nrows, ncols)
     x = np.arange(ncols + 1)
     y = np.arange(nrows + 1)
-
 
     # Define the data
     nrows = means.shape[0]
@@ -401,90 +427,108 @@ def plot_reward_log_hist(data, names, args):
     y = np.arange(nrows + 1)[::-1]
 
     # Define colormaps for each row
-    greens = mcolors.LinearSegmentedColormap.from_list('white_greens', [(0, '#FFFFFF'), (1, '#008000')], N=256)
-    purples = mcolors.LinearSegmentedColormap.from_list('white_purple', [(0, '#FFFFFF'), (1, '#800080')], N=256)
-    oranges = mcolors.LinearSegmentedColormap.from_list('white_orange', [(0, '#FFFFFF'), (1, '#FFA500')], N=256)
-    blues = mcolors.LinearSegmentedColormap.from_list('white_blue', [(0, '#FFFFFF'), (1, '#0000FF')], N=256)
+    greens = mcolors.LinearSegmentedColormap.from_list("white_greens", [(0, "#FFFFFF"), (1, "#008000")], N=256)
+    purples = mcolors.LinearSegmentedColormap.from_list("white_purple", [(0, "#FFFFFF"), (1, "#800080")], N=256)
+    oranges = mcolors.LinearSegmentedColormap.from_list("white_orange", [(0, "#FFFFFF"), (1, "#FFA500")], N=256)
+    blues = mcolors.LinearSegmentedColormap.from_list("white_blue", [(0, "#FFFFFF"), (1, "#0000FF")], N=256)
     colormaps = [greens, purples, oranges, blues]
 
     # Plot each row with its own colormap
     for i in range(nrows):
         row_data = Z[i, :]  # Data for the current row
         X, Y = np.meshgrid(x, [y[i], y[i + 1]])  # Coordinates for the current row
-        ax[1].pcolormesh(X, Y, row_data.reshape(1, -1), cmap=colormaps[i], shading='flat', vmin=Z[i].min(), vmax=Z[i].max(), edgecolors=(0, 0, 0, 0.2), linewidth=0.5)
+        ax[1].pcolormesh(
+            X,
+            Y,
+            row_data.reshape(1, -1),
+            cmap=colormaps[i],
+            shading="flat",
+            vmin=Z[i].min(),
+            vmax=Z[i].max(),
+            edgecolors=(0, 0, 0, 0.2),
+            linewidth=0.5,
+        )
     ax[1].set_xlabel("Weeks", fontsize=fnt_size)
-    ax[1].tick_params(axis='x', labelsize=lb_size)
-    ax[1].set_yticks([.5, 1.5, 2.5, 3.5], labels=["N", "P", "K", "W"][::-1], fontsize=fnt_size)
+    ax[1].tick_params(axis="x", labelsize=lb_size)
+    ax[1].set_yticks([0.5, 1.5, 2.5, 3.5], labels=["N", "P", "K", "W"][::-1], fontsize=fnt_size)
     ax[1].set_ylabel("Nutrient", fontsize=fnt_size)
-    blue_line = Line2D([0], [0], color='black', lw=2, label='PPO')
-    ax[1].legend(handlelength=1,ncol=2,handles=[blue_line], fontsize=fnt_size,loc='lower left')
+    blue_line = Line2D([0], [0], color="black", lw=2, label="PPO")
+    ax[1].legend(handlelength=1, ncol=2, handles=[blue_line], fontsize=fnt_size, loc="lower left")
 
-    for i,d in enumerate(data.items()):
+    for i, d in enumerate(data.items()):
         log_dir, (steps, values) = d
         avg, std = running_average(values, window_size=150)
-        ax[0].set_yscale('symlog')
+        ax[0].set_yscale("symlog")
         formatter = ticker.ScalarFormatter(useMathText=True)
-        formatter.set_powerlimits((4, 4))  
+        formatter.set_powerlimits((4, 4))
         ax[0].yaxis.set_major_formatter(formatter)
         formatter = ticker.ScalarFormatter(useMathText=True)
-        formatter.set_powerlimits((4, 6))  
+        formatter.set_powerlimits((4, 6))
         ax[0].xaxis.set_major_formatter(formatter)
-        ax[0].plot(steps, avg, label=names[i],color=utils.COLORS[i])
-        #ax[0].fill_between(steps, avg+std, avg-std, color=utils.COLORS[i],alpha=.4)
-
+        ax[0].plot(steps, avg, label=names[i], color=utils.COLORS[i])
+        # ax[0].fill_between(steps, avg+std, avg-std, color=utils.COLORS[i],alpha=.4)
 
     # Rewards from the open loop policy
     rews = [2501.54, 2001.34]
-    ax[0].axhline(rews[0], color='green', linestyle='--', label='Threshold NW')
-    ax[0].axhline(rews[1], color='c', linestyle='--', label='Threshold W')
+    ax[0].axhline(rews[0], color="green", linestyle="--", label="Threshold NW")
+    ax[0].axhline(rews[1], color="c", linestyle="--", label="Threshold W")
 
-    ax[0].set_xlim((0,5000000))
+    ax[0].set_xlim((0, 5000000))
     ax[0].set_title("Pear Over Three Seasons", fontsize=fnt_size)
     ax[1].set_title("Likelihood of Nutrient Application", fontsize=fnt_size)
 
-    ax[0].set_yticks([-1e6, -1e4, -1e2, 0, 1e2, 1e4], labels=[f"$-10^6$", f"$-10^4$", f"$-10^2$", f"$0$", f"$10^2$",f"$10^4$" ], fontsize=lb_size)
-    ax[0].tick_params(axis='x', labelsize=lb_size)
+    ax[0].set_yticks(
+        [-1e6, -1e4, -1e2, 0, 1e2, 1e4],
+        labels=[f"$-10^6$", f"$-10^4$", f"$-10^2$", f"$0$", f"$10^2$", f"$10^4$"],
+        fontsize=lb_size,
+    )
+    ax[0].tick_params(axis="x", labelsize=lb_size)
     ax[0].set_xlabel("Episode Steps", fontsize=fnt_size)
     ax[0].set_ylabel("Reward", fontsize=fnt_size)
-    ax[0].legend(handlelength=1,ncol=2,fontsize=fnt_size, loc='lower right')
-    plt.savefig(f"{args.save_name}.png", bbox_inches='tight')
+    ax[0].legend(handlelength=1, ncol=2, fontsize=fnt_size, loc="lower right")
+    plt.savefig(f"{args.save_name}.png", bbox_inches="tight")
 
-def load_hist_data(directories=["experiments/runs"], prefixes=['experiments/data/pear']):
-    # Get all NPZ files 
+
+def load_hist_data(directories=["experiments/runs"], prefixes=["experiments/data/pear"]):
+    # Get all NPZ files
     npz_files = []
     for directory in directories:
         for root, _, files in os.walk(directory):
             for file in files:
-                if file.endswith('.npz'):
+                if file.endswith(".npz"):
                     npz_files.append(os.path.join(root, file))
 
     # Group all files
     grouped_files = []
     for n in npz_files:
         if prefixes[0] in n:
-            grouped_files.append(n)     
+            grouped_files.append(n)
     for k, g in enumerate(grouped_files):
         if "ppo" not in g:
             continue
-        file = np.load(g, allow_pickle=True)           
+        file = np.load(g, allow_pickle=True)
         obs = file["obs"].squeeze()
         dones = file["dones"].squeeze()
         output_vars = file["output_vars"]
 
-        splits = np.where(dones)[0]+1
+        splits = np.where(dones)[0] + 1
 
         split_obs = np.split(obs, [s for s in splits if 0 < s < len(obs)])
 
         """Create indicies for graphing"""
-        new_totn = [ob[:,np.argwhere(output_vars == "TOTN").flatten()[0]] for ob in split_obs]
-        new_totp = [ob[:,np.argwhere(output_vars == "TOTP").flatten()[0]] for ob in split_obs]
-        new_totk = [ob[:,np.argwhere(output_vars == "TOTK").flatten()[0]]  for ob in split_obs]
-        new_totirrig = [ob[:,np.argwhere(output_vars == "TOTIRRIG").flatten()[0]] for ob in split_obs]
-        
-        for i in range(len(split_obs)): new_totn[i][1:] -= new_totn[i][:-1].copy()
-        for i in range(len(split_obs)): new_totp[i][1:] -= new_totp[i][:-1].copy()
-        for i in range(len(split_obs)): new_totk[i][1:] -= new_totk[i][:-1].copy()
-        for i in range(len(split_obs)): new_totirrig[i][1:] -= new_totirrig[i][:-1].copy()
+        new_totn = [ob[:, np.argwhere(output_vars == "TOTN").flatten()[0]] for ob in split_obs]
+        new_totp = [ob[:, np.argwhere(output_vars == "TOTP").flatten()[0]] for ob in split_obs]
+        new_totk = [ob[:, np.argwhere(output_vars == "TOTK").flatten()[0]] for ob in split_obs]
+        new_totirrig = [ob[:, np.argwhere(output_vars == "TOTIRRIG").flatten()[0]] for ob in split_obs]
+
+        for i in range(len(split_obs)):
+            new_totn[i][1:] -= new_totn[i][:-1].copy()
+        for i in range(len(split_obs)):
+            new_totp[i][1:] -= new_totp[i][:-1].copy()
+        for i in range(len(split_obs)):
+            new_totk[i][1:] -= new_totk[i][:-1].copy()
+        for i in range(len(split_obs)):
+            new_totirrig[i][1:] -= new_totirrig[i][:-1].copy()
         """Create indicies for graphing"""
         totn_inds = [np.argwhere(new_totn[i] != 0).flatten() for i in range(len(split_obs))]
         totn_vals = [new_totn[i][totn_inds[i]] for i in range(len(split_obs))]
@@ -502,6 +546,7 @@ def load_hist_data(directories=["experiments/runs"], prefixes=['experiments/data
     i_mean = counts(totirrig_inds, totirrig_vals, max_x)
     return np.array([n_mean, p_mean, k_mean, i_mean])
 
+
 def plot_scalars_default_yield(data, names, args):
     """
     Plot scalar data on a single matplotlib plot.
@@ -509,65 +554,74 @@ def plot_scalars_default_yield(data, names, args):
     Args:
         data (dict): Dictionary with log directory names as keys and (steps, values) tuples as values
     """
-    fig,ax = plt.subplots(1,2, figsize=(14,3))
+    fig, ax = plt.subplots(1, 2, figsize=(14, 3))
 
     names = np.tile(names, 2)
 
     fnt_size = 12
-    lb_size=12
+    lb_size = 12
 
     means, stds, _, _ = load_multi_wso_data()
 
-    for i,d in enumerate(data.items()):
+    for i, d in enumerate(data.items()):
         log_dir, (steps, values) = d
         avg, std = running_average(values)
         formatter = ticker.ScalarFormatter(useMathText=True)
-        formatter.set_powerlimits((4, 4))  
+        formatter.set_powerlimits((4, 4))
         ax[0].yaxis.set_major_formatter(formatter)
         formatter = ticker.ScalarFormatter(useMathText=True)
-        formatter.set_powerlimits((4, 6))  
+        formatter.set_powerlimits((4, 6))
         ax[0].xaxis.set_major_formatter(formatter)
-        ax[0].plot(steps, avg, label=names[i],color=utils.COLORS[i])
-        ax[0].fill_between(steps, avg+std, avg-std, color=utils.COLORS[i],alpha=.4)
+        ax[0].plot(steps, avg, label=names[i], color=utils.COLORS[i])
+        ax[0].fill_between(steps, avg + std, avg - std, color=utils.COLORS[i], alpha=0.4)
 
-    ax[0].set_xlim((0,1000000))
+    ax[0].set_xlim((0, 1000000))
 
-    ax[0].tick_params(axis='y', labelsize=lb_size)
-    ax[0].tick_params(axis='x', labelsize=lb_size)
+    ax[0].tick_params(axis="y", labelsize=lb_size)
+    ax[0].tick_params(axis="x", labelsize=lb_size)
     ax[0].set_xlabel("Episode Steps", fontsize=fnt_size)
     ax[0].set_ylabel("Reward (Yield)", fontsize=fnt_size)
-    ax[0].legend(handlelength=1,ncol=2,fontsize=fnt_size, loc='lower right')
+    ax[0].legend(handlelength=1, ncol=2, fontsize=fnt_size, loc="lower right")
 
     # Set up the positions for the bars
-    x = np.arange(means.shape[1])-.3 # Positions of the bars within each group
-    width = .3 # Width of the bars
+    x = np.arange(means.shape[1]) - 0.3  # Positions of the bars within each group
+    width = 0.3  # Width of the bars
 
     formatter = ticker.ScalarFormatter(useMathText=True)
-    formatter.set_powerlimits((2, 2))  
+    formatter.set_powerlimits((2, 2))
     ax[1].yaxis.set_major_formatter(formatter)
-    ax[1].tick_params(axis='y', labelsize=lb_size)
-    ax[1].tick_params(axis='x', labelsize=lb_size)
-    
+    ax[1].tick_params(axis="y", labelsize=lb_size)
+    ax[1].tick_params(axis="x", labelsize=lb_size)
+
     # Plot the bars with error bars
     for i in range(means.shape[0]):
         for j in range(means.shape[1]):
-            ax[1].bar(x[j] + i * (width), means[i, j], width=width, 
-               color=utils.COLORS[i], alpha=0.5, capsize=5)
+            ax[1].bar(x[j] + i * (width), means[i, j], width=width, color=utils.COLORS[i], alpha=0.5, capsize=5)
             # Only add the positive error (top half) for each bar and set the capsize only on the top
-            ax[1].errorbar(x[j] + i * (width), means[i,j], yerr=stds[i,j], fmt='none', color='k',capsize=3, alpha=.5, lolims=True, label='Top cap only')
-           # ax[1].errorbar(x[j] + i * (width), means[i,j], yerr=np.array([0,stds[i,j]])[:,np.newaxis], fmt='none', color='k',capsize=5)
+            ax[1].errorbar(
+                x[j] + i * (width),
+                means[i, j],
+                yerr=stds[i, j],
+                fmt="none",
+                color="k",
+                capsize=3,
+                alpha=0.5,
+                lolims=True,
+                label="Top cap only",
+            )
+        # ax[1].errorbar(x[j] + i * (width), means[i,j], yerr=np.array([0,stds[i,j]])[:,np.newaxis], fmt='none', color='k',capsize=5)
 
-    ax[1].set_ylabel('Average Yield (kg/ha)',fontsize=fnt_size)
-    ax[1].set_xticks(np.arange(5), labels=[f"Farm {i}" for i in range(5)], fontsize=fnt_size-2)
+    ax[1].set_ylabel("Average Yield (kg/ha)", fontsize=fnt_size)
+    ax[1].set_xticks(np.arange(5), labels=[f"Farm {i}" for i in range(5)], fontsize=fnt_size - 2)
 
-    dqn = Line2D([0], [0], color=utils.COLORS[0], alpha=0.5, lw=2, label='DQN')
-    ppo = Line2D([0], [0], color=utils.COLORS[1], alpha=0.5, lw=2, label='PPO')
-    sac = Line2D([0], [0], color=utils.COLORS[2], alpha=0.5, lw=2, label='SAC')
+    dqn = Line2D([0], [0], color=utils.COLORS[0], alpha=0.5, lw=2, label="DQN")
+    ppo = Line2D([0], [0], color=utils.COLORS[1], alpha=0.5, lw=2, label="PPO")
+    sac = Line2D([0], [0], color=utils.COLORS[2], alpha=0.5, lw=2, label="SAC")
 
-    ax[1].legend(handlelength=1,ncol=2,handles=[dqn, ppo, sac], loc='upper left', fontsize=fnt_size)
+    ax[1].legend(handlelength=1, ncol=2, handles=[dqn, ppo, sac], loc="upper left", fontsize=fnt_size)
 
+    plt.savefig(f"{args.save_name}.png", bbox_inches="tight")
 
-    plt.savefig(f"{args.save_name}.png", bbox_inches='tight')
 
 def plot_default_yield(data, names, args):
     """
@@ -576,109 +630,144 @@ def plot_default_yield(data, names, args):
     Args:
         data (dict): Dictionary with log directory names as keys and (steps, values) tuples as values
     """
-    fig,ax = plt.subplots(1,2, figsize=(14,3))
+    fig, ax = plt.subplots(1, 2, figsize=(14, 3))
 
     names = np.tile(names, 2)
 
     fnt_size = 12
-    lb_size=12
+    lb_size = 12
 
     means, stds, obs_means, obs_stds = load_multi_wso_data()
     wso_mean, wso_std = load_single_wso_data()
 
-
-    
     xs = np.arange(start=6, stop=38, step=7)
     for i in range(obs_means.shape[0]):
         for j, x in enumerate(xs):
-            ax[0].plot(obs_means[i,:,x],linestyle='-',marker='.',color=utils.COLORS[i],markersize=7)
-            ax[0].fill_between(np.arange(obs_means.shape[1]), obs_means[i,:,x]+obs_stds[i,:,x], obs_means[i,:,x]-obs_stds[i,:,x], color=utils.COLORS[i], alpha=.1)
+            ax[0].plot(obs_means[i, :, x], linestyle="-", marker=".", color=utils.COLORS[i], markersize=7)
+            ax[0].fill_between(
+                np.arange(obs_means.shape[1]),
+                obs_means[i, :, x] + obs_stds[i, :, x],
+                obs_means[i, :, x] - obs_stds[i, :, x],
+                color=utils.COLORS[i],
+                alpha=0.1,
+            )
 
-    handles = [Line2D([0], [0], color='k', marker=utils.MARKERS[i] ,alpha=0.4, lw=2, label=f'Farm {i+1}') for i in range(5)]
+    handles = [
+        Line2D([0], [0], color="k", marker=utils.MARKERS[i], alpha=0.4, lw=2, label=f"Farm {i+1}") for i in range(5)
+    ]
     handles = [Line2D([0], [0], color=utils.COLORS[i], lw=2, label=names[i]) for i in range(3)]
-    ax[0].tick_params(axis='y', labelsize=lb_size)
-    ax[0].tick_params(axis='x', labelsize=lb_size)
+    ax[0].tick_params(axis="y", labelsize=lb_size)
+    ax[0].tick_params(axis="x", labelsize=lb_size)
     ax[0].set_xlabel("Weeks Elapsed", fontsize=fnt_size)
     ax[0].set_ylabel("Water Fraction by Volume", fontsize=fnt_size)
-    ax[0].legend(handlelength=1,ncol=2,handles=handles,fontsize=fnt_size, loc='lower right')
-    ax[0].set_title("Seasonal Soil Moisture Content of Sunflower", fontsize=fnt_size)   
+    ax[0].legend(handlelength=1, ncol=2, handles=handles, fontsize=fnt_size, loc="lower right")
+    ax[0].set_title("Seasonal Soil Moisture Content of Sunflower", fontsize=fnt_size)
     ax[1].set_title("Sunflower Over One Season", fontsize=fnt_size)
-    
-    
+
     # Set up the positions for the bars
-    #x = np.arange(means.shape[1])-.3 # Positions of the bars within each group
-    x = np.arange(wso_mean.shape[1]) - .3
-    width = .3 # Width of the bars
+    # x = np.arange(means.shape[1])-.3 # Positions of the bars within each group
+    x = np.arange(wso_mean.shape[1]) - 0.3
+    width = 0.3  # Width of the bars
 
     formatter = ticker.ScalarFormatter(useMathText=True)
-    formatter.set_powerlimits((2, 2))  
+    formatter.set_powerlimits((2, 2))
     ax[1].yaxis.set_major_formatter(formatter)
-    ax[1].tick_params(axis='y', labelsize=lb_size)
-    ax[1].tick_params(axis='x', labelsize=lb_size)
-    
+    ax[1].tick_params(axis="y", labelsize=lb_size)
+    ax[1].tick_params(axis="x", labelsize=lb_size)
+
     # Plot the bars with error bars
     for i in range(wso_mean.shape[0]):
         for j in range(wso_mean.shape[1]):
             alpha = 1
             if wso_mean[i, j] > means[i, j]:
-                ax[1].bar(x[j] + i * (width), wso_mean[i, j], width=width, 
-               color=utils.COLORS2[i], alpha=alpha, capsize=5, zorder=1)
-                ax[1].bar(x[j] + i * (width), means[i, j], width=width, 
-               color=utils.COLORS[i], alpha=alpha, capsize=5, zorder=2, hatch="xx")
+                ax[1].bar(
+                    x[j] + i * (width),
+                    wso_mean[i, j],
+                    width=width,
+                    color=utils.COLORS2[i],
+                    alpha=alpha,
+                    capsize=5,
+                    zorder=1,
+                )
+                ax[1].bar(
+                    x[j] + i * (width),
+                    means[i, j],
+                    width=width,
+                    color=utils.COLORS[i],
+                    alpha=alpha,
+                    capsize=5,
+                    zorder=2,
+                    hatch="xx",
+                )
             else:
-                ax[1].bar(x[j] + i * (width), wso_mean[i, j], width=width, 
-                color=utils.COLORS2[i], alpha=alpha, capsize=5, zorder=2)
-                ax[1].bar(x[j] + i * (width), means[i, j], width=width, 
-                color=utils.COLORS[i], alpha=alpha, capsize=5, zorder=1, hatch="xx")
+                ax[1].bar(
+                    x[j] + i * (width),
+                    wso_mean[i, j],
+                    width=width,
+                    color=utils.COLORS2[i],
+                    alpha=alpha,
+                    capsize=5,
+                    zorder=2,
+                )
+                ax[1].bar(
+                    x[j] + i * (width),
+                    means[i, j],
+                    width=width,
+                    color=utils.COLORS[i],
+                    alpha=alpha,
+                    capsize=5,
+                    zorder=1,
+                    hatch="xx",
+                )
 
-    ax[1].set_ylabel('Average Yield (kg/ha)',fontsize=fnt_size)
-    ax[1].set_xticks(np.arange(5), labels=[f"Farm {i}" for i in range(5)], fontsize=fnt_size-2)
-    
-    dqn = Line2D([0], [0], color=utils.COLORS[0], alpha=1, lw=2, label='DQN Multi')
-    ppo = Line2D([0], [0], color=utils.COLORS[1], alpha=1, lw=2, label='PPO Mutli')
-    sac = Line2D([0], [0], color=utils.COLORS[2], alpha=1, lw=2, label='SAC Mutli')
-    dqns = Line2D([0], [0], color=utils.COLORS2[0], alpha=1, lw=2, label='DQN Single')
-    ppos = Line2D([0], [0], color=utils.COLORS2[1], alpha=1, lw=2, label='PPO Single')
-    sacs= Line2D([0], [0], color=utils.COLORS2[2], alpha=1, lw=2, label='SAC Single')
+    ax[1].set_ylabel("Average Yield (kg/ha)", fontsize=fnt_size)
+    ax[1].set_xticks(np.arange(5), labels=[f"Farm {i}" for i in range(5)], fontsize=fnt_size - 2)
 
-    ax[1].legend(handlelength=1,ncol=2,handles=[dqn, ppo, sac , dqns, ppos, sacs ], loc='upper left', fontsize=fnt_size)
+    dqn = Line2D([0], [0], color=utils.COLORS[0], alpha=1, lw=2, label="DQN Multi")
+    ppo = Line2D([0], [0], color=utils.COLORS[1], alpha=1, lw=2, label="PPO Mutli")
+    sac = Line2D([0], [0], color=utils.COLORS[2], alpha=1, lw=2, label="SAC Mutli")
+    dqns = Line2D([0], [0], color=utils.COLORS2[0], alpha=1, lw=2, label="DQN Single")
+    ppos = Line2D([0], [0], color=utils.COLORS2[1], alpha=1, lw=2, label="PPO Single")
+    sacs = Line2D([0], [0], color=utils.COLORS2[2], alpha=1, lw=2, label="SAC Single")
+
+    ax[1].legend(handlelength=1, ncol=2, handles=[dqn, ppo, sac, dqns, ppos, sacs], loc="upper left", fontsize=fnt_size)
+
+    plt.savefig(f"{args.save_name}.png", bbox_inches="tight")
 
 
-    plt.savefig(f"{args.save_name}.png", bbox_inches='tight')
-    
-def load_multi_wso_data(directories=["experiments/runs"], prefixes=['experiments/runs/sunflower_cost']):
-    # Get all NPZ files 
+def load_multi_wso_data(directories=["experiments/runs"], prefixes=["experiments/runs/sunflower_cost"]):
+    # Get all NPZ files
     npz_files = []
     for directory in directories:
         for root, _, files in os.walk(directory):
             for file in files:
-                if file.endswith('.npz'):
+                if file.endswith(".npz"):
                     npz_files.append(os.path.join(root, file))
 
     # Group all files
     grouped_files = []
     for n in npz_files:
         if prefixes[0] in n:
-            grouped_files.append(n) 
-    means = [] 
-    stds=[]  
+            grouped_files.append(n)
+    means = []
+    stds = []
     obs_mean = []
     obs_std = []
     for k, g in enumerate(grouped_files):
-        file = np.load(g, allow_pickle=True)       
+        file = np.load(g, allow_pickle=True)
         wso = []
         dones = file["dones"]
         for i, w in enumerate(file["infos"]):
             if dones[i]:
-                wsos = np.sum(np.nan_to_num(np.array(list(w['growth'].values())).astype(np.float32)),axis=0)
+                wsos = np.sum(np.nan_to_num(np.array(list(w["growth"].values())).astype(np.float32)), axis=0)
                 wso.append(wsos)
-        
-        means.append(np.mean(wso,axis=0))
-        stds.append(np.std(wso,axis=0))
+
+        means.append(np.mean(wso, axis=0))
+        stds.append(np.std(wso, axis=0))
 
         obs = file["obs"]
 
-        splits = np.where(dones)[0]+1
+        splits = np.where(dones)[0] + 1
         split_obs = np.split(obs, [s for s in splits if 0 < s < len(obs)])
 
         # Find the minimum length of the arrays
@@ -687,43 +776,44 @@ def load_multi_wso_data(directories=["experiments/runs"], prefixes=['experiments
         # Clip all arrays to the minimum length
         clipped_obs = np.array([arr[:min_length] for arr in split_obs])
 
-        obs_mean.append(np.mean(clipped_obs,axis=0))
-        obs_std.append(np.std(clipped_obs,axis=0))
+        obs_mean.append(np.mean(clipped_obs, axis=0))
+        obs_std.append(np.std(clipped_obs, axis=0))
 
     return np.array(means), np.array(stds), np.array(obs_mean), np.array(obs_std)
 
-def load_single_wso_data(directories=["experiments/runs"], prefixes=['experiments/runs/sunflower_single']):
-    # Get all NPZ files 
+
+def load_single_wso_data(directories=["experiments/runs"], prefixes=["experiments/runs/sunflower_single"]):
+    # Get all NPZ files
     npz_files = []
     for directory in directories:
         for root, _, files in os.walk(directory):
             for file in files:
-                if file.endswith('.npz'):
+                if file.endswith(".npz"):
                     npz_files.append(os.path.join(root, file))
-    
+
     # Group all files
     grouped_files = []
     for n in npz_files:
         if prefixes[0] in n:
-            grouped_files.append(n)  
+            grouped_files.append(n)
 
-    wso_mean = np.zeros((3,5))
-    wso_std = np.zeros((3,5))
+    wso_mean = np.zeros((3, 5))
+    wso_std = np.zeros((3, 5))
     for k, g in enumerate(grouped_files):
         # Get index for saving
-        for l,a in enumerate(["DQN", "PPO", "SAC"]):
+        for l, a in enumerate(["DQN", "PPO", "SAC"]):
             if a in g:
                 ag = l
         for l, a in enumerate(["0", "1", "2", "3", "4", "5"]):
             if a in g:
                 farm = l
 
-        file = np.load(g, allow_pickle=True)  
-        output = file["output_vars"]     
-        wso = file["obs"][:,np.argwhere(output == 'WSO').flatten()[0]]
+        file = np.load(g, allow_pickle=True)
+        output = file["output_vars"]
+        wso = file["obs"][:, np.argwhere(output == "WSO").flatten()[0]]
         dones = file["dones"]
-        
-        splits = np.where(dones)[0]+1
+
+        splits = np.where(dones)[0] + 1
         split_wso = np.split(wso, [s for s in splits if 0 < s < len(wso)])
 
         wso_sum = np.array([np.sum(w) for w in split_wso])
@@ -733,44 +823,44 @@ def load_single_wso_data(directories=["experiments/runs"], prefixes=['experiment
 
     return wso_mean, wso_std
 
-def plot_bc_yield(directories=["experiments/runs"], prefixes=['experiments/runs/wheat_threshold_wk']):
-    # Get all NPZ files 
+
+def plot_bc_yield(directories=["experiments/runs"], prefixes=["experiments/runs/wheat_threshold_wk"]):
+    # Get all NPZ files
     npz_files = []
     for directory in directories:
         for root, _, files in os.walk(directory):
             for file in files:
-                if file.endswith('.npz'):
+                if file.endswith(".npz"):
                     npz_files.append(os.path.join(root, file))
-    
+
     # Group all files
     grouped_files = []
     for n in npz_files:
         if prefixes[0] in n:
-            grouped_files.append(n)  
+            grouped_files.append(n)
 
     stats_mean = np.zeros((len(grouped_files), 6))
-    stats_std = np.zeros((len(grouped_files),6))
+    stats_std = np.zeros((len(grouped_files), 6))
     for k, g in enumerate(grouped_files):
         print(g)
-        file = np.load(g, allow_pickle=True)  
-        output = file["output_vars"]     
-        
-        wso = file["obs"][:,np.argwhere(output == 'WSO').flatten()[0]]
-        totn = file["obs"][:,np.argwhere(output == 'TOTN').flatten()[0]]
-        totp = file["obs"][:,np.argwhere(output == 'TOTP').flatten()[0]]
-        totk = file["obs"][:,np.argwhere(output == 'TOTK').flatten()[0]]
-        totw = file["obs"][:,np.argwhere(output == 'TOTIRRIG').flatten()[0]]
+        file = np.load(g, allow_pickle=True)
+        output = file["output_vars"]
+
+        wso = file["obs"][:, np.argwhere(output == "WSO").flatten()[0]]
+        totn = file["obs"][:, np.argwhere(output == "TOTN").flatten()[0]]
+        totp = file["obs"][:, np.argwhere(output == "TOTP").flatten()[0]]
+        totk = file["obs"][:, np.argwhere(output == "TOTK").flatten()[0]]
+        totw = file["obs"][:, np.argwhere(output == "TOTIRRIG").flatten()[0]]
         dones = file["dones"]
         rewards = file["rewards"]
-        splits = np.where(dones)[0]+1
+        splits = np.where(dones)[0] + 1
         split_wso = np.split(wso, [s for s in splits if 0 < s < len(wso)])
         wso_sum = np.array([np.max(w) for w in split_wso])
 
         split_rew = np.split(rewards, [s for s in splits if 0 < s < len(rewards)])
 
         rew_count = np.array([len(np.argwhere(s < 0).flatten()) for s in split_rew])
-        
-        
+
         split_totn = np.split(totn, [s for s in splits if 0 < s < len(totn)])
         totn_max = np.array([np.max(n) for n in split_totn])
         split_totp = np.split(totp, [s for s in splits if 0 < s < len(totp)])
@@ -798,8 +888,9 @@ def plot_bc_yield(directories=["experiments/runs"], prefixes=['experiments/runs/
 
     return stats_mean, stats_std
 
+
 def find_max_in_nested_arrays(*arrays):
-    max_value = float('-inf')
+    max_value = float("-inf")
 
     def find_max(arr):
         nonlocal max_value
@@ -814,9 +905,10 @@ def find_max_in_nested_arrays(*arrays):
 
     return max_value
 
-def counts(inds, vals,x ):
-    sum = np.zeros(x+1)
-    count = np.zeros(x+1)
+
+def counts(inds, vals, x):
+    sum = np.zeros(x + 1)
+    count = np.zeros(x + 1)
     for j, n in enumerate(inds):
         for i, ni in enumerate(n):
             sum[ni] += vals[j][i]
@@ -824,57 +916,63 @@ def counts(inds, vals,x ):
     count = np.where(count == 0, 1, count)
     return np.nan_to_num(sum / count)
 
+
 def fix_colormap(cm):
     colors = cm(np.linspace(0, 1, 256))
     colors[0] = [1, 1, 1, 1]  # Set the lowest value (0) to white (R=1, G=1, B=1, Alpha=1)
     custom_blues = LinearSegmentedColormap.from_list("CustomBlues", colors)
     return custom_blues
-    
+
+
 if __name__ == "__main__":
 
     args = tyro.cli(PlotArgs)
 
     # Unconstrained Control: Jujube and Wheat
-    log_dirs = ["experiments/UncontrainedControl/Jujube/DQN/perennial-lnpkw-v0__rl_utils__1__1747849237",
-                "experiments/UncontrainedControl/Jujube/PPO/perennial-lnpkw-v0__rl_utils__1__1747849237",
-                "experiments/UncontrainedControl/Jujube/SAC/perennial-lnpkw-v0__rl_utils__1__1748241864",
-                "experiments/UncontrainedControl/Jujube/RPPO/perennial-lnpkw-v0__rl_utils__1__1748636264",
-                "experiments/UncontrainedControl/Wheat/DQN/lnpkw-v0__rl_utils__1__1748256786",
-                "experiments/UncontrainedControl/Wheat/PPO/lnpkw-v0__rl_utils__1__1748331066",
-                "experiments/UncontrainedControl/Wheat/SAC/lnpkw-v0__rl_utils__1__1748416202",
-                "experiments/UncontrainedControl/Wheat/RPPO/lnpkw-v0__rl_utils__1__1748636264"]
+    log_dirs = [
+        "experiments/UncontrainedControl/Jujube/DQN/perennial-lnpkw-v0__rl_utils__1__1747849237",
+        "experiments/UncontrainedControl/Jujube/PPO/perennial-lnpkw-v0__rl_utils__1__1747849237",
+        "experiments/UncontrainedControl/Jujube/SAC/perennial-lnpkw-v0__rl_utils__1__1748241864",
+        "experiments/UncontrainedControl/Jujube/RPPO/perennial-lnpkw-v0__rl_utils__1__1748636264",
+        "experiments/UncontrainedControl/Wheat/DQN/lnpkw-v0__rl_utils__1__1748256786",
+        "experiments/UncontrainedControl/Wheat/PPO/lnpkw-v0__rl_utils__1__1748331066",
+        "experiments/UncontrainedControl/Wheat/SAC/lnpkw-v0__rl_utils__1__1748416202",
+        "experiments/UncontrainedControl/Wheat/RPPO/lnpkw-v0__rl_utils__1__1748636264",
+    ]
     names = ["DQN", "PPO", "SAC", "RPPO"]
-    #data = load_scalars_from_runs(log_dirs=log_dirs, scalar_name="charts/average_reward")
+    # data = load_scalars_from_runs(log_dirs=log_dirs, scalar_name="charts/average_reward")
     args.save_name = "experiments/figs/UnconstrainedControl_JujubeWheat"
-    #plot_reward_figs_two(data, names, args)
+    # plot_reward_figs_two(data, names, args)
 
     # Constrained Control: Pear Threshold
-    log_dirs = ["experiments/ContrainedControl/Pear/DQN/perennial-lnpkw-v0__rl_utils__1__1748732211",
-                "experiments/ContrainedControl/Pear/PPO/perennial-lnpkw-v0__rl_utils__1__1749037796",
-                "experiments/ContrainedControl/Pear/SAC/perennial-lnpkw-v0__rl_utils__1__1749102040",
-                "experiments/ContrainedControl/Pear/RPPO/perennial-lnpkw-v0__rl_utils__1__1749322749"]
+    log_dirs = [
+        "experiments/ContrainedControl/Pear/DQN/perennial-lnpkw-v0__rl_utils__1__1748732211",
+        "experiments/ContrainedControl/Pear/PPO/perennial-lnpkw-v0__rl_utils__1__1749037796",
+        "experiments/ContrainedControl/Pear/SAC/perennial-lnpkw-v0__rl_utils__1__1749102040",
+        "experiments/ContrainedControl/Pear/RPPO/perennial-lnpkw-v0__rl_utils__1__1749322749",
+    ]
     names = ["DQN", "PPO", "SAC", "RPPO"]
-    #data = load_scalars_from_runs(log_dirs, scalar_name="charts/average_reward")
+    # data = load_scalars_from_runs(log_dirs, scalar_name="charts/average_reward")
     args.save_name = "experiments/figs/ConstrainedControl_PearThresholdProbs"
-    #plot_reward_log_hist(data, names, args)
-    
-    
+    # plot_reward_log_hist(data, names, args)
+
     # Constrained Control: PPO Potato Runoff
     # log_dirs = ["experiments/PartialObsConstrainedControl/Potato/RPPO/lnpkw-v0__rl_utils__1__1749355125", # All
     #             "experiments/PartialObsConstrainedControl/Potato/RPPO/lnpkw-v0__rl_utils__1__1749355195", # No Rain
     #             "experiments/PartialObsConstrainedControl/Potato/RPPO/lnpkw-v0__rl_utils__1__1749494686", # No total N/NAvail
-    #             "experiments/PartialObsConstrainedControl/Potato/RPPO/lnpkw-v0__rl_utils__1__1749517840", #No total N/Rain 
+    #             "experiments/PartialObsConstrainedControl/Potato/RPPO/lnpkw-v0__rl_utils__1__1749517840", #No total N/Rain
     #             ]
-    log_dirs = ["experiments/PartialObsConstrainedControl/Potato/PPO/lnpkw-v0__rl_utils__1__1748664019", # All
-                "experiments/PartialObsConstrainedControl/Potato/PPO/lnpkw-v0__rl_utils__1__1748664026", # No Rain
-                "experiments/PartialObsConstrainedControl/Potato/PPO/lnpkw-v0__rl_utils__1__1749009571", # No total N
-                "experiments/PartialObsConstrainedControl/Potato/PPO/lnpkw-v0__rl_utils__1__1749009625" # No total N/Rain
-                ]
+    log_dirs = [
+        "experiments/PartialObsConstrainedControl/Potato/PPO/lnpkw-v0__rl_utils__1__1748664019",  # All
+        "experiments/PartialObsConstrainedControl/Potato/PPO/lnpkw-v0__rl_utils__1__1748664026",  # No Rain
+        "experiments/PartialObsConstrainedControl/Potato/PPO/lnpkw-v0__rl_utils__1__1749009571",  # No total N
+        "experiments/PartialObsConstrainedControl/Potato/PPO/lnpkw-v0__rl_utils__1__1749009625",  # No total N/Rain
+    ]
     names = ["Neither", "RAIN", "TOTN", "RAIN+TOTN"]
     data = load_scalars_from_runs(log_dirs, scalar_name="charts/average_reward")
     args.save_name = "experiments/figs/ConstrainedControl_PotatoRunoff"
     plot_reward_log_runoffbar(data, names, args)
-    
+
     sys.exit(0)
 
     # Sunflower cost only
@@ -884,7 +982,7 @@ if __name__ == "__main__":
     data = load_scalars_from_runs(log_dirs, scalar_name)
     args.save_name = "data/figs/sunflower_cost"
     plot_default_yield(data, names, args)
-    
-    np.set_printoptions(precision=2,suppress=True)
+
+    np.set_printoptions(precision=2, suppress=True)
     x, y = plot_bc_yield()
     print(f"{x}\n{y}")

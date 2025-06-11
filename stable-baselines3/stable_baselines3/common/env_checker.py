@@ -196,7 +196,9 @@ def _check_goal_env_compute_reward(
     batch_infos = np.array([info, info])
     rewards = env.compute_reward(batch_achieved_goals, batch_desired_goals, batch_infos)  # type: ignore[attr-defined]
     assert rewards.shape == (2,), f"Unexpected shape for vectorized computation of reward: {rewards.shape} != (2,)"
-    assert rewards[0] == reward, f"Vectorized computation of reward differs from single computation: {rewards[0]} != {reward}"
+    assert (
+        rewards[0] == reward
+    ), f"Vectorized computation of reward differs from single computation: {rewards[0]} != {reward}"
 
 
 def _check_obs(obs: Union[tuple, dict, np.ndarray, int], observation_space: spaces.Space, method_name: str) -> None:
@@ -213,9 +215,13 @@ def _check_obs(obs: Union[tuple, dict, np.ndarray, int], observation_space: spac
     if isinstance(observation_space, spaces.Discrete):
         # Since https://github.com/Farama-Foundation/Gymnasium/pull/141,
         # `sample()` will return a np.int64 instead of an int
-        assert np.issubdtype(type(obs), np.integer), f"The observation returned by `{method_name}()` method must be an int"
+        assert np.issubdtype(
+            type(obs), np.integer
+        ), f"The observation returned by `{method_name}()` method must be an int"
     elif _is_numpy_array_space(observation_space):
-        assert isinstance(obs, np.ndarray), f"The observation returned by `{method_name}()` method must be a numpy array"
+        assert isinstance(
+            obs, np.ndarray
+        ), f"The observation returned by `{method_name}()` method must be a numpy array"
 
     # Additional checks for numpy arrays, so the error message is clearer (see GH#1399)
     if isinstance(obs, np.ndarray):
@@ -285,7 +291,9 @@ def _check_returned_values(env: gym.Env, observation_space: spaces.Space, action
     assert isinstance(reset_returns, tuple), "`reset()` must return a tuple (obs, info)"
     assert len(reset_returns) == 2, f"`reset()` must return a tuple of size 2 (obs, info), not {len(reset_returns)}"
     obs, info = reset_returns
-    assert isinstance(info, dict), f"The second element of the tuple return by `reset()` must be a dictionary not {info}"
+    assert isinstance(
+        info, dict
+    ), f"The second element of the tuple return by `reset()` must be a dictionary not {info}"
 
     if _is_goal_env(env):
         # Make mypy happy, already checked
@@ -372,7 +380,9 @@ def _check_spaces(env: gym.Env) -> None:
     assert isinstance(
         env.observation_space, spaces.Space
     ), f"The observation space must inherit from gymnasium.spaces ({gym_spaces})"
-    assert isinstance(env.action_space, spaces.Space), f"The action space must inherit from gymnasium.spaces ({gym_spaces})"
+    assert isinstance(
+        env.action_space, spaces.Space
+    ), f"The action space must inherit from gymnasium.spaces ({gym_spaces})"
 
     if _is_goal_env(env):
         print(

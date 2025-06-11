@@ -4,13 +4,16 @@ and soil modules
 Written by: Allard de Wit (allard.dewit@wur.nl), April 2014
 Modified by Will Solow, 2024
 """
+
 import logging
 from collections import Counter
 from collections.abc import MutableMapping
 from ..utils import exceptions as exc
 
+
 class MultiCropDataProvider(dict):
     """Provides base class for Crop Data loading from .yaml files"""
+
     def __init__(self):
         """Initialize class `MultiCropDataProvider"""
         dict.__init__(self)
@@ -21,12 +24,13 @@ class MultiCropDataProvider(dict):
 
         Needs to be implemented by each subclass of MultiCropDataProvider
         """
-        msg = "'set_crop_type' method should be implemented specifically for each" \
-              "subclass of MultiCropDataProvider."
+        msg = "'set_crop_type' method should be implemented specifically for each" "subclass of MultiCropDataProvider."
         raise NotImplementedError(msg)
-    
+
+
 class MultiSiteDataProvider(dict):
     """Provides base class for Site Data loading from .yaml files"""
+
     def __init__(self):
         """Initialize class `MultiSiteDataProvider"""
         dict.__init__(self)
@@ -37,9 +41,9 @@ class MultiSiteDataProvider(dict):
 
         Needs to be implemented by each subclass of MultiSiteDataProvider
         """
-        msg = "'set_crop_type' method should be implemented specifically for each" \
-              "subclass of MultiSiteDataProvider."
+        msg = "'set_crop_type' method should be implemented specifically for each" "subclass of MultiSiteDataProvider."
         raise NotImplementedError(msg)
+
 
 class ParameterProvider(MutableMapping):
     """Class providing a dictionary-like interface over all parameter sets (crop, soil, site).
@@ -58,6 +62,7 @@ class ParameterProvider(MutableMapping):
 
     See also the `MultiCropDataProvider` and the `MultieSiteDataProvider`
     """
+
     _maps = list()
     _sitedata = dict()
     _soildata = dict()
@@ -68,10 +73,16 @@ class ParameterProvider(MutableMapping):
     _ncrops_activated = 0  # Counts the number of times `set_crop_type()` has been called.
     _nsites_activated = 0  # Counts the number of times `set_site_type()` has been called.
 
-    def __init__(self, sitedata: MultiSiteDataProvider=None, timerdata: dict=None,\
-                 soildata: dict=None, cropdata: MultiCropDataProvider=None, override: dict=None):
+    def __init__(
+        self,
+        sitedata: MultiSiteDataProvider = None,
+        timerdata: dict = None,
+        soildata: dict = None,
+        cropdata: MultiCropDataProvider = None,
+        override: dict = None,
+    ):
         """Initializes class `ParameterProvider
-        
+
         Args:
             sitedata  - data for site
             timerdata - data for timer
@@ -129,7 +140,7 @@ class ParameterProvider(MutableMapping):
         self._ncrops_activated += 1
         self._test_uniqueness()
 
-    def set_active_site(self, site_name: str=None, site_variation: str=None):
+    def set_active_site(self, site_name: str = None, site_variation: str = None):
         """Activate the site parameters for the given site_name and site_variation.
 
         :param site_name: string identifying the site name, is ignored as only
@@ -149,12 +160,11 @@ class ParameterProvider(MutableMapping):
 
     @property
     def logger(self):
-        loggername = "%s.%s" % (self.__class__.__module__,
-                                self.__class__.__name__)
+        loggername = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         return logging.getLogger(loggername)
 
     def set_override(self, varname, value, check=True):
-        """"Override the value of parameter varname in the parameterprovider.
+        """ "Override the value of parameter varname in the parameterprovider.
 
         Overriding the value of particular parameter is often useful for example
         when running for different sets of parameters or for calibration
@@ -251,8 +261,10 @@ class ParameterProvider(MutableMapping):
         if key in self:
             self._override[key] = value
         else:
-            msg = "Cannot override parameter '%s', parameter does not exist. " \
-                  "to bypass this check use: set_override(parameter, value, check=False)" % key
+            msg = (
+                "Cannot override parameter '%s', parameter does not exist. "
+                "to bypass this check use: set_override(parameter, value, check=False)" % key
+            )
             raise exc.PCSEError(msg)
 
     def __delitem__(self, key):
@@ -286,5 +298,3 @@ class ParameterProvider(MutableMapping):
         else:
             self._iter = 0
             raise StopIteration
-
-

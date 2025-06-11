@@ -6,6 +6,7 @@ when creating PCSE simulation units.
 Written by: Allard de Wit (allard.dewit@wur.nl), April 2014
 Modified by Will Solow, 2024
 """
+
 import types
 import logging
 
@@ -15,20 +16,17 @@ from .simulationobject import SimulationObject
 
 
 class BaseEngine(HasTraits, DispatcherObject):
-    """Base Class for Engine to inherit from
-    """
+    """Base Class for Engine to inherit from"""
+
     def __init__(self):
-        """Initialize class `BaseEngine`
-        """
+        """Initialize class `BaseEngine`"""
         HasTraits.__init__(self)
         DispatcherObject.__init__(self)
 
     @property
     def logger(self):
-        """Initialize logger object
-        """
-        loggername = "%s.%s" % (self.__class__.__module__,
-                                self.__class__.__name__)
+        """Initialize logger object"""
+        loggername = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         return logging.getLogger(loggername)
 
     def __setattr__(self, attr, value):
@@ -57,8 +55,7 @@ class BaseEngine(HasTraits, DispatcherObject):
 
     @property
     def subSimObjects(self):
-        """ Find SimulationObjects embedded within self.
-        """
+        """Find SimulationObjects embedded within self."""
 
         subSimObjects = []
         defined_traits = self.__dict__["_trait_values"]
@@ -68,7 +65,7 @@ class BaseEngine(HasTraits, DispatcherObject):
         return subSimObjects
 
     def get_variable(self, varname):
-        """ Return the value of the specified state or rate variable.
+        """Return the value of the specified state or rate variable.
 
         :param varname: Name of the variable.
 
@@ -98,8 +95,7 @@ class BaseEngine(HasTraits, DispatcherObject):
         return value
 
     def zerofy(self):
-        """Zerofy the value of all rate variables of any sub-SimulationObjects.
-        """
+        """Zerofy the value of all rate variables of any sub-SimulationObjects."""
         # Walk over possible sub-simulation objects.
         if self.subSimObjects is not None:
             for simobj in self.subSimObjects:

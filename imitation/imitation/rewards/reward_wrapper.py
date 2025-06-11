@@ -99,14 +99,10 @@ class RewardVecEnvWrapper(vec_env.VecEnvWrapper):
         obs = types.maybe_wrap_in_dictobs(obs)
         for single_obs, single_done, single_infos in zip(obs, dones, infos):
             if single_done:
-                #single_obs = single_infos["terminal_observation"]
+                # single_obs = single_infos["terminal_observation"]
                 pass
             obs_fixed.append(types.maybe_wrap_in_dictobs(single_obs))
-        obs_fixed = (
-            types.DictObs.stack(obs_fixed)
-            if isinstance(obs, types.DictObs)
-            else np.stack(obs_fixed)
-        )
+        obs_fixed = types.DictObs.stack(obs_fixed) if isinstance(obs, types.DictObs) else np.stack(obs_fixed)
         rews = self.reward_fn(
             self._old_obs,
             self._actions,
@@ -128,6 +124,6 @@ class RewardVecEnvWrapper(vec_env.VecEnvWrapper):
         # trajectory, not the last observation of the old trajectory
         obs = types.maybe_unwrap_dictobs(obs)
         self._old_obs = obs
-        #for info_dict, old_rew in zip(infos, old_rews):
+        # for info_dict, old_rew in zip(infos, old_rews):
         #    info_dict["original_env_rew"] = old_rew
         return obs, rews, dones, infos

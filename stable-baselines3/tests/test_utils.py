@@ -116,7 +116,9 @@ def test_vec_env_kwargs():
 
 
 def test_vec_env_wrapper_kwargs():
-    env = make_vec_env("MountainCarContinuous-v0", n_envs=1, seed=0, wrapper_class=MaxAndSkipEnv, wrapper_kwargs={"skip": 3})
+    env = make_vec_env(
+        "MountainCarContinuous-v0", n_envs=1, seed=0, wrapper_class=MaxAndSkipEnv, wrapper_kwargs={"skip": 3}
+    )
     assert env.get_attr("_skip")[0] == 3
 
 
@@ -343,7 +345,9 @@ def test_evaluate_policy_monitors(vec_env_class):
     # Should get longer episodes with with Monitor (true episodes)
     eval_env = make_eval_env(with_monitor=True, wrapper_class=AlwaysDoneWrapper)
     episode_rewards, episode_lengths = evaluate_policy(model, eval_env, n_eval_episodes, return_episode_rewards=True)
-    assert all(map(lambda length: length > 1, episode_lengths)), "evaluate_policy did not get episode lengths from Monitor"
+    assert all(
+        map(lambda length: length > 1, episode_lengths)
+    ), "evaluate_policy did not get episode lengths from Monitor"
     eval_env.close()
 
 
@@ -585,11 +589,19 @@ def test_check_shape_equal():
     with pytest.raises(AssertionError):
         check_shape_equal(space1, space2)
 
-    space1 = spaces.Dict({"key1": spaces.Box(low=0, high=1, shape=(2, 2)), "key2": spaces.Box(low=0, high=1, shape=(2, 2))})
-    space2 = spaces.Dict({"key1": spaces.Box(low=-1, high=2, shape=(2, 2)), "key2": spaces.Box(low=-1, high=2, shape=(2, 2))})
+    space1 = spaces.Dict(
+        {"key1": spaces.Box(low=0, high=1, shape=(2, 2)), "key2": spaces.Box(low=0, high=1, shape=(2, 2))}
+    )
+    space2 = spaces.Dict(
+        {"key1": spaces.Box(low=-1, high=2, shape=(2, 2)), "key2": spaces.Box(low=-1, high=2, shape=(2, 2))}
+    )
     check_shape_equal(space1, space2)
 
-    space1 = spaces.Dict({"key1": spaces.Box(low=0, high=1, shape=(2, 2)), "key2": spaces.Box(low=0, high=1, shape=(2, 2))})
-    space2 = spaces.Dict({"key1": spaces.Box(low=-1, high=2, shape=(3, 3)), "key2": spaces.Box(low=-1, high=2, shape=(2, 2))})
+    space1 = spaces.Dict(
+        {"key1": spaces.Box(low=0, high=1, shape=(2, 2)), "key2": spaces.Box(low=0, high=1, shape=(2, 2))}
+    )
+    space2 = spaces.Dict(
+        {"key1": spaces.Box(low=-1, high=2, shape=(3, 3)), "key2": spaces.Box(low=-1, high=2, shape=(2, 2))}
+    )
     with pytest.raises(AssertionError):
         check_shape_equal(space1, space2)

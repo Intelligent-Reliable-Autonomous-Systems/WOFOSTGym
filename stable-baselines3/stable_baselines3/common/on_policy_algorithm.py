@@ -231,7 +231,7 @@ class OnPolicyAlgorithm(BaseAlgorithm):
                 # Reshape in case of discrete action
                 actions = actions.reshape(-1, 1)
 
-            '''# Handle timeout by bootstrapping with value function
+            """# Handle timeout by bootstrapping with value function
             # see GitHub issue #633
             for idx, done in enumerate(dones):
                 if (
@@ -243,7 +243,7 @@ class OnPolicyAlgorithm(BaseAlgorithm):
                     terminal_obs = self.policy.obs_to_tensor(new_obs[idx])[0]
                     with th.no_grad():
                         terminal_value = self.policy.predict_values(terminal_obs)[0]  # type: ignore[arg-type]
-                    rewards[idx] += self.gamma * terminal_value'''
+                    rewards[idx] += self.gamma * terminal_value"""
 
             rollout_buffer.add(
                 self._last_obs,  # type: ignore[arg-type]
@@ -322,7 +322,9 @@ class OnPolicyAlgorithm(BaseAlgorithm):
         assert self.env is not None
 
         while self.num_timesteps < total_timesteps:
-            continue_training = self.collect_rollouts(self.env, callback, self.rollout_buffer, n_rollout_steps=self.n_steps)
+            continue_training = self.collect_rollouts(
+                self.env, callback, self.rollout_buffer, n_rollout_steps=self.n_steps
+            )
 
             if not continue_training:
                 break

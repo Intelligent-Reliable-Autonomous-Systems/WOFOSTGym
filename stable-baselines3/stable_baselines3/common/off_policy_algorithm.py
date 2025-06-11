@@ -16,7 +16,14 @@ from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.noise import ActionNoise, VectorizedActionNoise
 from stable_baselines3.common.policies import BasePolicy
 from stable_baselines3.common.save_util import load_from_pkl, save_to_pkl
-from stable_baselines3.common.type_aliases import GymEnv, MaybeCallback, RolloutReturn, Schedule, TrainFreq, TrainFrequencyUnit
+from stable_baselines3.common.type_aliases import (
+    GymEnv,
+    MaybeCallback,
+    RolloutReturn,
+    Schedule,
+    TrainFreq,
+    TrainFrequencyUnit,
+)
 from stable_baselines3.common.utils import safe_mean, should_collect_more_steps
 from stable_baselines3.common.vec_env import VecEnv
 from stable_baselines3.her.her_replay_buffer import HerReplayBuffer
@@ -566,7 +573,9 @@ class OffPolicyAlgorithm(BaseAlgorithm):
             callback.update_locals(locals())
             # Only stop training if return value is False, not when it is None.
             if not callback.on_step():
-                return RolloutReturn(num_collected_steps * env.num_envs, num_collected_episodes, continue_training=False)
+                return RolloutReturn(
+                    num_collected_steps * env.num_envs, num_collected_episodes, continue_training=False
+                )
 
             # Retrieve reward and episode length if using Monitor wrapper
             self._update_info_buffer(infos, dones)

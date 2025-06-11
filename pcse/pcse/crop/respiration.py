@@ -1,8 +1,9 @@
-"""Handles Respiration of crop 
+"""Handles Respiration of crop
 
 Written by: Allard de Wit (allard.dewit@wur.nl), April 2014
 Modified by Will Solow, 2024
 """
+
 from datetime import date
 
 from ..utils.traitlets import Float
@@ -10,9 +11,10 @@ from ..base import ParamTemplate, SimulationObject, RatesTemplate, VariableKiosk
 from ..util import AfgenTrait
 from ..nasapower import WeatherDataProvider
 
+
 class WOFOST_Maintenance_Respiration(SimulationObject):
     """Maintenance respiration in WOFOST
-    
+
     WOFOST calculates the maintenance respiration as proportional to the dry
     weights of the plant organs to be maintained, where each plant organ can be
     assigned a different maintenance coefficient. Multiplying organ weight
@@ -23,7 +25,7 @@ class WOFOST_Maintenance_Respiration(SimulationObject):
     in temperature as defined by `Q10`.
 
     **Simulation parameters:** (To be provided in cropdata dictionary):
-    
+
     =======  ============================================= =======  ============
      Name     Description                                   Type     Unit
     =======  ============================================= =======  ============
@@ -38,13 +40,13 @@ class WOFOST_Maintenance_Respiration(SimulationObject):
              leaves                                         SCr     |kg CH2O kg-1 d-1|
     RMO      Relative maintenance respiration rate for
              storage organs                                 SCr     |kg CH2O kg-1 d-1|
-    RFSETB   Reduction factor  for senescence as            SCr       - 
+    RFSETB   Reduction factor  for senescence as            SCr       -
              function of DVS
     =======  ============================================= =======  ============
-    
+
 
     **State and rate variables:**
-    
+
     `WOFOSTMaintenanceRespiration` returns the potential maintenance respiration PMRES
      directly from the `__call__()` method, but also includes it as a rate variable
      within the object.
@@ -58,11 +60,11 @@ class WOFOST_Maintenance_Respiration(SimulationObject):
     =======  ================================================ ==== =============
 
     **Signals send or handled**
-    
+
     None
-    
+
     **External dependencies:**
-    
+
     =======  =================================== =============================  ============
      Name     Description                         Provided by                    Unit
     =======  =================================== =============================  ============
@@ -75,19 +77,19 @@ class WOFOST_Maintenance_Respiration(SimulationObject):
 
 
     """
-    
+
     class Parameters(ParamTemplate):
-        Q10 = Float(-99.)
-        RMR = Float(-99.)
-        RML = Float(-99.)
-        RMS = Float(-99.)
-        RMO = Float(-99.)
+        Q10 = Float(-99.0)
+        RMR = Float(-99.0)
+        RML = Float(-99.0)
+        RMS = Float(-99.0)
+        RMO = Float(-99.0)
         RFSETB = AfgenTrait()
 
     class RateVariables(RatesTemplate):
-        PMRES = Float(-99.)
+        PMRES = Float(-99.0)
 
-    def initialize(self, day:date, kiosk:VariableKiosk, parvalues:dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE  instance
@@ -98,30 +100,26 @@ class WOFOST_Maintenance_Respiration(SimulationObject):
         self.params = self.Parameters(parvalues)
         self.rates = self.RateVariables(kiosk, publish="PMRES")
         self.kiosk = kiosk
-        
-    def __call__(self, day:date, drv:WeatherDataProvider):
-        """Calculate the maintenence respiration of the crop
-        """
+
+    def __call__(self, day: date, drv: WeatherDataProvider):
+        """Calculate the maintenence respiration of the crop"""
         p = self.params
         kk = self.kiosk
-        
-        RMRES = (p.RMR * kk["WRT"] +
-                 p.RML * kk["WLV"] +
-                 p.RMS * kk["WST"] +
-                 p.RMO * kk["WSO"])
+
+        RMRES = p.RMR * kk["WRT"] + p.RML * kk["WLV"] + p.RMS * kk["WST"] + p.RMO * kk["WSO"]
         RMRES *= p.RFSETB(kk["DVS"])
-        TEFF = p.Q10**((drv.TEMP-25.)/10.)
+        TEFF = p.Q10 ** ((drv.TEMP - 25.0) / 10.0)
         self.rates.PMRES = RMRES * TEFF
         return self.rates.PMRES
-    
+
     def reset(self):
-        """Reset states and rates
-        """
+        """Reset states and rates"""
         self.rates.PMRES = 0
+
 
 class Perennial_WOFOST_Maintenance_Respiration(SimulationObject):
     """Maintenance respiration in WOFOST
-    
+
     WOFOST calculates the maintenance respiration as proportional to the dry
     weights of the plant organs to be maintained, where each plant organ can be
     assigned a different maintenance coefficient. Multiplying organ weight
@@ -132,7 +130,7 @@ class Perennial_WOFOST_Maintenance_Respiration(SimulationObject):
     in temperature as defined by `Q10`.
 
     **Simulation parameters:** (To be provided in cropdata dictionary):
-    
+
     =======  ============================================= =======  ============
      Name     Description                                   Type     Unit
     =======  ============================================= =======  ============
@@ -147,13 +145,13 @@ class Perennial_WOFOST_Maintenance_Respiration(SimulationObject):
              leaves                                         SCr     |kg CH2O kg-1 d-1|
     RMO      Relative maintenance respiration rate for
              storage organs                                 SCr     |kg CH2O kg-1 d-1|
-    RFSETB   Reduction factor  for senescence as            SCr       - 
+    RFSETB   Reduction factor  for senescence as            SCr       -
              function of DVS
     =======  ============================================= =======  ============
-    
+
 
     **State and rate variables:**
-    
+
     `WOFOSTMaintenanceRespiration` returns the potential maintenance respiration PMRES
      directly from the `__call__()` method, but also includes it as a rate variable
      within the object.
@@ -167,11 +165,11 @@ class Perennial_WOFOST_Maintenance_Respiration(SimulationObject):
     =======  ================================================ ==== =============
 
     **Signals send or handled**
-    
+
     None
-    
+
     **External dependencies:**
-    
+
     =======  =================================== =============================  ============
      Name     Description                         Provided by                    Unit
     =======  =================================== =============================  ============
@@ -184,9 +182,9 @@ class Perennial_WOFOST_Maintenance_Respiration(SimulationObject):
 
 
     """
-    
+
     class Parameters(ParamTemplate):
-        Q10 = Float(-99.)
+        Q10 = Float(-99.0)
         RMR = AfgenTrait()
         RML = AfgenTrait()
         RMS = AfgenTrait()
@@ -194,9 +192,9 @@ class Perennial_WOFOST_Maintenance_Respiration(SimulationObject):
         RFSETB = AfgenTrait()
 
     class RateVariables(RatesTemplate):
-        PMRES = Float(-99.)
+        PMRES = Float(-99.0)
 
-    def initialize(self, day:date, kiosk:VariableKiosk, parvalues:dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE  instance
@@ -207,23 +205,23 @@ class Perennial_WOFOST_Maintenance_Respiration(SimulationObject):
         self.params = self.Parameters(parvalues)
         self.rates = self.RateVariables(kiosk, publish="PMRES")
         self.kiosk = kiosk
-        
-    def __call__(self, day:date, drv:WeatherDataProvider):
-        """Calculate the maintenence respiration of the crop
-        """
+
+    def __call__(self, day: date, drv: WeatherDataProvider):
+        """Calculate the maintenence respiration of the crop"""
         p = self.params
         kk = self.kiosk
-        
-        RMRES = (p.RMR(kk.AGE) * kk["WRT"] +
-                 p.RML(kk.AGE) * kk["WLV"] +
-                 p.RMS(kk.AGE) * kk["WST"] +
-                 p.RMO(kk.AGE) * kk["WSO"])
+
+        RMRES = (
+            p.RMR(kk.AGE) * kk["WRT"]
+            + p.RML(kk.AGE) * kk["WLV"]
+            + p.RMS(kk.AGE) * kk["WST"]
+            + p.RMO(kk.AGE) * kk["WSO"]
+        )
         RMRES *= p.RFSETB(kk["DVS"])
-        TEFF = p.Q10**((drv.TEMP-25.)/10.)
+        TEFF = p.Q10 ** ((drv.TEMP - 25.0) / 10.0)
         self.rates.PMRES = RMRES * TEFF
         return self.rates.PMRES
-    
+
     def reset(self):
-        """Reset states and rates
-        """
+        """Reset states and rates"""
         self.rates.PMRES = 0

@@ -44,7 +44,7 @@ class FlattenExtractor(BaseFeaturesExtractor):
 
     def forward(self, observations: th.Tensor) -> th.Tensor:
         if len(observations.shape) == 1:
-            observations = observations.unsqueeze(0).to('cuda')
+            observations = observations.unsqueeze(0).to("cuda")
         return self.flatten(observations)
 
 

@@ -516,7 +516,9 @@ class ActorCriticPolicy(BasePolicy):
         self.log_std_init = log_std_init
         dist_kwargs = None
 
-        assert not (squash_output and not use_sde), "squash_output=True is only available when using gSDE (use_sde=True)"
+        assert not (
+            squash_output and not use_sde
+        ), "squash_output=True is only available when using gSDE (use_sde=True)"
         # Keyword arguments for gSDE distribution
         if use_sde:
             dist_kwargs = {
@@ -564,7 +566,9 @@ class ActorCriticPolicy(BasePolicy):
 
         :param n_envs:
         """
-        assert isinstance(self.action_dist, StateDependentNoiseDistribution), "reset_noise() is only available when using gSDE"
+        assert isinstance(
+            self.action_dist, StateDependentNoiseDistribution
+        ), "reset_noise() is only available when using gSDE"
         self.action_dist.sample_weights(self.log_std, batch_size=n_envs)
 
     def _build_mlp_extractor(self) -> None:
@@ -601,7 +605,9 @@ class ActorCriticPolicy(BasePolicy):
             self.action_net, self.log_std = self.action_dist.proba_distribution_net(
                 latent_dim=latent_dim_pi, latent_sde_dim=latent_dim_pi, log_std_init=self.log_std_init
             )
-        elif isinstance(self.action_dist, (CategoricalDistribution, MultiCategoricalDistribution, BernoulliDistribution)):
+        elif isinstance(
+            self.action_dist, (CategoricalDistribution, MultiCategoricalDistribution, BernoulliDistribution)
+        ):
             self.action_net = self.action_dist.proba_distribution_net(latent_dim=latent_dim_pi)
         else:
             raise NotImplementedError(f"Unsupported distribution '{self.action_dist}'.")
@@ -669,7 +675,9 @@ class ActorCriticPolicy(BasePolicy):
             features for the actor and the features for the critic.
         """
         if self.share_features_extractor:
-            return super().extract_features(obs, self.features_extractor if features_extractor is None else features_extractor)
+            return super().extract_features(
+                obs, self.features_extractor if features_extractor is None else features_extractor
+            )
         else:
             if features_extractor is not None:
                 warnings.warn(

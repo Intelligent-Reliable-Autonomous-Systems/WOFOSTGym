@@ -3,19 +3,20 @@
 Written by: Allard de Wit (allard.dewit@wur.nl), April 2014
 Modified by Will Solow, 2024
 """
+
 from __future__ import print_function
 from math import sqrt, exp, cos, pi
 from collections import deque
 from datetime import date
 
-from ..utils.traitlets import Instance, Float 
+from ..utils.traitlets import Instance, Float
 from ..util import astro, AfgenTrait
 from ..base import ParamTemplate, SimulationObject, VariableKiosk
 from ..nasapower import WeatherDataProvider
 
 
 def totass(DAYL, AMAX, EFF, LAI, KDIF, AVRAD, DIFPP, DSINBE, SINLD, COSLD):
-    """ This routine calculates the daily total gross CO2 assimilation by
+    """This routine calculates the daily total gross CO2 assimilation by
     performing a Gaussian integration over time. At three different times of
     the day, irradiance is computed and used to calculate the instantaneous
     canopy assimilation, whereafter integration takes place. More information
@@ -53,19 +54,20 @@ def totass(DAYL, AMAX, EFF, LAI, KDIF, AVRAD, DIFPP, DSINBE, SINLD, COSLD):
 
     # calculation of assimilation is done only when it will not be zero
     # (AMAX >0, LAI >0, DAYL >0)
-    DTGA = 0.
-    if (AMAX > 0. and LAI > 0. and DAYL > 0.):
+    DTGA = 0.0
+    if AMAX > 0.0 and LAI > 0.0 and DAYL > 0.0:
         for i in range(3):
-            HOUR   = 12.0+0.5*DAYL*XGAUSS[i]
-            SINB   = max(0.,SINLD+COSLD*cos(2.*pi*(HOUR+12.)/24.))
-            PAR    = 0.5*AVRAD*SINB*(1.+0.4*SINB)/DSINBE
-            PARDIF = min(PAR,SINB*DIFPP)
-            PARDIR = PAR-PARDIF
-            FGROS = assim(AMAX,EFF,LAI,KDIF,SINB,PARDIR,PARDIF)
-            DTGA += FGROS*WGAUSS[i]
+            HOUR = 12.0 + 0.5 * DAYL * XGAUSS[i]
+            SINB = max(0.0, SINLD + COSLD * cos(2.0 * pi * (HOUR + 12.0) / 24.0))
+            PAR = 0.5 * AVRAD * SINB * (1.0 + 0.4 * SINB) / DSINBE
+            PARDIF = min(PAR, SINB * DIFPP)
+            PARDIR = PAR - PARDIF
+            FGROS = assim(AMAX, EFF, LAI, KDIF, SINB, PARDIR, PARDIF)
+            DTGA += FGROS * WGAUSS[i]
     DTGA *= DAYL
 
     return DTGA
+
 
 def assim(AMAX, EFF, LAI, KDIF, SINB, PARDIR, PARDIF):
     """This routine calculates the gross CO2 assimilation rate of
@@ -93,44 +95,44 @@ def assim(AMAX, EFF, LAI, KDIF, SINB, PARDIR, PARDIF):
     SCV = 0.2
 
     # 13.2 extinction coefficients KDIF, KDIRBL, KDIRT
-    REFH = (1.-sqrt(1.-SCV))/(1.+sqrt(1.-SCV))
-    REFS = REFH*2./(1.+1.6*SINB)
-    KDIRBL = (0.5/SINB)*KDIF/(0.8*sqrt(1.-SCV))
-    KDIRT = KDIRBL*sqrt(1.-SCV)
+    REFH = (1.0 - sqrt(1.0 - SCV)) / (1.0 + sqrt(1.0 - SCV))
+    REFS = REFH * 2.0 / (1.0 + 1.6 * SINB)
+    KDIRBL = (0.5 / SINB) * KDIF / (0.8 * sqrt(1.0 - SCV))
+    KDIRT = KDIRBL * sqrt(1.0 - SCV)
 
-    #13.3 three-point Gaussian integration over LAI
-    FGROS = 0.
+    # 13.3 three-point Gaussian integration over LAI
+    FGROS = 0.0
     for i in range(3):
-        LAIC = LAI*XGAUSS[i]
+        LAIC = LAI * XGAUSS[i]
         # absorbed diffuse radiation (VISDF),light from direct
         # origine (VIST) and direct light (VISD)
-        VISDF  = (1.-REFS)*PARDIF*KDIF  *exp(-KDIF  *LAIC)
-        VIST   = (1.-REFS)*PARDIR*KDIRT *exp(-KDIRT *LAIC)
-        VISD   = (1.-SCV) *PARDIR*KDIRBL*exp(-KDIRBL*LAIC)
+        VISDF = (1.0 - REFS) * PARDIF * KDIF * exp(-KDIF * LAIC)
+        VIST = (1.0 - REFS) * PARDIR * KDIRT * exp(-KDIRT * LAIC)
+        VISD = (1.0 - SCV) * PARDIR * KDIRBL * exp(-KDIRBL * LAIC)
 
         # absorbed flux in W/m2 for shaded leaves and assimilation
-        VISSHD = VISDF+VIST-VISD
-        FGRSH  = AMAX*(1.-exp(-VISSHD*EFF/max(2.0, AMAX)))
+        VISSHD = VISDF + VIST - VISD
+        FGRSH = AMAX * (1.0 - exp(-VISSHD * EFF / max(2.0, AMAX)))
 
         # direct light absorbed by leaves perpendicular on direct
         # beam and assimilation of sunlit leaf area
-        VISPP  = (1.-SCV)*PARDIR/SINB
-        if (VISPP <= 0.):
+        VISPP = (1.0 - SCV) * PARDIR / SINB
+        if VISPP <= 0.0:
             FGRSUN = FGRSH
         else:
-            FGRSUN = AMAX*(1.-(AMAX-FGRSH) \
-                     *(1.-exp(-VISPP*EFF/max(2.0,AMAX)))/ (EFF*VISPP))
+            FGRSUN = AMAX * (1.0 - (AMAX - FGRSH) * (1.0 - exp(-VISPP * EFF / max(2.0, AMAX))) / (EFF * VISPP))
 
         # fraction of sunlit leaf area (FSLLA) and local
         # assimilation rate (FGL)
-        FSLLA  = exp(-KDIRBL*LAIC)
-        FGL    = FSLLA*FGRSUN+(1.-FSLLA)*FGRSH
+        FSLLA = exp(-KDIRBL * LAIC)
+        FGL = FSLLA * FGRSUN + (1.0 - FSLLA) * FGRSH
 
         # integration
-        FGROS += FGL*WGAUSS[i]
+        FGROS += FGL * WGAUSS[i]
 
-    FGROS  = FGROS*LAI
+    FGROS = FGROS * LAI
     return FGROS
+
 
 class WOFOST_Assimilation(SimulationObject):
     """Class implementing a WOFOST/SUCROS style assimilation routine including
@@ -198,9 +200,9 @@ class WOFOST_Assimilation(SimulationObject):
         TMNFTB = AfgenTrait()
         CO2AMAXTB = AfgenTrait()
         CO2EFFTB = AfgenTrait()
-        CO2 = Float(-99.)
+        CO2 = Float(-99.0)
 
-    def initialize(self, day:date, kiosk:VariableKiosk, cropdata:dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, cropdata: dict):
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this Engine instance
@@ -212,9 +214,8 @@ class WOFOST_Assimilation(SimulationObject):
         self.kiosk = kiosk
         self._TMNSAV = deque(maxlen=7)
 
-    def __call__(self, day:date, drv:WeatherDataProvider):
-        """Computes the assimilation of CO2 into the crop
-        """
+    def __call__(self, day: date, drv: WeatherDataProvider):
+        """Computes the assimilation of CO2 into the crop"""
         p = self.params
         k = self.kiosk
 
@@ -224,7 +225,7 @@ class WOFOST_Assimilation(SimulationObject):
 
         # 7-day running average of TMIN
         self._TMNSAV.appendleft(drv.TMIN)
-        TMINRA = sum(self._TMNSAV)/len(self._TMNSAV)
+        TMINRA = sum(self._TMNSAV) / len(self._TMNSAV)
 
         # 2.19  photoperiodic daylength
         DAYL, DAYLP, SINLD, COSLD, DIFPP, ATMTR, DSINBE, ANGOT = astro(day, drv.LAT, drv.IRRAD)
@@ -237,18 +238,17 @@ class WOFOST_Assimilation(SimulationObject):
         AMAX *= p.CO2AMAXTB(p.CO2)
         AMAX *= p.TMPFTB(drv.DTEMP)
         KDIF = p.KDIFTB(DVS)
-        EFF  = p.EFFTB(drv.DTEMP) * p.CO2EFFTB(p.CO2)
+        EFF = p.EFFTB(drv.DTEMP) * p.CO2EFFTB(p.CO2)
         DTGA = totass(DAYL, AMAX, EFF, LAI, KDIF, drv.IRRAD, DIFPP, DSINBE, SINLD, COSLD)
 
         # correction for low minimum temperature potential
         DTGA *= p.TMNFTB(TMINRA)
 
         # assimilation in kg CH2O per ha
-        PGASS = DTGA * 30./44.
+        PGASS = DTGA * 30.0 / 44.0
 
         return PGASS
 
     def reset(self):
-        """Reset states and rates
-        """
+        """Reset states and rates"""
         self._TMNSAV = deque(maxlen=7)

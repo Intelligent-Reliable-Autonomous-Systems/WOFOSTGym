@@ -1,14 +1,14 @@
 """File for utils functions. Importantly contains:
     - Args: Dataclass for configuring paths for the WOFOST Environment
-    - get_gym_args: function for getting the required arguments for the gym 
-    environment from the Args dataclass 
+    - get_gym_args: function for getting the required arguments for the gym
+    environment from the Args dataclass
 
 Written by: Will Solow, 2024
 """
 
 import gymnasium as gym
 import warnings
-import numpy as np 
+import numpy as np
 import pandas as pd
 import torch
 from dataclasses import dataclass, is_dataclass, fields, is_dataclass
@@ -28,6 +28,7 @@ from pcse_gym.envs.wofost_base import Plant_NPK_Env, Harvest_NPK_Env, Multi_NPK_
 import pcse_gym.wrappers.wrappers as wrappers
 
 warnings.filterwarnings("ignore", category=UserWarning)
+
 
 @dataclass
 class Args:
@@ -52,7 +53,7 @@ class Args:
     config_fpath: Optional[str] = None
     """Name of data file to save save in save_folder"""
     data_file: Optional[str] = None
-    
+
     """Agromanagement file"""
     agro_file: str = "wheat_agro.yaml"
 
@@ -84,27 +85,27 @@ class Args:
     """Relative path to the state ranges for normalization"""
     range_fpath: str = "env_config/state_ranges.yaml"
 
+
 HATCHES = [
-   
-    ".",      # Small dots
+    ".",  # Small dots
     "",
-    "+",      # Crossing diagonal lines
-     "O",      # Large circles
-    "o",      # Small circles
-    "O",      # Large circles
-    "/",      # Diagonal lines (forward slash)
-    "\\",     # Diagonal lines (backslash)
-    "|",      # Vertical lines
-    "*",      # Stars
-    "-",      # Horizontal lines
-    "x",      # Crossing lines (horizontal and vertical)
+    "+",  # Crossing diagonal lines
+    "O",  # Large circles
+    "o",  # Small circles
+    "O",  # Large circles
+    "/",  # Diagonal lines (forward slash)
+    "\\",  # Diagonal lines (backslash)
+    "|",  # Vertical lines
+    "*",  # Stars
+    "-",  # Horizontal lines
+    "x",  # Crossing lines (horizontal and vertical)
 ]
 
 COLORS = [
     "#ff0000",  # Red
     "#0000ff",  # Blue
-    "#daa520",  # Goldenrod 
-    "#4B0082", # Dark violet
+    "#daa520",  # Goldenrod
+    "#4B0082",  # Dark violet
     "#008000",  # Dark Green
     "#ff00ff",  # Magenta
     "#00ff00",  # Green
@@ -112,6 +113,7 @@ COLORS = [
     "#ff7700",  # Orange
     "#000000",  # Black
 ]
+
 
 def wrap_env_reward(env: gym.Env, args):
     """
@@ -130,6 +132,7 @@ def wrap_env_reward(env: gym.Env, args):
         msg = f"Incorrectly specified RewardWrapper args.env_reward: `{args.env_reward}`"
         raise Exception(msg)
 
+
 def make_gym_env(args, run_name=None):
     """
     Make a gym environment. Ensures that OrderEnforcing and PassiveEnvChecker
@@ -137,29 +140,38 @@ def make_gym_env(args, run_name=None):
     """
 
     assert args.save_folder is not None, "Specify `save_folder` to save config file."
-    assert isinstance(args.save_folder, str), f"`args.save_folder` must be of type `str` but is of type `{type(args.save_folder)}`."
+    assert isinstance(
+        args.save_folder, str
+    ), f"`args.save_folder` must be of type `str` but is of type `{type(args.save_folder)}`."
     assert args.save_folder.endswith("/"), f"Folder args.save_folder `{args.save_folder}` must end with `/`"
-    
+
     # If valid config file, load env from that configuration
-    if args.config_fpath:  
-        assert os.path.isfile(f"{os.getcwd()}/{args.config_fpath}"), f"Configuration file `{args.config_fpath} does not exist"
+    if args.config_fpath:
+        assert os.path.isfile(
+            f"{os.getcwd()}/{args.config_fpath}"
+        ), f"Configuration file `{args.config_fpath} does not exist"
 
         config = OmegaConf.load(f"{os.getcwd()}/{args.config_fpath}")
-        
+
         valid_keys = {field.name for field in type(args).__dataclass_fields__.values()}
-        filtered_fields = {k:v for k,v in correct_config_lists(config).items() if k in valid_keys}
+        filtered_fields = {k: v for k, v in correct_config_lists(config).items() if k in valid_keys}
         env_id, env_kwargs = get_gym_args(type(args)(**filtered_fields))
         env = gym.make(env_id, **env_kwargs).unwrapped
     else:
         env_id, env_kwargs = get_gym_args(args)
-        env = gym.make(env_id, **env_kwargs).unwrapped 
+        env = gym.make(env_id, **env_kwargs).unwrapped
 
         config = OmegaConf.structured(args)
 
         if hasattr(args, "agent_type"):
-            if args.agent_type: 
-                config = OmegaConf.create({k: v for k,v in config.items() \
-                                        if k not in [a for a in list(get_valid_agents().keys()) if a != args.agent_type]})
+            if args.agent_type:
+                config = OmegaConf.create(
+                    {
+                        k: v
+                        for k, v in config.items()
+                        if k not in [a for a in list(get_valid_agents().keys()) if a != args.agent_type]
+                    }
+                )
         os.makedirs(args.save_folder, exist_ok=True)
 
         if isinstance(env, Multi_NPK_Env):
@@ -171,7 +183,7 @@ def make_gym_env(args, run_name=None):
                 agi_config = correct_config_flatten(Agro_Args, ag_i)
                 wfi_config = correct_config_floats(WOFOST_Args, wf_i)
 
-                config_i = OmegaConf.merge(config, {"npk": {"wf": wfi_config, "ag":agi_config}})
+                config_i = OmegaConf.merge(config, {"npk": {"wf": wfi_config, "ag": agi_config}})
 
                 if run_name is None:
                     save_file = f"{args.save_folder}config_farm_{i}.yaml"
@@ -188,7 +200,7 @@ def make_gym_env(args, run_name=None):
             agro_config = correct_config_flatten(Agro_Args, ag)
             wf_config = correct_config_floats(WOFOST_Args, wf)
 
-            config = OmegaConf.merge(config, {"npk": {"wf": wf_config, "ag":agro_config}})
+            config = OmegaConf.merge(config, {"npk": {"wf": wf_config, "ag": agro_config}})
 
             if run_name is None:
                 save_file = f"{args.save_folder}config.yaml"
@@ -198,25 +210,30 @@ def make_gym_env(args, run_name=None):
                 OmegaConf.save(config=config, f=fp.name)
     return env
 
+
 def make_gym_envs(args, config_fpaths, run_name=None):
     """
     Make multiple gym environments from a list of configurations
     """
 
     assert args.save_folder is not None, "Specify `save_folder` to save config file."
-    assert isinstance(args.save_folder, str), f"`args.save_folder` must be of type `str` but is of type `{type(args.save_folder)}`."
+    assert isinstance(
+        args.save_folder, str
+    ), f"`args.save_folder` must be of type `str` but is of type `{type(args.save_folder)}`."
     assert args.save_folder.endswith("/"), f"Folder args.save_folder `{args.save_folder}` must end with `/`"
-    assert isinstance(config_fpaths, list), f"`config_fpaths` must be of type `list` but is of type `{type(config_fpaths)}`"
+    assert isinstance(
+        config_fpaths, list
+    ), f"`config_fpaths` must be of type `list` but is of type `{type(config_fpaths)}`"
 
     envs = []
     for i, path in enumerate(config_fpaths):
         assert os.path.isfile(f"{os.getcwd()}/{path}"), f"Configuration file `{path} does not exist"
 
         config = OmegaConf.load(f"{os.getcwd()}/{path}")
-        
+
         valid_keys = {field.name for field in type(args).__dataclass_fields__.values()}
-        filtered_fields = {k:v for k,v in correct_config_lists(config).items() if k in valid_keys}
-        
+        filtered_fields = {k: v for k, v in correct_config_lists(config).items() if k in valid_keys}
+
         env_id, env_kwargs = get_gym_args(type(args)(**filtered_fields))
 
         envs.append(gym.make(env_id, **env_kwargs).unwrapped)
@@ -231,6 +248,7 @@ def make_gym_envs(args, config_fpaths, run_name=None):
 
     return envs
 
+
 def get_gym_args(args: Args):
     """
     Returns the Environment ID and required arguments for the WOFOST Gym
@@ -239,18 +257,27 @@ def get_gym_args(args: Args):
     Arguments:
         Args: Args dataclass
     """
-    env_kwargs = {'args': correct_commandline_lists(args.npk), 'base_fpath': args.base_fpath, \
-                  'agro_fpath': f"{args.agro_fpath}{args.agro_file}",'site_fpath': args.site_fpath, 
-                  'crop_fpath': args.crop_fpath, 'unit_fpath':args.unit_fpath, 
-                  'name_fpath':args.name_fpath, 'range_fpath':args.range_fpath, 'render_mode':args.render_mode}
-    
+    env_kwargs = {
+        "args": correct_commandline_lists(args.npk),
+        "base_fpath": args.base_fpath,
+        "agro_fpath": f"{args.agro_fpath}{args.agro_file}",
+        "site_fpath": args.site_fpath,
+        "crop_fpath": args.crop_fpath,
+        "unit_fpath": args.unit_fpath,
+        "name_fpath": args.name_fpath,
+        "range_fpath": args.range_fpath,
+        "render_mode": args.render_mode,
+    }
+
     return args.env_id, env_kwargs
+
 
 def correct_config_flatten(args, d):
     """
     Flatten dictionaries and get all non-dictionary key-value pairs
     """
-    def recurse_dict( d, flattened_dict={}):
+
+    def recurse_dict(d, flattened_dict={}):
         """
         Recurse through all sub dictionaries and make a flattened dictionary
         """
@@ -267,6 +294,7 @@ def correct_config_flatten(args, d):
 
     return OmegaConf.merge(OmegaConf.structured(args), flat_dict)
 
+
 def correct_config_floats(args, d):
     """
     Correct configurations by casting float types to list
@@ -277,6 +305,7 @@ def correct_config_floats(args, d):
             d[k] = list([d[k]])
 
     return OmegaConf.merge(OmegaConf.structured(args), d)
+
 
 def correct_config_lists(d):
     """
@@ -294,14 +323,17 @@ def correct_config_lists(d):
                 if isinstance(v, list | ListConfig):
                     if len(v) == 1:
                         d[k] = v[0]
+
     recurse_dict(d)
 
     return d
+
 
 def correct_commandline_lists(d):
     """
     Correct any lists passed by command line
     """
+
     def iterate_dataclass(obj, prefix=""):
         if not is_dataclass(obj):
             return
@@ -325,40 +357,52 @@ def correct_commandline_lists(d):
                                     pass
                             setattr(obj, field.name, values)
                         elif isinstance(value[0], str):
-                            for i,v in enumerate(value):
+                            for i, v in enumerate(value):
                                 value[i] = v.strip("[], ")
                                 try:
                                     value[i] = float(value[i])
                                 except:
                                     pass
-                            setattr(obj, field.name, value)   
-        
+                            setattr(obj, field.name, value)
+
     iterate_dataclass(d)
     return d
 
-def save_file_npz(args:Args, obs:np.ndarray|list, actions, rewards, next_obs, dones, output_vars):
+
+def save_file_npz(args: Args, obs: np.ndarray | list, actions, rewards, next_obs, dones, output_vars):
     """
     Save observations and rewards as .npz file
     """
     assert isinstance(args.save_folder, str), f"Folder args.save_folder `{args.save_folder}` must be of type `str`"
     assert args.save_folder.endswith("/"), f"Folder args.save_folder `{args.save_folder}` must end with `/`"
 
-    assert isinstance(args.data_file, str), f"args.data_file must be of type `str` but is of type `{type(args.data_file)}`"
+    assert isinstance(
+        args.data_file, str
+    ), f"args.data_file must be of type `str` but is of type `{type(args.data_file)}`"
 
-    np.savez(f"{args.save_folder}{args.data_file}.npz", obs=np.array(obs), next_obs=np.array(next_obs), \
-            actions=np.array(actions), rewards=np.array(rewards), dones=np.array(dones),\
-            output_vars=np.array(output_vars))
-    
+    np.savez(
+        f"{args.save_folder}{args.data_file}.npz",
+        obs=np.array(obs),
+        next_obs=np.array(next_obs),
+        actions=np.array(actions),
+        rewards=np.array(rewards),
+        dones=np.array(dones),
+        output_vars=np.array(output_vars),
+    )
+
+
 def load_data_file(fname):
     """
     Load the data file and get the list of variables for graphing"""
     assert isinstance(fname, str), f"File (args.data_file) `{fname}` is not of type String"
-    assert fname.endswith(".npz") or fname.endswith(".csv"), f"File `{fname}` does not end with `.npz` or `.csv`, cannot load."
+    assert fname.endswith(".npz") or fname.endswith(
+        ".csv"
+    ), f"File `{fname}` does not end with `.npz` or `.csv`, cannot load."
 
     if fname.endswith(".npz"):
         data = np.load(fname, allow_pickle=True)
 
-        try: 
+        try:
             obs = data["obs"]
             actions = data["actions"]
             rewards = data["rewards"]
@@ -368,7 +412,7 @@ def load_data_file(fname):
         except:
             msg = f"`{fname}` missing one of the following keys: `obs`, `actions`, `rewards`, `next_obs`, `dones`, `output_vars`. Cannot load data"
             raise Exception(msg)
-        
+
         return obs, actions, rewards, next_obs, dones, output_vars
     elif fname.endswith(".csv"):
         data = pd.read_csv(fname)
@@ -380,10 +424,11 @@ def load_data_file(fname):
             rewards = None
             next_obs = None
             dones = None
-        except: 
+        except:
             msg = f"Error in reading data from DataFrame `fname`. Check the configuration .csv file"
 
         return obs, actions, rewards, next_obs, dones, output_vars
+
 
 def get_valid_agents():
     """
@@ -393,21 +438,19 @@ def get_valid_agents():
 
     modules = {}
     for x in [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]:
-       name = f"rl_algs.{os.path.splitext(os.path.basename(x))[0]}"
-       modules = dict(modules, **dict(getmembers( __import__(name))))
+        name = f"rl_algs.{os.path.splitext(os.path.basename(x))[0]}"
+        modules = dict(modules, **dict(getmembers(__import__(name))))
 
-    modules = {k: v for k, v in modules.items() if isinstance(v, type(__import__('sys')))}
-    
+    modules = {k: v for k, v in modules.items() if isinstance(v, type(__import__("sys")))}
+
     constr = {}
     for m in modules.values():
         classes = {
-                    name: obj
-                    for name, obj in getmembers(m, isclass)
-                    if obj.__module__ == m.__name__ and
-                    not is_dataclass(obj)
-                    }
+            name: obj for name, obj in getmembers(m, isclass) if obj.__module__ == m.__name__ and not is_dataclass(obj)
+        }
         constr = dict(constr, **classes)
     return constr
+
 
 def get_valid_trainers():
     """
@@ -417,54 +460,54 @@ def get_valid_trainers():
 
     modules = {}
     for x in [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]:
-       name = f"rl_algs.{os.path.splitext(os.path.basename(x))[0]}"
-       modules = dict(modules, **dict(getmembers( __import__(name))))
+        name = f"rl_algs.{os.path.splitext(os.path.basename(x))[0]}"
+        modules = dict(modules, **dict(getmembers(__import__(name))))
 
-    modules = {k: v for k, v in modules.items() if isinstance(v, type(__import__('sys')))}
-    
+    modules = {k: v for k, v in modules.items() if isinstance(v, type(__import__("sys")))}
+
     trainer = {}
     for m in modules.values():
         classes = {
-        m.__name__.removeprefix("rl_algs."): obj
-        for name, obj in getmembers(m, isfunction)
-        if name == "train"
+            m.__name__.removeprefix("rl_algs."): obj for name, obj in getmembers(m, isfunction) if name == "train"
         }
         trainer = dict(trainer, **classes)
     return trainer
+
 
 def get_functions(file):
     """
     Get the functions that correspond only to a specific file
     """
-    functions = {name: obj
-                for name, obj in getmembers(file, isfunction)
-                if getmodule(obj) == file}
+    functions = {name: obj for name, obj in getmembers(file, isfunction) if getmodule(obj) == file}
     return functions
+
 
 def get_classes(file):
     """
     Get the classes that are declared in a specific file
     """
-    classes = {name: obj
-                for name, obj in getmembers(file, isclass)
-                if getmodule(obj) == file}
+    classes = {name: obj for name, obj in getmembers(file, isclass) if getmodule(obj) == file}
     return classes
+
 
 def get_reward_wrappers(file):
     """
     Get the classes that are declared in a specific file
     """
-    classes = {name: obj
-                for name, obj in getmembers(file, isclass)
-                if getmodule(obj) == file and 
-                issubclass(obj, wrappers.RewardWrapper)}
+    classes = {
+        name: obj
+        for name, obj in getmembers(file, isclass)
+        if getmodule(obj) == file and issubclass(obj, wrappers.RewardWrapper)
+    }
     return classes
+
 
 def normalize(arr):
     """
     Min-Max normalize array
     """
     return (arr - np.min(arr)) / (np.max(arr) - np.min(arr) + 1e-12)
+
 
 def obs_to_numpy(obs):
     """
@@ -476,22 +519,23 @@ def obs_to_numpy(obs):
         return np.squeeze(obs.cpu().numpy())
     else:
         return np.squeeze(obs)
-    
+
+
 def action_to_numpy(env, act):
     """
     Converts the dicionary action to an integer to be pased to the base
     environment.
-    
+
     Args:
         action
     """
     if isinstance(act, float):
-       return np.array([act])
+        return np.array([act])
     elif isinstance(act, torch.Tensor):
         return act.cpu().numpy()
     elif isinstance(act, np.ndarray):
         return act
-    elif isinstance(act, dict): 
+    elif isinstance(act, dict):
         act_vals = list(act.values())
         for v in act_vals:
             if not isinstance(v, int):
@@ -505,61 +549,68 @@ def action_to_numpy(env, act):
     else:
         msg = f"Unsupported Action Type `{type(act)}`. See README for more information"
         raise Exception(msg)
-    
+
     if not "n" in act.keys():
-        msg = "Nitrogen action \'n\' not included in action dictionary keys"
+        msg = "Nitrogen action 'n' not included in action dictionary keys"
         raise Exception(msg)
     if not "p" in act.keys():
-        msg = "Phosphorous action \'p\' not included in action dictionary keys"
+        msg = "Phosphorous action 'p' not included in action dictionary keys"
         raise Exception(msg)
     if not "k" in act.keys():
-        msg = "Potassium action \'k\' not included in action dictionary keys"
+        msg = "Potassium action 'k' not included in action dictionary keys"
         raise Exception(msg)
     if not "irrig" in act.keys():
-        msg = "Irrigation action \'irrig\' not included in action dictionary keys"
+        msg = "Irrigation action 'irrig' not included in action dictionary keys"
         raise Exception(msg)
 
     # Planting Single Year environments
     if isinstance(env.unwrapped, Plant_NPK_Env):
         if not "plant" in act.keys():
-            msg = "\'plant\' not included in action dictionary keys"
+            msg = "'plant' not included in action dictionary keys"
             raise Exception(msg)
         if not "harvest" in act.keys():
-            msg = "\'harvest\' not included in action dictionary keys"
+            msg = "'harvest' not included in action dictionary keys"
             raise Exception(msg)
         if len(act.keys()) != env.unwrapped.NUM_ACT:
             msg = "Incorrect action dictionary specification"
             raise Exception(msg)
-        
-        offsets = [1,1,env.unwrapped.num_fert,env.unwrapped.num_fert,env.unwrapped.num_fert,env.unwrapped.num_irrig]
-        act_values = [act["plant"],act["harvest"],act["n"],act["p"],act["k"],act["irrig"]]
+
+        offsets = [
+            1,
+            1,
+            env.unwrapped.num_fert,
+            env.unwrapped.num_fert,
+            env.unwrapped.num_fert,
+            env.unwrapped.num_irrig,
+        ]
+        act_values = [act["plant"], act["harvest"], act["n"], act["p"], act["k"], act["irrig"]]
         offset_flags = np.zeros(env.unwrapped.NUM_ACT)
-        offset_flags[:np.nonzero(act_values)[0][0]] = 1
+        offset_flags[: np.nonzero(act_values)[0][0]] = 1
 
     # Harvesting Single Year environments
     elif isinstance(env.unwrapped, Harvest_NPK_Env):
         if not "harvest" in act.keys():
-            msg = "\'harvest\' not included in action dictionary keys"
+            msg = "'harvest' not included in action dictionary keys"
             raise Exception(msg)
         if len(act.keys()) != env.unwrapped.NUM_ACT:
             msg = "Incorrect action dictionary specification"
             raise Exception(msg)
-        
-        offsets = [1,env.unwrapped.num_fert,env.unwrapped.num_fert,env.unwrapped.num_fert,env.unwrapped.num_irrig]
-        act_values = [act["harvest"],act["n"],act["p"],act["k"],act["irrig"]]
+
+        offsets = [1, env.unwrapped.num_fert, env.unwrapped.num_fert, env.unwrapped.num_fert, env.unwrapped.num_irrig]
+        act_values = [act["harvest"], act["n"], act["p"], act["k"], act["irrig"]]
         offset_flags = np.zeros(env.unwrapped.NUM_ACT)
-        offset_flags[:np.nonzero(act_values)[0][0]] = 1
+        offset_flags[: np.nonzero(act_values)[0][0]] = 1
 
     # Default environments
-    else: 
+    else:
         if len(act.keys()) != env.unwrapped.NUM_ACT:
             msg = "Incorrect action dictionary specification"
             raise Exception(msg)
 
-        offsets = [env.unwrapped.num_fert,env.unwrapped.num_fert,env.unwrapped.num_fert,env.unwrapped.num_irrig]
-        act_values = [act["n"],act["p"],act["k"],act["irrig"]]
+        offsets = [env.unwrapped.num_fert, env.unwrapped.num_fert, env.unwrapped.num_fert, env.unwrapped.num_irrig]
+        act_values = [act["n"], act["p"], act["k"], act["irrig"]]
         offset_flags = np.zeros(env.env.unwrapped.NUM_ACT)
-        offset_flags[:np.nonzero(act_values)[0][0]] = 1
-    
+        offset_flags[: np.nonzero(act_values)[0][0]] = 1
+
     # Cast action to numpy array based on offsets computed above
-    return np.array([np.sum(offsets*offset_flags) + act_values[np.nonzero(act_values)[0][0]]])
+    return np.array([np.sum(offsets * offset_flags) + act_values[np.nonzero(act_values)[0][0]]])

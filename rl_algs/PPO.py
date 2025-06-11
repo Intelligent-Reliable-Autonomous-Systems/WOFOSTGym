@@ -16,6 +16,7 @@ from torch.distributions.categorical import Categorical
 from typing import Optional
 from .rl_utils import RL_Args, Agent, setup, eval_policy
 
+
 @dataclass
 class Args(RL_Args):
     total_timesteps: int = 1000000
@@ -60,13 +61,15 @@ class Args(RL_Args):
     num_iterations: int = 0
     """the number of iterations (computed in runtime)"""
 
+
 def layer_init(layer, std=np.sqrt(2), bias_const=0.0):
     torch.nn.init.orthogonal_(layer.weight, std)
     torch.nn.init.constant_(layer.bias, bias_const)
     return layer
 
+
 class PPO(nn.Module, Agent):
-    def __init__(self, envs, state_fpath:str=None, **kwargs):
+    def __init__(self, envs, state_fpath: str = None, **kwargs):
         super().__init__()
         self.env = envs
         self.critic = nn.Sequential(
@@ -85,7 +88,9 @@ class PPO(nn.Module, Agent):
         )
 
         if state_fpath is not None:
-            assert isinstance(state_fpath, str), f"`state_fpath` must be of type `str` but is of type `{type(state_fpath)}`"
+            assert isinstance(
+                state_fpath, str
+            ), f"`state_fpath` must be of type `str` but is of type `{type(state_fpath)}`"
             try:
                 self.load_state_dict(torch.load(state_fpath, weights_only=True))
             except:
@@ -102,7 +107,7 @@ class PPO(nn.Module, Agent):
 
     def get_value(self, x):
         return self.critic(x)
-    
+
     def forward(self, x):
         x = torch.from_numpy(x)
         logits = self.actor(x)
@@ -116,6 +121,7 @@ class PPO(nn.Module, Agent):
             action = probs.sample()
         return action, probs.log_prob(action), probs.entropy(), self.critic(x)
 
+
 def train(kwargs):
     """
     PPO Training Function
@@ -126,7 +132,7 @@ def train(kwargs):
     args.batch_size = int(args.num_envs * args.num_steps)
     args.minibatch_size = int(args.batch_size // args.num_minibatches)
     args.num_iterations = args.total_timesteps // args.batch_size
-    
+
     writer, device, envs = setup(kwargs, args, run_name)
 
     agent = PPO(envs).to(device)

@@ -15,16 +15,18 @@ from pcse_gym.envs.wofost_base import LNPKW, LNPK, PP, LNW, LN, LW
 
 from pcse_gym import exceptions as exc
 
+
 class NPKNaNToZeroWrapper(gym.ObservationWrapper):
     """Wraps the observation by converting nan's to zero. Good for use in some
     RL agents
     """
+
     def __init__(self, env: gym.Env):
         """Initialize the :class:`NPKNaNToZeroWrapper` wrapper with an environment.
 
         Casts all NaN's to zero
 
-        Args: 
+        Args:
             env: The environment to apply the wrapper
         """
         super().__init__(env)
@@ -32,34 +34,36 @@ class NPKNaNToZeroWrapper(gym.ObservationWrapper):
 
     def observation(self, obs):
         """Casts all NaNs in crop to zero
-        
+
         Args:
             observation
         """
         return np.nan_to_num(obs, nan=0.0)
 
     def reset(self, **kwargs):
-       """Reset the environment to the initial state specified by the 
+        """Reset the environment to the initial state specified by the
         agromanagement, crop, and soil files.
-        
+
         Args:
             **kwargs:
                 year: year to reset enviroment to for weather
                 location: (latitude, longitude). Location to set environment to"""
-       obs, info = self.env.reset(**kwargs)
-       return self.observation(obs), info
+        obs, info = self.env.reset(**kwargs)
+        return self.observation(obs), info
+
 
 class NPKDictObservationWrapper(gym.ObservationWrapper):
     """Wraps the observation in a dictionary for easy access to variables
     without relying on direct indexing
     """
+
     def __init__(self, env: gym.Env):
         """Initialize the :class:`NPKDictObservationWrapper` wrapper with an environment.
 
         Handles extended weather forecasts by appending an _i to all weather
-        variables, where {i} is the day. 
+        variables, where {i} is the day.
 
-        Args: 
+        Args:
             env: The environment to apply the wrapper
         """
         super().__init__(env)
@@ -78,19 +82,25 @@ class NPKDictObservationWrapper(gym.ObservationWrapper):
             self.forecast_vars = []
             for i in range(1, self.env.unwrapped.forecast_length):
                 self.forecast_vars += [s + f"_{i+1}" for s in self.weather_vars]
-        self.forecast_vars += self.weather_vars 
+        self.forecast_vars += self.weather_vars
         if isinstance(self.env.unwrapped, Multi_NPK_Env):
-            output_dict = [(f"{ov}_{i}", Box(low=-np.inf, high=np.inf,shape=(1,))) for ov in 
-                           self.env.unwrapped.individual_vars for i in range(self.env.unwrapped.num_farms)]
-            [output_dict.append((ov, Box(low=-np.inf, high=np.inf,shape=(1,)))) 
-                            for ov in self.env.unwrapped.shared_vars]
-            weather_dict = [(wv, Box(low=-np.inf, high=np.inf,shape=(1,))) for wv in self.weather_vars]
+            output_dict = [
+                (f"{ov}_{i}", Box(low=-np.inf, high=np.inf, shape=(1,)))
+                for ov in self.env.unwrapped.individual_vars
+                for i in range(self.env.unwrapped.num_farms)
+            ]
+            [
+                output_dict.append((ov, Box(low=-np.inf, high=np.inf, shape=(1,))))
+                for ov in self.env.unwrapped.shared_vars
+            ]
+            weather_dict = [(wv, Box(low=-np.inf, high=np.inf, shape=(1,))) for wv in self.weather_vars]
         else:
-            output_dict = [(ov, Box(low=-np.inf, high=np.inf,shape=(1,))) for ov in self.output_vars]
-            weather_dict = [(wv, Box(low=-np.inf, high=np.inf,shape=(1,))) for wv in self.weather_vars]
+            output_dict = [(ov, Box(low=-np.inf, high=np.inf, shape=(1,))) for ov in self.output_vars]
+            weather_dict = [(wv, Box(low=-np.inf, high=np.inf, shape=(1,))) for wv in self.weather_vars]
 
-        self.observation_space = Dict(dict(output_dict+weather_dict+\
-                                           [("DAYS", Box(low=-np.inf, high=np.inf,shape=(1,)))]))
+        self.observation_space = Dict(
+            dict(output_dict + weather_dict + [("DAYS", Box(low=-np.inf, high=np.inf, shape=(1,)))])
+        )
 
     def observation(self, obs):
         """Puts the outputted variables in a dictionary.
@@ -98,7 +108,7 @@ class NPKDictObservationWrapper(gym.ObservationWrapper):
         Note that the dictionary must be in order of the variables. This will not
         be a problem if the output is taken directly from the environment which
         already enforces order.
-        
+
         Args:
             observation
         """
@@ -106,9 +116,9 @@ class NPKDictObservationWrapper(gym.ObservationWrapper):
         return dict([(keys[i], obs[i]) for i in range(len(keys))])
 
     def reset(self, **kwargs):
-        """Reset the environment to the initial state specified by the 
+        """Reset the environment to the initial state specified by the
         agromanagement, crop, and soil files.
-        
+
         Args:
             **kwargs:
                 year: year to reset enviroment to for weather
@@ -117,16 +127,18 @@ class NPKDictObservationWrapper(gym.ObservationWrapper):
         obs, info = self.env.reset(**kwargs)
         return self.observation(obs), info
 
+
 class NPKDictActionWrapper(gym.ActionWrapper):
     """Converts a wrapped action to an action interpretable by the simulator.
-    
+
     This wrapper is necessary for all provided hand-crafted policies which return
-    an action as a dictionary. See policies.py for more information. 
+    an action as a dictionary. See policies.py for more information.
     """
+
     def __init__(self, env: gym.Env):
         """Initialize the :class:`NPKDictActionWrapper` wrapper with an environment.
 
-        Args: 
+        Args:
             env: The environment to apply the wrapper
         """
         super().__init__(env)
@@ -137,103 +149,163 @@ class NPKDictActionWrapper(gym.ActionWrapper):
         # Harvesting environments
         if isinstance(self.env.unwrapped, Plant_NPK_Env):
             if isinstance(self.env.unwrapped, PP):
-                self.action_space = gym.spaces.Dict({"null": Discrete(1), \
-                                 "plant": Discrete(1), "harvest": Discrete(1)})
+                self.action_space = gym.spaces.Dict({"null": Discrete(1), "plant": Discrete(1), "harvest": Discrete(1)})
             elif isinstance(self.env.unwrapped, LNPK):
-                self.action_space = gym.spaces.Dict({"null": Discrete(1), \
-                                 "plant": Discrete(1), "harvest": Discrete(1), \
-                                 "n": Discrete(self.env.unwrapped.num_fert),\
-                                 "p": Discrete(self.env.unwrapped.num_fert),\
-                                 "k": Discrete(self.env.unwrapped.num_fert)})
+                self.action_space = gym.spaces.Dict(
+                    {
+                        "null": Discrete(1),
+                        "plant": Discrete(1),
+                        "harvest": Discrete(1),
+                        "n": Discrete(self.env.unwrapped.num_fert),
+                        "p": Discrete(self.env.unwrapped.num_fert),
+                        "k": Discrete(self.env.unwrapped.num_fert),
+                    }
+                )
             elif isinstance(self.env.unwrapped, LN):
-                self.action_space = gym.spaces.Dict({"null": Discrete(1), \
-                                 "plant": Discrete(1), "harvest": Discrete(1), \
-                                 "n": Discrete(self.env.unwrapped.num_fert)})
+                self.action_space = gym.spaces.Dict(
+                    {
+                        "null": Discrete(1),
+                        "plant": Discrete(1),
+                        "harvest": Discrete(1),
+                        "n": Discrete(self.env.unwrapped.num_fert),
+                    }
+                )
             elif isinstance(self.env.unwrapped, LNW):
-                self.action_space = gym.spaces.Dict({"null": Discrete(1), \
-                                 "plant": Discrete(1), "harvest": Discrete(1), \
-                                 "n": Discrete(self.env.unwrapped.num_fert),\
-                                 "irrig": Discrete(self.env.unwrapped.num_irrig)})
+                self.action_space = gym.spaces.Dict(
+                    {
+                        "null": Discrete(1),
+                        "plant": Discrete(1),
+                        "harvest": Discrete(1),
+                        "n": Discrete(self.env.unwrapped.num_fert),
+                        "irrig": Discrete(self.env.unwrapped.num_irrig),
+                    }
+                )
             elif isinstance(self.env.unwrapped, LW):
-                self.action_space = gym.spaces.Dict({"null": Discrete(1), \
-                                 "plant": Discrete(1), "harvest": Discrete(1), \
-                                 "irrig": Discrete(self.env.unwrapped.num_irrig)})
+                self.action_space = gym.spaces.Dict(
+                    {
+                        "null": Discrete(1),
+                        "plant": Discrete(1),
+                        "harvest": Discrete(1),
+                        "irrig": Discrete(self.env.unwrapped.num_irrig),
+                    }
+                )
             elif isinstance(self.env.unwrapped, LNPKW):
-                self.action_space = gym.spaces.Dict({"null": Discrete(1), \
-                                 "plant": Discrete(1), "harvest": Discrete(1), \
-                                 "n": Discrete(self.env.unwrapped.num_fert),\
-                                 "p": Discrete(self.env.unwrapped.num_fert),\
-                                 "k": Discrete(self.env.unwrapped.num_fert),\
-                                 "irrig": Discrete(self.env.unwrapped.num_irrig)})
-                
+                self.action_space = gym.spaces.Dict(
+                    {
+                        "null": Discrete(1),
+                        "plant": Discrete(1),
+                        "harvest": Discrete(1),
+                        "n": Discrete(self.env.unwrapped.num_fert),
+                        "p": Discrete(self.env.unwrapped.num_fert),
+                        "k": Discrete(self.env.unwrapped.num_fert),
+                        "irrig": Discrete(self.env.unwrapped.num_irrig),
+                    }
+                )
+
         elif isinstance(self.env.unwrapped, Harvest_NPK_Env):
             if isinstance(self.env.unwrapped, PP):
-                self.action_space = gym.spaces.Dict({"null": Discrete(1), \
-                                 "plant": Discrete(1), "harvest": Discrete(1)})
+                self.action_space = gym.spaces.Dict({"null": Discrete(1), "plant": Discrete(1), "harvest": Discrete(1)})
             elif isinstance(self.env.unwrapped, LNPK):
-                self.action_space = gym.spaces.Dict({"null": Discrete(1), \
-                                 "plant": Discrete(1), "harvest": Discrete(1), \
-                                 "n": Discrete(self.env.unwrapped.num_fert),\
-                                 "p": Discrete(self.env.unwrapped.num_fert),\
-                                 "k": Discrete(self.env.unwrapped.num_fert)})
+                self.action_space = gym.spaces.Dict(
+                    {
+                        "null": Discrete(1),
+                        "plant": Discrete(1),
+                        "harvest": Discrete(1),
+                        "n": Discrete(self.env.unwrapped.num_fert),
+                        "p": Discrete(self.env.unwrapped.num_fert),
+                        "k": Discrete(self.env.unwrapped.num_fert),
+                    }
+                )
             elif isinstance(self.env.unwrapped, LN):
-                self.action_space = gym.spaces.Dict({"null": Discrete(1), \
-                                 "plant": Discrete(1), "harvest": Discrete(1), \
-                                 "n": Discrete(self.env.unwrapped.num_fert)})
+                self.action_space = gym.spaces.Dict(
+                    {
+                        "null": Discrete(1),
+                        "plant": Discrete(1),
+                        "harvest": Discrete(1),
+                        "n": Discrete(self.env.unwrapped.num_fert),
+                    }
+                )
             elif isinstance(self.env.unwrapped, LNW):
-                self.action_space = gym.spaces.Dict({"null": Discrete(1), \
-                                 "plant": Discrete(1), "harvest": Discrete(1), \
-                                 "n": Discrete(self.env.unwrapped.num_fert),\
-                                 "irrig": Discrete(self.env.unwrapped.num_irrig)})
+                self.action_space = gym.spaces.Dict(
+                    {
+                        "null": Discrete(1),
+                        "plant": Discrete(1),
+                        "harvest": Discrete(1),
+                        "n": Discrete(self.env.unwrapped.num_fert),
+                        "irrig": Discrete(self.env.unwrapped.num_irrig),
+                    }
+                )
             elif isinstance(self.env.unwrapped, LW):
-                self.action_space = gym.spaces.Dict({"null": Discrete(1), \
-                                 "plant": Discrete(1), "harvest": Discrete(1), \
-                                 "irrig": Discrete(self.env.unwrapped.num_irrig)})
+                self.action_space = gym.spaces.Dict(
+                    {
+                        "null": Discrete(1),
+                        "plant": Discrete(1),
+                        "harvest": Discrete(1),
+                        "irrig": Discrete(self.env.unwrapped.num_irrig),
+                    }
+                )
             elif isinstance(self.env.unwrapped, LNPKW):
-                self.action_space = gym.spaces.Dict({"null": Discrete(1), \
-                                 "plant": Discrete(1), "harvest": Discrete(1), \
-                                 "n": Discrete(self.env.unwrapped.num_fert),\
-                                 "p": Discrete(self.env.unwrapped.num_fert),\
-                                 "k": Discrete(self.env.unwrapped.num_fert),\
-                                 "irrig": Discrete(self.env.unwrapped.num_irrig)})
+                self.action_space = gym.spaces.Dict(
+                    {
+                        "null": Discrete(1),
+                        "plant": Discrete(1),
+                        "harvest": Discrete(1),
+                        "n": Discrete(self.env.unwrapped.num_fert),
+                        "p": Discrete(self.env.unwrapped.num_fert),
+                        "k": Discrete(self.env.unwrapped.num_fert),
+                        "irrig": Discrete(self.env.unwrapped.num_irrig),
+                    }
+                )
         # Default environments
-        else: 
+        else:
             if isinstance(self.env.unwrapped, PP):
                 self.action_space = gym.spaces.Dict({"null": Discrete(1), "n": Discrete(1)})
             elif isinstance(self.env.unwrapped, LNPK):
-                self.action_space = gym.spaces.Dict({"null": Discrete(1),\
-                                 "n": Discrete(self.env.unwrapped.num_fert),\
-                                 "p": Discrete(self.env.unwrapped.num_fert),\
-                                 "k": Discrete(self.env.unwrapped.num_fert)})
+                self.action_space = gym.spaces.Dict(
+                    {
+                        "null": Discrete(1),
+                        "n": Discrete(self.env.unwrapped.num_fert),
+                        "p": Discrete(self.env.unwrapped.num_fert),
+                        "k": Discrete(self.env.unwrapped.num_fert),
+                    }
+                )
             elif isinstance(self.env.unwrapped, LN):
-                self.action_space = gym.spaces.Dict({"null": Discrete(1),\
-                                 "n": Discrete(self.env.unwrapped.num_fert)})
+                self.action_space = gym.spaces.Dict({"null": Discrete(1), "n": Discrete(self.env.unwrapped.num_fert)})
             elif isinstance(self.env.unwrapped, LNW):
-                self.action_space = gym.spaces.Dict({"null": Discrete(1),\
-                                 "n": Discrete(self.env.unwrapped.num_fert),\
-                                 "irrig": Discrete(self.env.unwrapped.num_irrig)})
+                self.action_space = gym.spaces.Dict(
+                    {
+                        "null": Discrete(1),
+                        "n": Discrete(self.env.unwrapped.num_fert),
+                        "irrig": Discrete(self.env.unwrapped.num_irrig),
+                    }
+                )
             elif isinstance(self.env.unwrapped, LW):
-                self.action_space = gym.spaces.Dict({"null": Discrete(1),\
-                                 "irrig": Discrete(self.env.unwrapped.num_irrig)})
-            elif isinstance(self.env.unwrapped, LNPKW): 
-                self.action_space = gym.spaces.Dict({"null": Discrete(1),\
-                                 "n": Discrete(self.env.unwrapped.num_fert),\
-                                 "p": Discrete(self.env.unwrapped.num_fert),\
-                                 "k": Discrete(self.env.unwrapped.num_fert),\
-                                 "irrig": Discrete(self.env.unwrapped.num_irrig)})
+                self.action_space = gym.spaces.Dict(
+                    {"null": Discrete(1), "irrig": Discrete(self.env.unwrapped.num_irrig)}
+                )
+            elif isinstance(self.env.unwrapped, LNPKW):
+                self.action_space = gym.spaces.Dict(
+                    {
+                        "null": Discrete(1),
+                        "n": Discrete(self.env.unwrapped.num_fert),
+                        "p": Discrete(self.env.unwrapped.num_fert),
+                        "k": Discrete(self.env.unwrapped.num_fert),
+                        "irrig": Discrete(self.env.unwrapped.num_irrig),
+                    }
+                )
 
     def action(self, act: dict):
         """
         Converts the dicionary action to an integer to be pased to the base
         environment.
-        
+
         Args:
             action
         """
         if not isinstance(act, dict):
             msg = "Action must be of dictionary type. See README for more information"
             raise exc.ActionException(msg)
-        else: 
+        else:
             act_vals = list(act.values())
             for v in act_vals:
                 if not isinstance(v, int):
@@ -245,81 +317,83 @@ class NPKDictActionWrapper(gym.ActionWrapper):
 
             if len(np.nonzero(act_vals)[0]) == 0:
                 return 0
-        
+
         if not "n" in act.keys():
-            msg = "Nitrogen action \'n\' not included in action dictionary keys"
+            msg = "Nitrogen action 'n' not included in action dictionary keys"
             raise exc.ActionException(msg)
         if not "p" in act.keys():
-            msg = "Phosphorous action \'p\' not included in action dictionary keys"
+            msg = "Phosphorous action 'p' not included in action dictionary keys"
             raise exc.ActionException(msg)
         if not "k" in act.keys():
-            msg = "Potassium action \'k\' not included in action dictionary keys"
+            msg = "Potassium action 'k' not included in action dictionary keys"
             raise exc.ActionException(msg)
         if not "irrig" in act.keys():
-            msg = "Irrigation action \'irrig\' not included in action dictionary keys"
+            msg = "Irrigation action 'irrig' not included in action dictionary keys"
             raise exc.ActionException(msg)
 
         # Planting Single Year environments
         if isinstance(self.env.unwrapped, Plant_NPK_Env):
 
             if not "plant" in act.keys():
-                msg = "\'plant\' not included in action dictionary keys"
+                msg = "'plant' not included in action dictionary keys"
                 raise exc.ActionException(msg)
             if not "harvest" in act.keys():
-                msg = "\'harvest\' not included in action dictionary keys"
+                msg = "'harvest' not included in action dictionary keys"
                 raise exc.ActionException(msg)
             if len(act.keys()) != self.env.unwrapped.NUM_ACT:
                 msg = "Incorrect action dictionary specification"
                 raise exc.ActionException(msg)
 
-            offsets = [1,1,self.num_fert,self.num_fert,self.num_fert,self.num_irrig]
-            act_values = [act["plant"],act["harvest"],act["n"],act["p"],act["k"],act["irrig"]]
+            offsets = [1, 1, self.num_fert, self.num_fert, self.num_fert, self.num_irrig]
+            act_values = [act["plant"], act["harvest"], act["n"], act["p"], act["k"], act["irrig"]]
             offset_flags = np.zeros(self.env.unwrapped.NUM_ACT)
-            offset_flags[:np.nonzero(act_values)[0][0]] = 1
+            offset_flags[: np.nonzero(act_values)[0][0]] = 1
 
         # Harvesting Single Year environments
         elif isinstance(self.env.unwrapped, Harvest_NPK_Env):
 
             if not "harvest" in act.keys():
-                msg = "\'harvest\' not included in action dictionary keys"
+                msg = "'harvest' not included in action dictionary keys"
                 raise exc.ActionException(msg)
             if len(act.keys()) != self.env.unwrapped.NUM_ACT:
                 msg = "Incorrect action dictionary specification"
                 raise exc.ActionException(msg)
-            
-            offsets = [1,self.num_fert,self.num_fert,self.num_fert,self.num_irrig]
-            act_values = [act["harvest"],act["n"],act["p"],act["k"],act["irrig"]]
+
+            offsets = [1, self.num_fert, self.num_fert, self.num_fert, self.num_irrig]
+            act_values = [act["harvest"], act["n"], act["p"], act["k"], act["irrig"]]
             offset_flags = np.zeros(self.env.unwrapped.NUM_ACT)
-            offset_flags[:np.nonzero(act_values)[0][0]] = 1
+            offset_flags[: np.nonzero(act_values)[0][0]] = 1
 
         # Default environments
-        else: 
+        else:
             if len(act.keys()) != self.env.unwrapped.NUM_ACT:
                 msg = "Incorrect action dictionary specification"
                 raise exc.ActionException(msg)
-            
-            offsets = [self.num_fert,self.num_fert,self.num_fert,self.num_irrig]
-            act_values = [act["n"],act["p"],act["k"],act["irrig"]]
+
+            offsets = [self.num_fert, self.num_fert, self.num_fert, self.num_irrig]
+            act_values = [act["n"], act["p"], act["k"], act["irrig"]]
             offset_flags = np.zeros(self.env.unwrapped.NUM_ACT)
-            offset_flags[:np.nonzero(act_values)[0][0]] = 1
-            
-        return np.sum(offsets*offset_flags) + act_values[np.nonzero(act_values)[0][0]] 
-    
+            offset_flags[: np.nonzero(act_values)[0][0]] = 1
+
+        return np.sum(offsets * offset_flags) + act_values[np.nonzero(act_values)[0][0]]
+
     def reset(self, **kwargs):
         """
         Forward keyword environments to base env
         """
         return self.env.reset(**kwargs)
-            
+
+
 class RewardWrapper(gym.Wrapper, ABC):
-    """ Abstract class for all reward wrappers
-    
+    """Abstract class for all reward wrappers
+
     Given how the reward wrapper functions, it must be applied BEFORE any
-    observation or action wrappers. 
-    
+    observation or action wrappers.
+
     This _validate() function ensures that is the case and will throw and error
-    otherwise 
+    otherwise
     """
+
     def __init__(self, env: gym.Env):
         """Initialize the :class:`RewardWrapper` wrapper with an environment.
 
@@ -331,17 +405,17 @@ class RewardWrapper(gym.Wrapper, ABC):
         self.env = env
 
     @abstractmethod
-    def _get_reward(self, output:dict, act_tuple):
+    def _get_reward(self, output: dict, act_tuple):
         """
         The get reward function shaping the reward. Implement this.
         """
         pass
 
     def _validate(self, env: gym.Env):
-        """Validates that the environment is not wrapped with an Observation or 
+        """Validates that the environment is not wrapped with an Observation or
         Action Wrapper
-        
-        Args: 
+
+        Args:
             env: The environment to check
         """
         if isinstance(env, gym.ActionWrapper) or isinstance(env, gym.ObservationWrapper):
@@ -350,8 +424,8 @@ class RewardWrapper(gym.Wrapper, ABC):
         if isinstance(env, RewardWrapper):
             msg = "Cannot wrap environment with another reward wrapper."
             raise exc.WOFOSTGymError(msg)
-        
-    def step(self, action:int):
+
+    def step(self, action: int):
         """Run one timestep of the environment's dynamics.
 
         Sends action to the WOFOST model and recieves the resulting observation
@@ -366,60 +440,71 @@ class RewardWrapper(gym.Wrapper, ABC):
             raise Exception(msg)
 
         act_tuple = self.env.unwrapped._take_action(action)
-  
+
         output = self.env.unwrapped._run_simulation()
 
         observation = self.env.unwrapped._process_output(output)
-        
-        reward = self._get_reward(output, act_tuple) 
+
+        reward = self._get_reward(output, act_tuple)
 
         # Terminate based on crop finishing
         if isinstance(self.env.unwrapped, Multi_NPK_Env):
-            termination = np.prod([output[i][-1]['FIN'] == 1.0 or output[i][-1]['FIN'] is None for i in range(self.env.unwrapped.num_farms)])
-            if np.any([output[i][-1]['FIN'] is None for i in range(self.env.unwrapped.num_farms)]):
+            termination = np.prod(
+                [
+                    output[i][-1]["FIN"] == 1.0 or output[i][-1]["FIN"] is None
+                    for i in range(self.env.unwrapped.num_farms)
+                ]
+            )
+            if np.any([output[i][-1]["FIN"] is None for i in range(self.env.unwrapped.num_farms)]):
                 observation = np.nan_to_num(observation)
         else:
-            termination = output[-1]['FIN'] == 1.0 or output[-1]['FIN'] is None
-            if output[-1]['FIN'] is None:
+            termination = output[-1]["FIN"] == 1.0 or output[-1]["FIN"] is None
+            if output[-1]["FIN"] is None:
                 observation = np.nan_to_num(observation)
 
         # Truncate based on site end date
         truncation = self.env.unwrapped.date >= self.env.unwrapped.site_end_date
 
         if isinstance(self.env.unwrapped, Multi_NPK_Env):
-            self.env.unwrapped._log([output[i][-1]['WSO'] for i in range(self.env.unwrapped.num_farms)], act_tuple, reward)
+            self.env.unwrapped._log(
+                [output[i][-1]["WSO"] for i in range(self.env.unwrapped.num_farms)], act_tuple, reward
+            )
         else:
-            self.env.unwrapped._log(output[-1]['WSO'], act_tuple, reward)
-            
+            self.env.unwrapped._log(output[-1]["WSO"], act_tuple, reward)
+
         return observation, reward, termination, truncation, self.env.unwrapped.log
-        
+
     def reset(self, **kwargs):
         """
         Forward keyword environments to base env
         """
         return self.env.reset(**kwargs)
 
+
 class RewardFertilizationCostWrapper(RewardWrapper):
-    """ Modifies the reward to be a function of how much fertilization and irrigation
+    """Modifies the reward to be a function of how much fertilization and irrigation
     is applied
     """
+
     def __init__(self, env: gym.Env, args):
         """Initialize the :class:`RewardFertilizationCostWrapper` wrapper with an environment.
 
-        Args: 
+        Args:
             env: The environment to apply the wrapper
-            cost: The cost scaler to be used to scale the reward penalty 
+            cost: The cost scaler to be used to scale the reward penalty
         """
-        assert isinstance(args.cost, float), f"Must specify `--cost` as type float when using `RewardFertilizationCostWrapper`"
+        assert isinstance(
+            args.cost, float
+        ), f"Must specify `--cost` as type float when using `RewardFertilizationCostWrapper`"
 
         super().__init__(env)
         self.env = env
 
         self.cost = args.cost
 
-    def _get_reward(self, output: dict, act_tuple:tuple):
+    def _get_reward(self, output: dict, act_tuple: tuple):
         """Gets the reward as a penalty based on the amount of NPK/Water applied
-        
+
         Args:
             output: dict     - output from model
             act_tuple: tuple -  NPK/Water amounts"""
@@ -428,38 +513,54 @@ class RewardFertilizationCostWrapper(RewardWrapper):
             reward = 0
             act_tuple
             for i in range(self.env.unwrapped.num_farms):
-                reward += output[i][-1]['WSO'] - \
-                                (np.sum(self.cost * np.array([act_tuple[:-1]]))) if output[i][-1]['WSO'] \
-                                is not None else -np.sum(self.cost * np.array([act_tuple[2:]]))
-        else:   
+                reward += (
+                    output[i][-1]["WSO"] - (np.sum(self.cost * np.array([act_tuple[:-1]])))
+                    if output[i][-1]["WSO"] is not None
+                    else -np.sum(self.cost * np.array([act_tuple[2:]]))
+                )
+        else:
             if self.env.unwrapped.NUM_ACT == 6:
-                reward = output[-1]['WSO'] - \
-                                (np.sum(self.cost * np.array([act_tuple[:-1]])))  if output[-1]['WSO'] \
-                                    is not None else -np.sum(self.cost * np.array([act_tuple[2:]]))
-            elif self.env.unwrapped.NUM_ACT == 4: 
-                reward = output[-1]['WSO'] - \
-                                (np.sum(self.cost * np.array([act_tuple[:-1]])))  if output[-1]['WSO'] \
-                                    is not None else -np.sum(self.cost * np.array([act_tuple[2:]]))
+                reward = (
+                    output[-1]["WSO"] - (np.sum(self.cost * np.array([act_tuple[:-1]])))
+                    if output[-1]["WSO"] is not None
+                    else -np.sum(self.cost * np.array([act_tuple[2:]]))
+                )
+            elif self.env.unwrapped.NUM_ACT == 4:
+                reward = (
+                    output[-1]["WSO"] - (np.sum(self.cost * np.array([act_tuple[:-1]])))
+                    if output[-1]["WSO"] is not None
+                    else -np.sum(self.cost * np.array([act_tuple[2:]]))
+                )
         return reward
-         
+
+
 class RewardFertilizationThresholdWrapper(RewardWrapper):
-    """ Modifies the reward to be a function with high penalties for if a 
-     threshold is crossed during fertilization or irrigation
+    """Modifies the reward to be a function with high penalties for if a
+    threshold is crossed during fertilization or irrigation
     """
+
     def __init__(self, env: gym.Env, args):
         """Initialize the :class:`RewardFertilizationThresholdWrapper` wrapper with an environment.
 
-        Args: 
+        Args:
             env: The environment to apply the wrapper
             max_n: Nitrogen threshold
             max_p: Phosphorous threshold
             max_k: Potassium threshold
             max_w: Irrigation threshold
         """
-        assert isinstance(args.max_n, float), f"Must specify `--max_n` as type float when using `RewardFertilizationThresholdWrapper`. Use `inf` for no threshold."
-        assert isinstance(args.max_p, float), f"Must specify `--max_p` as type float when using `RewardFertilizationThresholdWrapper`. Use `inf` for no threshold."
-        assert isinstance(args.max_k, float), f"Must specify `--max_k` as type float when using `RewardFertilizationThresholdWrapper`. Use `inf` for no threshold."
-        assert isinstance(args.max_w, float), f"Must specify `--max_w` as type float when using `RewardFertilizationThresholdWrapper`. Use `inf` for no threshold."
+        assert isinstance(
+            args.max_n, float
+        ), f"Must specify `--max_n` as type float when using `RewardFertilizationThresholdWrapper`. Use `inf` for no threshold."
+        assert isinstance(
+            args.max_p, float
+        ), f"Must specify `--max_p` as type float when using `RewardFertilizationThresholdWrapper`. Use `inf` for no threshold."
+        assert isinstance(
+            args.max_k, float
+        ), f"Must specify `--max_k` as type float when using `RewardFertilizationThresholdWrapper`. Use `inf` for no threshold."
+        assert isinstance(
+            args.max_w, float
+        ), f"Must specify `--max_w` as type float when using `RewardFertilizationThresholdWrapper`. Use `inf` for no threshold."
         super().__init__(env)
         self.env = env
 
@@ -470,40 +571,41 @@ class RewardFertilizationThresholdWrapper(RewardWrapper):
         self.max_w = args.max_w
 
         # Set the reward range in case of normalization
-        self.reward_range = [4*-1e4, 10000]
+        self.reward_range = [4 * -1e4, 10000]
 
     def _get_reward(self, output, act_tuple):
         """Convert the reward by applying a high penalty if a fertilization
         threshold is crossed
-        
+
         Args:
             output     - of the simulator
             act_tuple  - amount of NPK/Water applied
         """
 
-        if output[-1]['TOTN'] > self.max_n and act_tuple[self.env.unwrapped.N] > 0:
+        if output[-1]["TOTN"] > self.max_n and act_tuple[self.env.unwrapped.N] > 0:
             return -1e4 * act_tuple[self.env.unwrapped.N]
-        if output[-1]['TOTP'] > self.max_p and act_tuple[self.env.unwrapped.P] > 0:
+        if output[-1]["TOTP"] > self.max_p and act_tuple[self.env.unwrapped.P] > 0:
             return -1e4 * act_tuple[self.env.unwrapped.P]
-        if output[-1]['TOTK'] > self.max_k and act_tuple[self.env.unwrapped.K] > 0:
+        if output[-1]["TOTK"] > self.max_k and act_tuple[self.env.unwrapped.K] > 0:
             return -1e4 * act_tuple[self.env.unwrapped.K]
-        if output[-1]['TOTIRRIG'] > self.max_w and act_tuple[self.env.unwrapped.I] > 0:
+        if output[-1]["TOTIRRIG"] > self.max_w and act_tuple[self.env.unwrapped.I] > 0:
             return -1e4 * act_tuple[self.env.unwrapped.I]
         if isinstance(self.env.unwrapped, Multi_NPK_Env):
             rew = 0
             for i in range(self.env.unwrapped.num_farms):
-                rew += output[i][-1]['WSO'] if output[i][-1]['WSO'] is not None else 0
+                rew += output[i][-1]["WSO"] if output[i][-1]["WSO"] is not None else 0
             return rew
         else:
-            return output[-1]['WSO'] if output[-1]['WSO'] is not None else 0
-    
+            return output[-1]["WSO"] if output[-1]["WSO"] is not None else 0
+
+
 class RewardLimitedRunoffWrapper(RewardWrapper):
-    """ Modifies the reward to be a function with high penalties for if Nitrogen Runoff Occurs
-    """
+    """Modifies the reward to be a function with high penalties for if Nitrogen Runoff Occurs"""
+
     def __init__(self, env: gym.Env, args):
         """Initialize the :class:`RewardFertilizationThresholdWrapper` wrapper with an environment.
 
-        Args: 
+        Args:
             env: The environment to apply the wrapper
         """
         super().__init__(env)
@@ -512,23 +614,24 @@ class RewardLimitedRunoffWrapper(RewardWrapper):
         # Thresholds for nutrient application
 
         # Set the reward range in case of normalization
-        self.reward_range = [4*-1e5, 10000]
+        self.reward_range = [4 * -1e5, 10000]
 
     def _get_reward(self, output, act_tuple):
         """Convert the reward by applying a high penalty if a fertilization
         threshold is crossed
-        
+
         Args:
             output     - of the simulator
             act_tuple  - amount of NPK/Water applied
         """
-        if output[-1]['RRUNOFF_N'] > 0:
-            return -1e5 * output[-1]['RRUNOFF_N']
-        return output[-1]['WSO'] if output[-1]['WSO'] is not None else 0
+        if output[-1]["RRUNOFF_N"] > 0:
+            return -1e5 * output[-1]["RRUNOFF_N"]
+        return output[-1]["WSO"] if output[-1]["WSO"] is not None else 0
+
 
 class NormalizeObservation(gym.Wrapper):
 
-    def __init__(self, env:gym.Env):
+    def __init__(self, env: gym.Env):
         """
         Initialize normalization wrapper
         """
@@ -557,25 +660,25 @@ class NormalizeObservation(gym.Wrapper):
         if hasattr(env, "reward_range"):
             self.reward_range = env.reward_range
         else:
-            self.reward_range = [0,10000]
+            self.reward_range = [0, 10000]
 
     def normalize(self, obs):
         """
         Normalize the observation
         """
 
-        obs = (obs - self.ranges[:,0]) / (self.ranges[:,1] - self.ranges[:,0] +1e-12)
+        obs = (obs - self.ranges[:, 0]) / (self.ranges[:, 1] - self.ranges[:, 0] + 1e-12)
 
         return obs
-    
+
     def unnormalize(self, obs):
         """
         Normalize the observation
         """
-        obs = obs * (self.ranges[:,1] - self.reward_range[:,0] + 1e-12) + self.ranges[:,0]
+        obs = obs * (self.ranges[:, 1] - self.reward_range[:, 0] + 1e-12) + self.ranges[:, 0]
 
         return obs
-    
+
     def step(self, action):
         """Steps through the environment and normalizes the observation."""
         obs, rews, terminateds, truncateds, infos = self.env.step(action)
@@ -594,9 +697,10 @@ class NormalizeObservation(gym.Wrapper):
         else:
             return self.normalize(np.array([obs]))[0], info
 
+
 class NormalizeReward(gym.Wrapper):
 
-    def __init__(self, env:gym.Env):
+    def __init__(self, env: gym.Env):
         """
         Initialize normalization wrapper for rwards
         """
@@ -611,19 +715,19 @@ class NormalizeReward(gym.Wrapper):
 
         if hasattr(env, "reward_range"):
             self.reward_range = env.reward_range
-            if self.reward_range == (float('-inf'), float('inf')):
-                self.reward_range = [0,10000]
+            if self.reward_range == (float("-inf"), float("inf")):
+                self.reward_range = [0, 10000]
         else:
-            self.reward_range = [0,10000]
+            self.reward_range = [0, 10000]
 
         if hasattr(env, "ranges"):
             self.ranges = env.ranges
-        
+
     def unnormalize_obs(self, obs):
         """
         Normalize the observation
         """
-        obs = obs * (self.ranges[:,1] - self.ranges[:,0] + 1e-12) + self.ranges[:,0]
+        obs = obs * (self.ranges[:, 1] - self.ranges[:, 0] + 1e-12) + self.ranges[:, 0]
 
         return obs
 
@@ -643,12 +747,12 @@ class NormalizeReward(gym.Wrapper):
         obs, info = self.env.reset(**kwargs)
 
         return obs, info
-    
+
     def normalize(self, rews):
         """
         Normalize the observation
         """
-        rews = (rews - self.reward_range[0]) / (self.reward_range[1] - self.reward_range[0] +1e-12)
+        rews = (rews - self.reward_range[0]) / (self.reward_range[1] - self.reward_range[0] + 1e-12)
 
         return rews
 
@@ -659,5 +763,3 @@ class NormalizeReward(gym.Wrapper):
         rews = rews * (self.reward_range[1] - self.reward_range[0] + 1e-12) + self.reward_range[0]
 
         return rews
-
-

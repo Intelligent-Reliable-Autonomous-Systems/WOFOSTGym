@@ -3,6 +3,7 @@ Code to train a DQN Agent
 Docs: https://docs.cleanrl.dev/rl-algorithms/sac/#sac_ataripy
 Modified by: Will Solow, 2024
 """
+
 import time
 import wandb
 from dataclasses import dataclass
@@ -17,6 +18,7 @@ from stable_baselines3.common.buffers import ReplayBuffer
 from torch.distributions.categorical import Categorical
 from .rl_utils import RL_Args, Agent, setup, eval_policy
 
+
 @dataclass
 class Args(RL_Args):
     num_envs: int = 1
@@ -24,7 +26,7 @@ class Args(RL_Args):
     total_timesteps: int = 1000000
     """total timesteps of the experiments"""
     buffer_size: int = int(1e4)
-    """the replay memory buffer size""" 
+    """the replay memory buffer size"""
     gamma: float = 0.99
     """the discount factor gamma"""
     tau: float = 1.0
@@ -50,10 +52,12 @@ class Args(RL_Args):
     checkpoint_frequency: int = 500
     """How often to save the agent during training"""
 
+
 def layer_init(layer, bias_const=0.0):
     nn.init.kaiming_normal_(layer.weight)
     torch.nn.init.constant_(layer.bias, bias_const)
     return layer
+
 
 class SoftQNetwork(nn.Module):
     def __init__(self, envs):
@@ -67,8 +71,9 @@ class SoftQNetwork(nn.Module):
         q_vals = self.fc_q(x)
         return q_vals
 
+
 class SAC(nn.Module, Agent):
-    def __init__(self, envs, state_fpath:str=None, **kwargs):
+    def __init__(self, envs, state_fpath: str = None, **kwargs):
         super().__init__()
         self.env = envs
         obs_shape = envs.single_observation_space.shape
@@ -76,7 +81,9 @@ class SAC(nn.Module, Agent):
         self.fc_logits = layer_init(nn.Linear(512, envs.single_action_space.n))
 
         if state_fpath is not None:
-            assert isinstance(state_fpath, str), f"`state_fpath` must be of type `str` but is of type `{type(state_fpath)}`"
+            assert isinstance(
+                state_fpath, str
+            ), f"`state_fpath` must be of type `str` but is of type `{type(state_fpath)}`"
             try:
                 self.load_state_dict(torch.load(state_fpath, weights_only=True))
             except:
@@ -155,7 +162,6 @@ def train(kwargs):
             if kwargs.track:
                 wandb.save(f"{wandb.run.dir}/agent.pt", policy="now")
 
-
         if global_step < args.learning_starts:
             actions = np.array([envs.single_action_space.sample() for _ in range(envs.num_envs)])
         else:
@@ -173,7 +179,7 @@ def train(kwargs):
                 writer.add_scalar("charts/episodic_return", info["episode"]["r"], global_step)
                 writer.add_scalar("charts/episodic_length", info["episode"]["l"], global_step)
                 break
-        
+
         real_next_obs = next_obs.copy()
         rb.add(obs, real_next_obs, actions, rewards, terminations, infos)
 
@@ -194,7 +200,9 @@ def train(kwargs):
                     )
 
                     min_qf_next_target = min_qf_next_target.sum(dim=1)
-                    next_q_value = data.rewards.flatten() + (1 - data.dones.flatten()) * args.gamma * (min_qf_next_target)
+                    next_q_value = data.rewards.flatten() + (1 - data.dones.flatten()) * args.gamma * (
+                        min_qf_next_target
+                    )
 
                 qf1_values = qf1(data.observations)
                 qf2_values = qf2(data.observations)
@@ -222,7 +230,9 @@ def train(kwargs):
                 actor_optimizer.step()
 
                 if args.autotune:
-                    alpha_loss = (action_probs.detach() * (-log_alpha.exp() * (log_pi + target_entropy).detach())).mean()
+                    alpha_loss = (
+                        action_probs.detach() * (-log_alpha.exp() * (log_pi + target_entropy).detach())
+                    ).mean()
 
                     a_optimizer.zero_grad()
                     alpha_loss.backward()
@@ -247,7 +257,7 @@ def train(kwargs):
                 writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
                 if args.autotune:
                     writer.add_scalar("losses/alpha_loss", alpha_loss.item(), global_step)
-                    
+
         if global_step % args.checkpoint_frequency == 0:
             writer.add_scalar("charts/average_reward", eval_policy(actor, envs, kwargs, device), global_step)
 

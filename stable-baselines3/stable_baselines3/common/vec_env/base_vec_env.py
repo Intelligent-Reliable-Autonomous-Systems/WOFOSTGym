@@ -73,9 +73,9 @@ class VecEnv(ABC):
         self._options: list[dict[str, Any]] = [{} for _ in range(num_envs)]
 
         try:
-           
+
             render_modes = [None] * num_envs
-            #render_modes = self.get_attr("render_mode")
+            # render_modes = self.get_attr("render_mode")
         except AttributeError:
             warnings.warn("The `render_mode` attribute is not defined in your environment. It will be set to None.")
             render_modes = [None for _ in range(num_envs)]

@@ -17,6 +17,7 @@ import torch.optim as optim
 from stable_baselines3.common.buffers import ReplayBuffer
 from .rl_utils import RL_Args, Agent, setup, eval_policy
 
+
 @dataclass
 class Args(RL_Args):
     total_timesteps: int = 1000000
@@ -48,8 +49,9 @@ class Args(RL_Args):
     checkpoint_frequency: int = 500
     """How often to save the agent during training"""
 
+
 class DQN(nn.Module, Agent):
-    def __init__(self, env, state_fpath:str=None, **kwargs):
+    def __init__(self, env, state_fpath: str = None, **kwargs):
         super().__init__()
         self.env = env
         self.network = nn.Sequential(
@@ -59,9 +61,11 @@ class DQN(nn.Module, Agent):
             nn.ReLU(),
             nn.Linear(84, env.single_action_space.n),
         )
-        
+
         if state_fpath is not None:
-            assert isinstance(state_fpath, str), f"`state_fpath` must be of type `str` but is of type `{type(state_fpath)}`"
+            assert isinstance(
+                state_fpath, str
+            ), f"`state_fpath` must be of type `str` but is of type `{type(state_fpath)}`"
             try:
                 self.load_state_dict(torch.load(state_fpath, weights_only=True))
             except:
@@ -70,7 +74,7 @@ class DQN(nn.Module, Agent):
 
     def forward(self, x):
         return self.network(x)
-    
+
     def get_action(self, x):
         """
         Returns action from network. Helps with compatibility
@@ -81,6 +85,7 @@ class DQN(nn.Module, Agent):
 def linear_schedule(start_e: float, end_e: float, duration: int, t: int):
     slope = (end_e - start_e) / duration
     return max(slope * t + start_e, end_e)
+
 
 def train(kwargs):
     """
@@ -114,8 +119,9 @@ def train(kwargs):
             if kwargs.track:
                 wandb.save(f"{wandb.run.dir}/agent.pt", policy="now")
 
-
-        epsilon = linear_schedule(args.start_e, args.end_e, args.exploration_fraction * args.total_timesteps, global_step)
+        epsilon = linear_schedule(
+            args.start_e, args.end_e, args.exploration_fraction * args.total_timesteps, global_step
+        )
         if random.random() < epsilon:
             actions = np.array([envs.single_action_space.sample() for _ in range(envs.num_envs)])
         else:
@@ -130,7 +136,6 @@ def train(kwargs):
                     print(f"global_step={global_step}, episodic_return={info['episode']['r']}")
                     writer.add_scalar("charts/episodic_return", info["episode"]["r"], global_step)
                     writer.add_scalar("charts/episodic_length", info["episode"]["l"], global_step)
-
 
         real_next_obs = next_obs.copy()
         rb.add(obs, real_next_obs, actions, rewards, terminations, infos)
@@ -155,11 +160,11 @@ def train(kwargs):
                     writer.add_scalar("losses/q_values", old_val.mean().item(), global_step)
                     print("SPS:", int(global_step / (time.time() - start_time)))
                     writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
-            
+
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
-                
+
             if global_step % args.target_network_frequency == 0:
                 for target_network_param, q_network_param in zip(target_network.parameters(), q_network.parameters()):
                     target_network_param.data.copy_(

@@ -3,7 +3,9 @@
 Written by: Allard de Wit (allard.dewit@wur.nl), April 2014
 Modified by Will Solow, 2024
 """
+
 from ..pydispatch import dispatcher
+
 
 class DispatcherObject(object):
     """Class only defines the _send_signal() and _connect_signal() methods.

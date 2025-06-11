@@ -294,7 +294,9 @@ class CheckpointCallback(BaseCallback):
         :param extension: Checkpoint file extension (zip for model, pkl for others)
         :return: Path to the checkpoint
         """
-        return os.path.join(self.save_path, f"{self.name_prefix}_{checkpoint_type}{self.num_timesteps}_steps.{extension}")
+        return os.path.join(
+            self.save_path, f"{self.name_prefix}_{checkpoint_type}{self.num_timesteps}_steps.{extension}"
+        )
 
     def _on_step(self) -> bool:
         if self.n_calls % self.save_freq == 0:
@@ -303,7 +305,11 @@ class CheckpointCallback(BaseCallback):
             if self.verbose >= 2:
                 print(f"Saving model checkpoint to {model_path}")
 
-            if self.save_replay_buffer and hasattr(self.model, "replay_buffer") and self.model.replay_buffer is not None:
+            if (
+                self.save_replay_buffer
+                and hasattr(self.model, "replay_buffer")
+                and self.model.replay_buffer is not None
+            ):
                 # If model has a replay buffer, save it too
                 replay_buffer_path = self._checkpoint_path("replay_buffer_", extension="pkl")
                 self.model.save_replay_buffer(replay_buffer_path)  # type: ignore[attr-defined]
@@ -498,7 +504,10 @@ class EvalCallback(EventCallback):
             self.last_mean_reward = float(mean_reward)
 
             if self.verbose >= 1:
-                print(f"Eval num_timesteps={self.num_timesteps}, " f"episode_reward={mean_reward:.2f} +/- {std_reward:.2f}")
+                print(
+                    f"Eval num_timesteps={self.num_timesteps}, "
+                    f"episode_reward={mean_reward:.2f} +/- {std_reward:.2f}"
+                )
                 print(f"Episode length: {mean_ep_length:.2f} +/- {std_ep_length:.2f}")
             # Add to current Logger
             self.logger.record("eval/mean_reward", float(mean_reward))
@@ -630,7 +639,9 @@ class StopTrainingOnMaxEpisodes(BaseCallback):
 
     def _on_step(self) -> bool:
         # Check that the `dones` local variable is defined
-        assert "dones" in self.locals, "`dones` variable is not defined, please check your code next to `callback.on_step()`"
+        assert (
+            "dones" in self.locals
+        ), "`dones` variable is not defined, please check your code next to `callback.on_step()`"
         self.n_episodes += np.sum(self.locals["dones"]).item()
 
         continue_training = self.n_episodes < self._total_max_episodes
@@ -638,7 +649,9 @@ class StopTrainingOnMaxEpisodes(BaseCallback):
         if self.verbose >= 1 and not continue_training:
             mean_episodes_per_env = self.n_episodes / self.training_env.num_envs
             mean_ep_str = (
-                f"with an average of {mean_episodes_per_env:.2f} episodes per env" if self.training_env.num_envs > 1 else ""
+                f"with an average of {mean_episodes_per_env:.2f} episodes per env"
+                if self.training_env.num_envs > 1
+                else ""
             )
 
             print(
@@ -673,7 +686,9 @@ class StopTrainingOnNoModelImprovement(BaseCallback):
         self.no_improvement_evals = 0
 
     def _on_step(self) -> bool:
-        assert self.parent is not None, "``StopTrainingOnNoModelImprovement`` callback must be used with an ``EvalCallback``"
+        assert (
+            self.parent is not None
+        ), "``StopTrainingOnNoModelImprovement`` callback must be used with an ``EvalCallback``"
 
         continue_training = True
 

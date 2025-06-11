@@ -4,6 +4,7 @@ passing throughout various sub-objects of the crop and soil model
 Written by: Allard de Wit (allard.dewit@wur.nl), April 2014
 Modified by Will Solow, 2024
 """
+
 from ..utils import exceptions as exc
 
 
@@ -86,8 +87,7 @@ class VariableKiosk(dict):
     """
 
     def __init__(self):
-        """Initialize the class `VariableKiosk`
-        """
+        """Initialize the class `VariableKiosk`"""
         dict.__init__(self)
         self.registered_states = {}
         self.registered_rates = {}
@@ -99,13 +99,11 @@ class VariableKiosk(dict):
         raise RuntimeError(msg)
 
     def __contains__(self, item):
-        """Checks if item is in self.registered_states or self.registered_rates.
-        """
+        """Checks if item is in self.registered_states or self.registered_rates."""
         return dict.__contains__(self, item)
 
     def __getattr__(self, item):
-        """Allow use of attribute notation (eg "kiosk.LAI") on published rates or states.
-        """
+        """Allow use of attribute notation (eg "kiosk.LAI") on published rates or states."""
         return dict.__getitem__(self, item)
 
     def __str__(self):
@@ -163,8 +161,7 @@ class VariableKiosk(dict):
         if varname in self.registered_states:
             # print "Deregistering '%s'" % varname
             if oid != self.registered_states[varname]:
-                msg = "Wrong object tried to deregister variable '%s'." \
-                      % varname
+                msg = "Wrong object tried to deregister variable '%s'." % varname
                 raise exc.VariableKioskError(msg)
             else:
                 self.registered_states.pop(varname)
@@ -173,8 +170,7 @@ class VariableKiosk(dict):
         elif varname in self.registered_rates:
             # print "Deregistering '%s'" % varname
             if oid != self.registered_rates[varname]:
-                msg = "Wrong object tried to deregister variable '%s'." \
-                      % varname
+                msg = "Wrong object tried to deregister variable '%s'." % varname
                 raise exc.VariableKioskError(msg)
             else:
                 self.registered_rates.pop(varname)
@@ -189,10 +185,8 @@ class VariableKiosk(dict):
             self.pop(varname)
 
     def _check_duplicate_variable(self, varname):
-        """Checks if variables are not registered twice.
-        """
-        if varname in self.registered_rates or \
-                varname in self.registered_states:
+        """Checks if variables are not registered twice."""
+        if varname in self.registered_rates or varname in self.registered_states:
             msg = "Duplicate state/rate variable '%s' encountered!"
             raise exc.VariableKioskError(msg % varname)
 
@@ -209,40 +203,35 @@ class VariableKiosk(dict):
             if self.published_rates[varname] == id:
                 dict.__setitem__(self, varname, value)
             else:
-                msg = "Unregistered object tried to set the value " + \
-                      "of variable '%s': access denied."
+                msg = "Unregistered object tried to set the value " + "of variable '%s': access denied."
                 raise exc.VariableKioskError(msg % varname)
         elif varname in self.published_states:
             if self.published_states[varname] == id:
                 dict.__setitem__(self, varname, value)
             else:
-                msg = "Unregistered object tried to set the value of variable " \
-                      "%s: access denied."
+                msg = "Unregistered object tried to set the value of variable " "%s: access denied."
                 raise exc.VariableKioskError(msg % varname)
         else:
             msg = "Variable '%s' not published in VariableKiosk."
             raise exc.VariableKioskError(msg % varname)
 
     def variable_exists(self, varname):
-        """ Returns True if the state/rate variable is registered in the kiosk.
+        """Returns True if the state/rate variable is registered in the kiosk.
 
         :param varname: Name of the variable to be checked for registration.
         """
 
-        if varname in self.registered_rates or \
-                varname in self.registered_states:
+        if varname in self.registered_rates or varname in self.registered_states:
             return True
         else:
             return False
 
     def flush_rates(self):
-        """flush the values of all published rate variable from the kiosk.
-        """
+        """flush the values of all published rate variable from the kiosk."""
         for key in self.published_rates.keys():
             self.pop(key, None)
 
     def flush_states(self):
-        """flush the values of all state variable from the kiosk.
-        """
+        """flush the values of all state variable from the kiosk."""
         for key in self.published_states.keys():
             self.pop(key, None)

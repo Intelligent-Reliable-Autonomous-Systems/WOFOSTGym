@@ -19,7 +19,7 @@ from .rl_utils import load_data_to_buffer, RL_Args, Agent, setup
 
 @dataclass
 class Args(RL_Args):
-    
+
     # Algorithm specific arguments
     start_timesteps: int = 100
     """Starting time steps"""
@@ -56,25 +56,28 @@ class Args(RL_Args):
     eval_freq: int = 5000
     """How often to evaluate the policy"""
 
+
 class BCQ(nn.Module, Agent):
-    def __init__(self, env, state_fpath:str=None, **kwargs):
+    def __init__(self, env, state_fpath: str = None, **kwargs):
         super(BCQ, self).__init__()
-        self.env = env 
+        self.env = env
         self.q1 = nn.Linear(np.array(env.single_observation_space.shape).prod(), 256)
         self.q2 = nn.Linear(256, 256)
         self.q3 = nn.Linear(256, env.single_action_space.n)
 
         self.i1 = nn.Linear(np.array(env.single_observation_space.shape).prod(), 256)
         self.i2 = nn.Linear(256, 256)
-        self.i3 = nn.Linear(256, env.single_action_space.n) 
+        self.i3 = nn.Linear(256, env.single_action_space.n)
 
         if state_fpath is not None:
-            assert isinstance(state_fpath, str), f"`state_fpath` must be of type `str` but is of type `{type(state_fpath)}`"
+            assert isinstance(
+                state_fpath, str
+            ), f"`state_fpath` must be of type `str` but is of type `{type(state_fpath)}`"
             try:
                 self.load_state_dict(torch.load(state_fpath, weights_only=True))
             except:
                 msg = f"Error loading state dictionary from {state_fpath}"
-                raise Exception(msg)    
+                raise Exception(msg)
 
     def forward(self, state):
         q = F.relu(self.q1(state))
@@ -91,35 +94,36 @@ class BCQ(nn.Module, Agent):
         """
         q, imt, i = self.forward(state)
         imt = imt.exp()
-        imt = (imt/imt.max(-1, keepdim=True)[0] > 0.3).float()
+        imt = (imt / imt.max(-1, keepdim=True)[0] > 0.3).float()
 
-        return int((imt * q + (1. - imt) * -1e8).argmax(-1))
+        return int((imt * q + (1.0 - imt) * -1e8).argmax(-1))
 
     def select_action(self, args, device, state):
-        """ 
+        """
         Select action according to policy with probability (1-eps)
         otherwise, select random action
         """
-        if np.random.uniform(0,1) > args.eval_eps:
+        if np.random.uniform(0, 1) > args.eval_eps:
             with torch.no_grad():
                 state = torch.FloatTensor(state).reshape((-1, *self.env.single_observation_space.shape)).to(device)
                 q, imt, i = self.forward(state)
                 imt = imt.exp()
-                imt = (imt/imt.max(1, keepdim=True)[0] > args.bcq_threshold).float()
+                imt = (imt / imt.max(1, keepdim=True)[0] > args.bcq_threshold).float()
 
-                return int((imt * q + (1. - imt) * -1e8).argmax(1))
+                return int((imt * q + (1.0 - imt) * -1e8).argmax(1))
         else:
             return np.random.randint(self.env.single_action_space.n)
+
 
 def eval_policy(policy, eval_env, args, device, eval_episodes=10):
     """
     Runs policy x times on evaluation environment
     """
-    avg_reward = 0.
+    avg_reward = 0.0
     for _ in range(eval_episodes):
-        
+
         state, _, term, trunc = *eval_env.reset(), False, False
-        
+
         while not (term or trunc):
             action = policy.select_action(args, device, np.array(state))
             state, reward, term, trunc, _ = eval_env.step(action)
@@ -128,6 +132,7 @@ def eval_policy(policy, eval_env, args, device, eval_episodes=10):
     avg_reward /= eval_episodes
 
     return avg_reward
+
 
 def train(kwargs):
     """
@@ -139,12 +144,12 @@ def train(kwargs):
     run_name = f"BCQ/{kwargs.env_id}__{args.exp_name}__{args.seed}__{int(time.time())}"
 
     writer, device, envs = setup(kwargs, args, run_name)
-    
+
     q_network = BCQ(envs).to(device)
     optimizer = optim.Adam(q_network.parameters(), lr=args.learning_rate)
     target_network = BCQ(envs).to(device)
     target_network.load_state_dict(q_network.state_dict())
-    
+
     rb = ReplayBuffer(
         args.buffer_size,
         envs.single_observation_space,
@@ -156,19 +161,19 @@ def train(kwargs):
 
     start_time = time.time()
 
-    for global_step in range(args.max_timesteps): 
-        
+    for global_step in range(args.max_timesteps):
+
         if global_step % args.checkpoint_frequency == 0:
             torch.save(q_network.state_dict(), f"{kwargs.save_folder}{run_name}/agent.pt")
             if kwargs.track:
                 wandb.save(f"{wandb.run.dir}/agent.pt", policy="now")
-        
+
         data = rb.sample(args.batch_size)
 
         with torch.no_grad():
             q, imt, i = q_network(data.next_observations)
             imt = imt.exp()
-            imt = (imt/imt.max(1, keepdim=True)[0] > args.bcq_threshold).float()
+            imt = (imt / imt.max(1, keepdim=True)[0] > args.bcq_threshold).float()
 
             next_action = (imt * q + (1 - imt) * -1e8).argmax(1, keepdim=True)
 
@@ -193,7 +198,7 @@ def train(kwargs):
         else:
             if global_step % args.target_update_frequency == 0:
                 target_network.load_state_dict(q_network.state_dict())
-  
+
         if global_step % args.eval_freq == 0:
             writer.add_scalar("losses/q_loss", q_loss, global_step)
             writer.add_scalar("losses/i_loss", i_loss, global_step)

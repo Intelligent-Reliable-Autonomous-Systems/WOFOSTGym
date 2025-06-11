@@ -428,7 +428,9 @@ def test_sync_vec_normalize(make_env):
         assert isinstance(unwrap_vec_normalize(env), VecNormalize)
 
     eval_env = DummyVecEnv([make_env])
-    eval_env = VecNormalize(eval_env, training=False, norm_obs=True, norm_reward=True, clip_obs=100.0, clip_reward=100.0)
+    eval_env = VecNormalize(
+        eval_env, training=False, norm_obs=True, norm_reward=True, clip_obs=100.0, clip_reward=100.0
+    )
 
     if not isinstance(env.observation_space, spaces.Dict):
         eval_env = VecFrameStack(eval_env, 1)

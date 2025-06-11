@@ -8,46 +8,45 @@ import pygame
 import matplotlib.cm as cm
 from datetime import timedelta
 
+
 def render(env):
     """
     Render the environment
     """
     if env.render_mode is None:
-            return
+        return
     if env.screen is None:
         pygame.init()
         if env.render_mode == "human" or env.render_mode == "rgb_array":
             pygame.display.init()
-            env.screen = pygame.display.set_mode(
-                (env.screen_width, env.screen_height)
-            )
-            pygame.display.set_caption('WOFOST Simulator')
-            pygame.display.set_icon(pygame.image.load(f'{env.assets}wofost_icon.png'))
+            env.screen = pygame.display.set_mode((env.screen_width, env.screen_height))
+            pygame.display.set_caption("WOFOST Simulator")
+            pygame.display.set_icon(pygame.image.load(f"{env.assets}wofost_icon.png"))
     if env.clock is None:
         env.clock = pygame.time.Clock()
 
-    env.screen.fill((255,255,255))
+    env.screen.fill((255, 255, 255))
 
-    obs_dict = dict(zip(env.output_vars+env.weather_vars+["DAYS"], env.state))
+    obs_dict = dict(zip(env.output_vars + env.weather_vars + ["DAYS"], env.state))
 
     """Title Text"""
     crop = env.agromanagement["CropCalendar"]["crop_name"]
     variety = env.agromanagement["CropCalendar"]["crop_variety"]
-    title_font = pygame.font.Font(None, 64) 
+    title_font = pygame.font.Font(None, 64)
     title_surface = title_font.render(f"Growing {crop}: {variety}", True, (0, 0, 0))
-    title_rect = title_surface.get_rect(center=(env.screen_width // 2, 1*env.screen_height/20))  
+    title_rect = title_surface.get_rect(center=(env.screen_width // 2, 1 * env.screen_height / 20))
     env.screen.blit(title_surface, title_rect)
 
     """Day text"""
     date = env.agromanagement["SiteCalendar"]["site_start_date"] + timedelta(obs_dict["DAYS"])
-    date_font = pygame.font.Font(None, 40) 
+    date_font = pygame.font.Font(None, 40)
     date_surface = date_font.render(f"Date: {date}", True, (0, 0, 0))
-    date_rect = date_surface.get_rect(center=(env.screen_width // 2, 18.5*env.screen_height/20))  
+    date_rect = date_surface.get_rect(center=(env.screen_width // 2, 18.5 * env.screen_height / 20))
     env.screen.blit(date_surface, date_rect)
 
-    elapsed_font = pygame.font.Font(None, 36)  
+    elapsed_font = pygame.font.Font(None, 36)
     elapsed_surface = elapsed_font.render(f"Days Elapsed: {int(obs_dict['DAYS'])}", True, (0, 0, 0))
-    elapsed_rect = elapsed_surface.get_rect(center=(env.screen_width // 2, 19.5*env.screen_height/20))  
+    elapsed_rect = elapsed_surface.get_rect(center=(env.screen_width // 2, 19.5 * env.screen_height / 20))
     env.screen.blit(elapsed_surface, elapsed_rect)
 
     """Crop State"""
@@ -66,24 +65,19 @@ def render(env):
     else:
         crop = pygame.image.load(f"{env.assets}crop_dead.png").convert_alpha()
         crop_text = "Dead"
-    crop_size = (300,225)
+    crop_size = (300, 225)
     resized_crop = pygame.transform.scale(crop, crop_size)
-    
-    crop_x = env.screen_width/2-crop_size[0]//2
-    crop_y = 1*env.screen_height/3-crop_size[1]//2
+
+    crop_x = env.screen_width / 2 - crop_size[0] // 2
+    crop_y = 1 * env.screen_height / 3 - crop_size[1] // 2
     env.screen.blit(resized_crop, (crop_x, crop_y))
 
-    pygame.draw.rect(
-        env.screen, 
-        (144, 238, 144), 
-        (crop_x-2, crop_y-2, crop_size[0]+4, crop_size[1]+4), 
-        5 
-    )
+    pygame.draw.rect(env.screen, (144, 238, 144), (crop_x - 2, crop_y - 2, crop_size[0] + 4, crop_size[1] + 4), 5)
 
     """Draw font below crop"""
-    font = pygame.font.Font(None, 48) 
+    font = pygame.font.Font(None, 48)
     text_surface = font.render(f"Crop State: {crop_text}", True, (0, 0, 0))
-    text_rect = text_surface.get_rect(center=(env.screen_width // 2, 1*env.screen_height/3 + crop_size[1]/2+25))  
+    text_rect = text_surface.get_rect(center=(env.screen_width // 2, 1 * env.screen_height / 3 + crop_size[1] / 2 + 25))
     env.screen.blit(text_surface, text_rect)
 
     """Draw Harvest Icon"""
@@ -96,17 +90,17 @@ def render(env):
 
     wso_color = tuple(int(c * 255) for c in cmap_wso(wso_val)[:3])
 
-    wso_x = env.screen_width // 2 - wso_size[0]//2
-    wso_y = 3*env.screen_height/4 - wso_size[1]//2
+    wso_x = env.screen_width // 2 - wso_size[0] // 2
+    wso_y = 3 * env.screen_height / 4 - wso_size[1] // 2
 
-    wso_rect = pygame.Rect(wso_x-2, wso_y-2, wso_size[0]+4, wso_size[1]+4)
+    wso_rect = pygame.Rect(wso_x - 2, wso_y - 2, wso_size[0] + 4, wso_size[1] + 4)
     pygame.draw.rect(env.screen, wso_color, wso_rect)
-    pygame.draw.rect(env.screen, (0,0,0), wso_rect, 3)
+    pygame.draw.rect(env.screen, (0, 0, 0), wso_rect, 3)
 
     """Draw font below harvest"""
-    wso_font = pygame.font.Font(None, 36) 
+    wso_font = pygame.font.Font(None, 36)
     wso_surface = wso_font.render(f"Yield (kg/ha): {obs_dict['WSO']:0.0f}", True, (0, 0, 0))
-    wso_text_rect = wso_surface.get_rect(center=(wso_x + wso_size[0] // 2, wso_y+wso_size[1]+15))  
+    wso_text_rect = wso_surface.get_rect(center=(wso_x + wso_size[0] // 2, wso_y + wso_size[1] + 15))
     env.screen.blit(wso_surface, wso_text_rect)
 
     env.screen.blit(resized_wso, (wso_x, wso_y))
@@ -133,38 +127,38 @@ def render(env):
     rain_color = tuple(int(c * 255) for c in cmap_rain(rain_val)[:3])
 
     irrad_x = 45
-    irrad_y = env.screen_height/2-weather_size[1]//2
+    irrad_y = env.screen_height / 2 - weather_size[1] // 2
     temp_x = 45
-    temp_y = env.screen_height/5-weather_size[1]//2
+    temp_y = env.screen_height / 5 - weather_size[1] // 2
     rain_x = 45
-    rain_y = 4*env.screen_height/5-weather_size[1]//2
+    rain_y = 4 * env.screen_height / 5 - weather_size[1] // 2
 
-    irrad_rect = pygame.Rect(irrad_x-2, irrad_y-2, weather_size[0]+4, weather_size[1]+4)
-    temp_rect = pygame.Rect(temp_x-2, temp_y-2, weather_size[0]+4, weather_size[1]+4)
-    rain_rect = pygame.Rect(rain_x-2, rain_y-2, weather_size[0]+4, weather_size[1]+4)
+    irrad_rect = pygame.Rect(irrad_x - 2, irrad_y - 2, weather_size[0] + 4, weather_size[1] + 4)
+    temp_rect = pygame.Rect(temp_x - 2, temp_y - 2, weather_size[0] + 4, weather_size[1] + 4)
+    rain_rect = pygame.Rect(rain_x - 2, rain_y - 2, weather_size[0] + 4, weather_size[1] + 4)
 
     pygame.draw.rect(env.screen, irrad_color, irrad_rect)
     pygame.draw.rect(env.screen, temp_color, temp_rect)
     pygame.draw.rect(env.screen, rain_color, rain_rect)
 
-    pygame.draw.rect(env.screen, (0,0,0), irrad_rect, 3)
-    pygame.draw.rect(env.screen, (0,0,0), temp_rect, 3)
-    pygame.draw.rect(env.screen, (0,0,0), rain_rect, 3)
+    pygame.draw.rect(env.screen, (0, 0, 0), irrad_rect, 3)
+    pygame.draw.rect(env.screen, (0, 0, 0), temp_rect, 3)
+    pygame.draw.rect(env.screen, (0, 0, 0), rain_rect, 3)
 
     """Draw font below weather"""
-    irrad_font = pygame.font.Font(None, 36)  
+    irrad_font = pygame.font.Font(None, 36)
     irrad_surface = irrad_font.render(f"IRRAD: {obs_dict['IRRAD']:0.1e}", True, (0, 0, 0))
-    irrad_text_rect = irrad_surface.get_rect(center=(irrad_x + weather_size[0] // 2, irrad_y+weather_size[1]+15))  
+    irrad_text_rect = irrad_surface.get_rect(center=(irrad_x + weather_size[0] // 2, irrad_y + weather_size[1] + 15))
     env.screen.blit(irrad_surface, irrad_text_rect)
 
-    rain_font = pygame.font.Font(None, 36)  
+    rain_font = pygame.font.Font(None, 36)
     rain_surface = rain_font.render(f"RAIN: {obs_dict['RAIN']:0.2f}", True, (0, 0, 0))
-    rain_text_rect = rain_surface.get_rect(center=(rain_x + weather_size[0] // 2, rain_y+weather_size[1]+15))  
+    rain_text_rect = rain_surface.get_rect(center=(rain_x + weather_size[0] // 2, rain_y + weather_size[1] + 15))
     env.screen.blit(rain_surface, rain_text_rect)
 
-    temp_font = pygame.font.Font(None, 36) 
+    temp_font = pygame.font.Font(None, 36)
     temp_surface = temp_font.render(f"TEMP: {obs_dict['TEMP']:0.1f}", True, (0, 0, 0))
-    temp_text_rect = temp_surface.get_rect(center=(temp_x + weather_size[0] // 2, temp_y+weather_size[1]+15))  
+    temp_text_rect = temp_surface.get_rect(center=(temp_x + weather_size[0] // 2, temp_y + weather_size[1] + 15))
     env.screen.blit(temp_surface, temp_text_rect)
 
     env.screen.blit(resized_irrad, (irrad_x, irrad_y))
@@ -194,50 +188,50 @@ def render(env):
     p_color = tuple(int(c * 255) for c in cmap_fert(p_val)[:3])
     k_color = tuple(int(c * 255) for c in cmap_fert(k_val)[:3])
     w_color = tuple(int(c * 255) for c in cmap_irrig(w_val)[:3])
-    
-    n_x = env.screen_width - fert_size[0] - 45
-    n_y = 1*env.screen_height/8-fert_size[1]//2
-    p_x = env.screen_width - fert_size[0] - 45
-    p_y = 3*env.screen_height/8-fert_size[1]//2
-    k_x = env.screen_width - fert_size[0] - 45
-    k_y = 5*env.screen_height/8-fert_size[1]//2
-    w_x = env.screen_width - fert_size[0] - 45
-    w_y = 7*env.screen_height/8-fert_size[1]//2
 
-    n_rect = pygame.Rect(n_x-2, n_y-2, fert_size[0]+4, fert_size[1]+4)
-    p_rect = pygame.Rect(p_x-2, p_y-2, fert_size[0]+4, fert_size[1]+4)
-    k_rect = pygame.Rect(k_x-2, k_y-2, fert_size[0]+4, fert_size[1]+4)
-    w_rect = pygame.Rect(w_x-2, w_y-2, fert_size[0]+4, fert_size[1]+4)
+    n_x = env.screen_width - fert_size[0] - 45
+    n_y = 1 * env.screen_height / 8 - fert_size[1] // 2
+    p_x = env.screen_width - fert_size[0] - 45
+    p_y = 3 * env.screen_height / 8 - fert_size[1] // 2
+    k_x = env.screen_width - fert_size[0] - 45
+    k_y = 5 * env.screen_height / 8 - fert_size[1] // 2
+    w_x = env.screen_width - fert_size[0] - 45
+    w_y = 7 * env.screen_height / 8 - fert_size[1] // 2
+
+    n_rect = pygame.Rect(n_x - 2, n_y - 2, fert_size[0] + 4, fert_size[1] + 4)
+    p_rect = pygame.Rect(p_x - 2, p_y - 2, fert_size[0] + 4, fert_size[1] + 4)
+    k_rect = pygame.Rect(k_x - 2, k_y - 2, fert_size[0] + 4, fert_size[1] + 4)
+    w_rect = pygame.Rect(w_x - 2, w_y - 2, fert_size[0] + 4, fert_size[1] + 4)
 
     pygame.draw.rect(env.screen, n_color, n_rect)
     pygame.draw.rect(env.screen, p_color, p_rect)
     pygame.draw.rect(env.screen, k_color, k_rect)
     pygame.draw.rect(env.screen, w_color, w_rect)
 
-    pygame.draw.rect(env.screen, (0,0,0), n_rect, 3)
-    pygame.draw.rect(env.screen, (0,0,0), p_rect, 3)
-    pygame.draw.rect(env.screen, (0,0,0), k_rect, 3)
-    pygame.draw.rect(env.screen, (0,0,0), w_rect, 3)
+    pygame.draw.rect(env.screen, (0, 0, 0), n_rect, 3)
+    pygame.draw.rect(env.screen, (0, 0, 0), p_rect, 3)
+    pygame.draw.rect(env.screen, (0, 0, 0), k_rect, 3)
+    pygame.draw.rect(env.screen, (0, 0, 0), w_rect, 3)
 
     """Draw font below weather"""
-    n_font = pygame.font.Font(None, 36)  
+    n_font = pygame.font.Font(None, 36)
     n_surface = n_font.render(f"N (kg/ha): {obs_dict['TOTN']:0.0f}", True, (0, 0, 0))
-    n_text_rect = n_surface.get_rect(center=(n_x + fert_size[0] // 2, n_y+fert_size[1]+15))  
+    n_text_rect = n_surface.get_rect(center=(n_x + fert_size[0] // 2, n_y + fert_size[1] + 15))
     env.screen.blit(n_surface, n_text_rect)
 
-    p_font = pygame.font.Font(None, 36)  
+    p_font = pygame.font.Font(None, 36)
     p_surface = p_font.render(f"P (kg/ha): {obs_dict['TOTP']:0.0f}", True, (0, 0, 0))
-    p_text_rect = p_surface.get_rect(center=(p_x + fert_size[0] // 2, p_y+fert_size[1]+15))  
+    p_text_rect = p_surface.get_rect(center=(p_x + fert_size[0] // 2, p_y + fert_size[1] + 15))
     env.screen.blit(p_surface, p_text_rect)
 
-    k_font = pygame.font.Font(None, 36) 
+    k_font = pygame.font.Font(None, 36)
     k_surface = k_font.render(f"K (kg/ha): {obs_dict['TOTK']:0.0f}", True, (0, 0, 0))
-    k_text_rect = k_surface.get_rect(center=(k_x + fert_size[0] // 2, k_y+fert_size[1]+15))  
+    k_text_rect = k_surface.get_rect(center=(k_x + fert_size[0] // 2, k_y + fert_size[1] + 15))
     env.screen.blit(k_surface, k_text_rect)
 
-    w_font = pygame.font.Font(None, 36)  
+    w_font = pygame.font.Font(None, 36)
     w_surface = w_font.render(f"Water (cm/ha): {obs_dict['TOTIRRIG']:0.0f}", True, (0, 0, 0))
-    w_text_rect = w_surface.get_rect(center=(w_x + fert_size[0] // 2, w_y+fert_size[1]+15))  
+    w_text_rect = w_surface.get_rect(center=(w_x + fert_size[0] // 2, w_y + fert_size[1] + 15))
     env.screen.blit(w_surface, w_text_rect)
 
     env.screen.blit(resized_n, (n_x, n_y))

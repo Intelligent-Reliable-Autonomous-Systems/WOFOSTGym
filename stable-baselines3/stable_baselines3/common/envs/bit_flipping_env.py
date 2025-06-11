@@ -210,7 +210,10 @@ class BitFlippingEnv(Env):
         return obs, reward, terminated, truncated, info
 
     def compute_reward(
-        self, achieved_goal: Union[int, np.ndarray], desired_goal: Union[int, np.ndarray], _info: Optional[dict[str, Any]]
+        self,
+        achieved_goal: Union[int, np.ndarray],
+        desired_goal: Union[int, np.ndarray],
+        _info: Optional[dict[str, Any]],
     ) -> np.float32:
         # As we are using a vectorized version, we need to keep track of the `batch_size`
         if isinstance(achieved_goal, int):

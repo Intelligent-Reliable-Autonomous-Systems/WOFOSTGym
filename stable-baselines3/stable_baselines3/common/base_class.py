@@ -21,8 +21,17 @@ from stable_baselines3.common.logger import Logger
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.noise import ActionNoise
 from stable_baselines3.common.policies import BasePolicy
-from stable_baselines3.common.preprocessing import check_for_nested_spaces, is_image_space, is_image_space_channels_first
-from stable_baselines3.common.save_util import load_from_zip_file, recursive_getattr, recursive_setattr, save_to_zip_file
+from stable_baselines3.common.preprocessing import (
+    check_for_nested_spaces,
+    is_image_space,
+    is_image_space_channels_first,
+)
+from stable_baselines3.common.save_util import (
+    load_from_zip_file,
+    recursive_getattr,
+    recursive_setattr,
+    save_to_zip_file,
+)
 from stable_baselines3.common.type_aliases import GymEnv, MaybeCallback, Schedule, TensorDict
 from stable_baselines3.common.utils import (
     check_for_correct_spaces,
@@ -190,10 +199,14 @@ class BaseAlgorithm(ABC):
 
             # Catch common mistake: using MlpPolicy/CnnPolicy instead of MultiInputPolicy
             if policy in ["MlpPolicy", "CnnPolicy"] and isinstance(self.observation_space, spaces.Dict):
-                raise ValueError(f"You must use `MultiInputPolicy` when working with dict observation space, not {policy}")
+                raise ValueError(
+                    f"You must use `MultiInputPolicy` when working with dict observation space, not {policy}"
+                )
 
             if self.use_sde and not isinstance(self.action_space, spaces.Box):
-                raise ValueError("generalized State-Dependent Exploration (gSDE) can only be used with continuous actions.")
+                raise ValueError(
+                    "generalized State-Dependent Exploration (gSDE) can only be used with continuous actions."
+                )
 
             if isinstance(self.action_space, spaces.Box):
                 assert np.all(

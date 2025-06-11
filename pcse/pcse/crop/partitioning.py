@@ -15,7 +15,9 @@ from ..nasapower import WeatherDataProvider
 
 class PartioningFactors(namedtuple("partitioning_factors", "FR FL FS FO")):
     """Template for namedtuple containing partitioning factors"""
+
     pass
+
 
 class Base_Partitioning_NPK(SimulationObject):
     """Class for assimilate partitioning based on development stage (`DVS`)
@@ -94,26 +96,26 @@ class Base_Partitioning_NPK(SimulationObject):
     """
 
     _THRESHOLD_N_FLAG = Bool(False)
-    _THRESHOLD_N      = Float(0.)
+    _THRESHOLD_N = Float(0.0)
 
     class Parameters(ParamTemplate):
         FRTB = AfgenTrait()
         FLTB = AfgenTrait()
         FSTB = AfgenTrait()
         FOTB = AfgenTrait()
-        NPART = Float(-99.)  # coefficient for the effect of N stress on leaf allocation
-        NTHRESH = Float(-99.) # Threshold above which excess N stress occurs
-        PTHRESH = Float(-99.) # Threshold above which excess P stress occurs
-        KTHRESH = Float(-99.) # Threshold above which excess K stress occurs
+        NPART = Float(-99.0)  # coefficient for the effect of N stress on leaf allocation
+        NTHRESH = Float(-99.0)  # Threshold above which excess N stress occurs
+        PTHRESH = Float(-99.0)  # Threshold above which excess P stress occurs
+        KTHRESH = Float(-99.0)  # Threshold above which excess K stress occurs
 
     class StateVariables(StatesTemplate):
-        FR = Float(-99.)
-        FL = Float(-99.)
-        FS = Float(-99.)
-        FO = Float(-99.)
+        FR = Float(-99.0)
+        FL = Float(-99.0)
+        FS = Float(-99.0)
+        FO = Float(-99.0)
         PF = Instance(PartioningFactors)
 
-    def initialize(self, day:date, kiosk:VariableKiosk, parameters:dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parameters: dict):
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -123,22 +125,20 @@ class Base_Partitioning_NPK(SimulationObject):
         raise NotImplementedError(msg)
 
     def _check_partitioning(self):
-        """Check for partitioning errors.
-        """
+        """Check for partitioning errors."""
         FR = self.states.FR
         FL = self.states.FL
         FS = self.states.FS
         FO = self.states.FO
-        checksum = FR+(FL+FS+FO)*(1.-FR) - 1.
+        checksum = FR + (FL + FS + FO) * (1.0 - FR) - 1.0
         if abs(checksum) >= 0.0001:
-            msg = ("Error in partitioning!\n")
-            msg += ("Checksum: %f, FR: %5.3f, FL: %5.3f, FS: %5.3f, FO: %5.3f\n" \
-                    % (checksum, FR, FL, FS, FO))
-            #self.logger.error(msg)
-            #raise exc.PartitioningError(msg)
+            msg = "Error in partitioning!\n"
+            msg += "Checksum: %f, FR: %5.3f, FL: %5.3f, FS: %5.3f, FO: %5.3f\n" % (checksum, FR, FL, FS, FO)
+            # self.logger.error(msg)
+            # raise exc.PartitioningError(msg)
 
     @prepare_states
-    def integrate(self, day:date, delt:float=1.0):
+    def integrate(self, day: date, delt: float = 1.0):
         """
         Update partitioning factors based on development stage (DVS)
         and the Nitrogen nutrition Index (NNI)
@@ -151,7 +151,7 @@ class Base_Partitioning_NPK(SimulationObject):
             # Water stress is more severe than nitrogen stress and the
             # partitioning follows the original LINTUL2 assumptions
             # Note: we use specifically nitrogen stress not nutrient stress!!!
-            FRTMOD = max(1., 1./(k.RFTRA + 0.5))
+            FRTMOD = max(1.0, 1.0 / (k.RFTRA + 0.5))
             s.FR = min(0.6, p.FRTB(k.DVS) * FRTMOD)
             s.FL = p.FLTB(k.DVS)
             s.FS = p.FSTB(k.DVS)
@@ -164,7 +164,7 @@ class Base_Partitioning_NPK(SimulationObject):
             s.FS = p.FSTB(k.DVS) + p.FLTB(k.DVS) - s.FL
             s.FR = p.FRTB(k.DVS)
             s.FO = p.FOTB(k.DVS)
-            
+
         if self._THRESHOLD_N_FLAG:
             # Excess nitrogen resulting in less partioning to storage organs
             # and more to leaves
@@ -179,9 +179,8 @@ class Base_Partitioning_NPK(SimulationObject):
 
         self._check_partitioning()
 
-    def calc_rates(self, day:date, drv:WeatherDataProvider):
-        """ Return partitioning factors based on current DVS.
-        """
+    def calc_rates(self, day: date, drv: WeatherDataProvider):
+        """Return partitioning factors based on current DVS."""
         # Set the threshold flag
         if self.kiosk.SURFACE_N > self.params.NTHRESH:
             self._THRESHOLD_N_FLAG = True
@@ -194,8 +193,7 @@ class Base_Partitioning_NPK(SimulationObject):
         return self.states.PF
 
     def reset(self):
-        """Reset states adn rates
-        """
+        """Reset states adn rates"""
 
         # initial partioning factors (pf)
         k = self.kiosk
@@ -208,19 +206,20 @@ class Base_Partitioning_NPK(SimulationObject):
         # Pack partitioning factors into tuple
         PF = PartioningFactors(FR, FL, FS, FO)
 
-        s.FR=FR
-        s.FL=FL
-        s.FS=FS
-        s.FO=FO
-        s.PF=PF
-    
+        s.FR = FR
+        s.FL = FL
+        s.FS = FS
+        s.FO = FO
+        s.PF = PF
+
+
 class Annual_Partitioning_NPK(Base_Partitioning_NPK):
     """Class for assimilate partitioning based on development stage (`DVS`)
     with influence of NPK stress. For annual crops
 
     """
 
-    def initialize(self, day:date, kiosk:VariableKiosk, parameters:dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parameters: dict):
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -239,9 +238,11 @@ class Annual_Partitioning_NPK(Base_Partitioning_NPK):
         PF = PartioningFactors(FR, FL, FS, FO)
 
         # Initial states
-        self.states = self.StateVariables(kiosk, publish=["FR", "FL", "FS", "FO", "PF"],
-                                          FR=FR, FL=FL, FS=FS, FO=FO, PF=PF)
+        self.states = self.StateVariables(
+            kiosk, publish=["FR", "FL", "FS", "FO", "PF"], FR=FR, FL=FL, FS=FS, FO=FO, PF=PF
+        )
         self._check_partitioning()
+
 
 class Perennial_Partitioning_NPK(Base_Partitioning_NPK):
     """Class for assimilate partitioning based on development stage (`DVS`)
@@ -254,12 +255,12 @@ class Perennial_Partitioning_NPK(Base_Partitioning_NPK):
         FLTB = MultiAfgenTrait()
         FSTB = MultiAfgenTrait()
         FOTB = MultiAfgenTrait()
-        NPART = Float(-99.)  # coefficient for the effect of N stress on leaf allocation
-        NTHRESH = Float(-99.) # Threshold above which excess N stress occurs
-        PTHRESH = Float(-99.) # Threshold above which excess P stress occurs
-        KTHRESH = Float(-99.) # Threshold above which excess K stress occurs
+        NPART = Float(-99.0)  # coefficient for the effect of N stress on leaf allocation
+        NTHRESH = Float(-99.0)  # Threshold above which excess N stress occurs
+        PTHRESH = Float(-99.0)  # Threshold above which excess P stress occurs
+        KTHRESH = Float(-99.0)  # Threshold above which excess K stress occurs
 
-    def initialize(self, day:date, kiosk:VariableKiosk, parameters:dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parameters: dict):
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -278,12 +279,13 @@ class Perennial_Partitioning_NPK(Base_Partitioning_NPK):
         PF = PartioningFactors(FR, FL, FS, FO)
 
         # Initial states
-        self.states = self.StateVariables(kiosk, publish=["FR", "FL", "FS", "FO", "PF"],
-                                          FR=FR, FL=FL, FS=FS, FO=FO, PF=PF)
+        self.states = self.StateVariables(
+            kiosk, publish=["FR", "FL", "FS", "FO", "PF"], FR=FR, FL=FL, FS=FS, FO=FO, PF=PF
+        )
         self._check_partitioning()
 
     @prepare_states
-    def integrate(self, day:date, delt:float=1.0):
+    def integrate(self, day: date, delt: float = 1.0):
         """
         Update partitioning factors based on development stage (DVS)
         and the Nitrogen nutrition Index (NNI)
@@ -296,7 +298,7 @@ class Perennial_Partitioning_NPK(Base_Partitioning_NPK):
             # Water stress is more severe than nitrogen stress and the
             # partitioning follows the original LINTUL2 assumptions
             # Note: we use specifically nitrogen stress not nutrient stress!!!
-            FRTMOD = max(1., 1./(k.RFTRA + 0.5))
+            FRTMOD = max(1.0, 1.0 / (k.RFTRA + 0.5))
             s.FR = min(0.6, p.FRTB(k.AGE, k.DVS) * FRTMOD)
             s.FL = p.FLTB(k.AGE, k.DVS)
             s.FS = p.FSTB(k.AGE, k.DVS)
@@ -325,8 +327,7 @@ class Perennial_Partitioning_NPK(Base_Partitioning_NPK):
         self._check_partitioning()
 
     def reset(self):
-        """Reset states adn rates
-        """
+        """Reset states adn rates"""
 
         # initial partioning factors (pf)
         k = self.kiosk
@@ -339,9 +340,8 @@ class Perennial_Partitioning_NPK(Base_Partitioning_NPK):
         # Pack partitioning factors into tuple
         PF = PartioningFactors(FR, FL, FS, FO)
 
-        s.FR=FR
-        s.FL=FL
-        s.FS=FS
-        s.FO=FO
-        s.PF=PF
-    
+        s.FR = FR
+        s.FL = FL
+        s.FS = FS
+        s.FO = FO
+        s.PF = PF

@@ -261,7 +261,9 @@ class HerReplayBuffer(DictReplayBuffer):
         :return: Samples
         """
         # Normalize if needed and remove extra dimension (we are using only one env for now)
-        obs_ = self._normalize_obs({key: obs[batch_indices, env_indices, :] for key, obs in self.observations.items()}, env)
+        obs_ = self._normalize_obs(
+            {key: obs[batch_indices, env_indices, :] for key, obs in self.observations.items()}, env
+        )
         next_obs_ = self._normalize_obs(
             {key: obs[batch_indices, env_indices, :] for key, obs in self.next_observations.items()}, env
         )

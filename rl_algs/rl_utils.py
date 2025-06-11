@@ -3,6 +3,7 @@ Utility functions for RL algorithms
 
 Written by Will Solow, 2025
 """
+
 import sys
 from pathlib import Path
 import gymnasium as gym
@@ -22,7 +23,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 import utils
 
 
-@dataclass 
+@dataclass
 class RL_Args:
     exp_name: str = os.path.basename(__file__)[: -len(".py")]
     """the name of this experiment"""
@@ -39,19 +40,22 @@ class RL_Args:
     capture_video: bool = False
     """whether to capture videos of the agent performances (check out `videos` folder)"""
 
+
 class Agent(ABC):
     """
     Abstract agent class to enforce the get_action function
     """
-    
+
     @abstractmethod
     def get_action(self, obs):
         pass
+
 
 def make_env(kwargs, idx=1, capture_video=False, run_name=None):
     """
     Environment constructor for SyncVectorEnv
     """
+
     def thunk():
         if capture_video and idx == 0:
             env = utils.make_gym_env(kwargs, run_name=run_name)
@@ -62,17 +66,22 @@ def make_env(kwargs, idx=1, capture_video=False, run_name=None):
         env = wrappers.NormalizeObservation(env)
         env = wrappers.NormalizeReward(env)
         return env
+
     return thunk
+
 
 def make_env_pass(env):
     """
     Environment construction for SyncVectorEnv when we already have the environment
     """
+
     def thunk():
         return env
+
     return thunk
 
-def setup(kwargs, args, run_name): 
+
+def setup(kwargs, args, run_name):
 
     if kwargs.track:
         import wandb
@@ -106,12 +115,13 @@ def setup(kwargs, args, run_name):
 
     return writer, device, envs
 
+
 def eval_policy(policy, eval_env, kwargs, device, eval_episodes=5):
     """
     Evaluate a policy. Don't perform domain randomization (ie evaluate performance on the base environment)
     And don't perform limited weather resets (ie evaluate performance on the full weather data)
     """
-    avg_reward = 0.
+    avg_reward = 0.0
 
     if isinstance(eval_env, gym.vector.SyncVectorEnv):
         env_constr = type(eval_env.envs[0].unwrapped)
@@ -142,14 +152,25 @@ def eval_policy(policy, eval_env, kwargs, device, eval_episodes=5):
     new_args.random_reset = True
     new_args.train_reset = False
     new_args.domain_rand = False
-    env = env_constr(new_args, base_fpath, agro_fpath, site_fpath, crop_fpath, name_fpath, unit_fpath, range_fpath, render_mode, config)
-    
+    env = env_constr(
+        new_args,
+        base_fpath,
+        agro_fpath,
+        site_fpath,
+        crop_fpath,
+        name_fpath,
+        unit_fpath,
+        range_fpath,
+        render_mode,
+        config,
+    )
+
     env = utils.wrap_env_reward(env, kwargs)
     env = wrappers.NormalizeObservation(env)
     env = wrappers.NormalizeReward(env)
-    
+
     for i in range(eval_episodes):
-        
+
         state, _, term, trunc = *env.reset(), False, False
         while not (term or trunc):
             if isinstance(state, np.ndarray):
@@ -159,19 +180,20 @@ def eval_policy(policy, eval_env, kwargs, device, eval_episodes=5):
 
             if isinstance(eval_env, gym.vector.SyncVectorEnv):
                 avg_reward += eval_env.envs[0].unnormalize(reward)
-            else: 
+            else:
                 avg_reward += eval_env.unnormalize(reward)
-    
+
     avg_reward /= eval_episodes
     return avg_reward
 
+
 def eval_policy_lstm(policy, eval_env, kwargs, device, eval_episodes=5):
     """
-    Evaluate a policy with an LSTM agent for Recurrent-PPO. Don't perform domain randomization 
+    Evaluate a policy with an LSTM agent for Recurrent-PPO. Don't perform domain randomization
     (ie evaluate performance on the base environment)
     And don't perform limited weather resets (ie evaluate performance on the full weather data)
     """
-    avg_reward = 0.
+    avg_reward = 0.0
 
     assert hasattr(policy, "lstm"), "Calling `eval_policy_lstm` with a policy that does not have a LSTM!"
 
@@ -204,19 +226,30 @@ def eval_policy_lstm(policy, eval_env, kwargs, device, eval_episodes=5):
     new_args.random_reset = True
     new_args.train_reset = False
     new_args.domain_rand = False
-    env = env_constr(new_args, base_fpath, agro_fpath, site_fpath, crop_fpath, name_fpath, unit_fpath, range_fpath, render_mode, config)
-    
+    env = env_constr(
+        new_args,
+        base_fpath,
+        agro_fpath,
+        site_fpath,
+        crop_fpath,
+        name_fpath,
+        unit_fpath,
+        range_fpath,
+        render_mode,
+        config,
+    )
+
     env = utils.wrap_env_reward(env, kwargs)
     env = wrappers.NormalizeObservation(env)
     env = wrappers.NormalizeReward(env)
-    
+
     for i in range(eval_episodes):
-        
+
         state, _, term, trunc = *env.reset(), False, False
 
         next_lstm_state = (
-        torch.zeros(policy.lstm.num_layers, 1, policy.lstm.hidden_size).to(device),
-        torch.zeros(policy.lstm.num_layers, 1, policy.lstm.hidden_size).to(device),
+            torch.zeros(policy.lstm.num_layers, 1, policy.lstm.hidden_size).to(device),
+            torch.zeros(policy.lstm.num_layers, 1, policy.lstm.hidden_size).to(device),
         )  # hidden and cell states (see https://youtu.be/8HyCNIVRbSU)
 
         while not np.logical_or(term, trunc):
@@ -228,14 +261,14 @@ def eval_policy_lstm(policy, eval_env, kwargs, device, eval_episodes=5):
             state, reward, term, trunc, _ = env.step(action.detach().cpu().numpy())
             if isinstance(eval_env, gym.vector.SyncVectorEnv):
                 avg_reward += eval_env.envs[0].unnormalize(reward)
-            else: 
+            else:
                 avg_reward += eval_env.unnormalize(reward)
 
-    
     avg_reward /= eval_episodes
     return avg_reward
 
-def load_data_to_buffer(env, data_path:str, buffer, remove_keys=True):
+
+def load_data_to_buffer(env, data_path: str, buffer, remove_keys=True):
     """
     Load data from .npz file to buffer
     """
@@ -243,13 +276,15 @@ def load_data_to_buffer(env, data_path:str, buffer, remove_keys=True):
     assert data_path.endswith(".npz"), f"File must end with `.npz` format"
 
     data = np.load(data_path, allow_pickle=True)
-    obs = data['obs']
-    next_obs = data['next_obs']
-    actions = data['actions']
-    rewards = data['rewards']
-    dones = data['dones']
+    obs = data["obs"]
+    next_obs = data["next_obs"]
+    actions = data["actions"]
+    rewards = data["rewards"]
+    dones = data["dones"]
 
-    assert len(obs[0]) == len(buffer.observation_space.sample()), f"Invalid data for configuration! Data observations do not match the observations required for algorithm. Update Environment configuration using `--npk-args.output-vars` and `--npk-args.weather-vars`"
+    assert len(obs[0]) == len(
+        buffer.observation_space.sample()
+    ), f"Invalid data for configuration! Data observations do not match the observations required for algorithm. Update Environment configuration using `--npk-args.output-vars` and `--npk-args.weather-vars`"
 
     if remove_keys:
         for i in range(len(obs)):
@@ -261,25 +296,25 @@ def load_data_to_buffer(env, data_path:str, buffer, remove_keys=True):
         for k in range(len(actions)):
             if isinstance(actions[k], dict):
                 actions[k] = convert_action(env, actions[k])
-        
+
     for i in range(len(obs)):
         buffer.add(obs[i], next_obs[i], actions[i], rewards[i], dones[i], None)
 
     return buffer
 
-def convert_action(env, act: dict):
 
+def convert_action(env, act: dict):
     """
     Converts the dicionary action to an integer to be pased to the base
     environment.
-    
+
     Args:
         action
     """
     if not isinstance(act, dict):
         msg = "Action must be of dictionary type. See README for more information"
         raise Exception(msg)
-    else: 
+    else:
         act_vals = list(act.values())
         for v in act_vals:
             if not isinstance(v, int):
@@ -290,63 +325,70 @@ def convert_action(env, act: dict):
             raise Exception(msg)
         if len(np.nonzero(act_vals)[0]) == 0:
             return np.array([0])
-    
+
     if not "n" in act.keys():
-        msg = "Nitrogen action \'n\' not included in action dictionary keys"
+        msg = "Nitrogen action 'n' not included in action dictionary keys"
         raise Exception(msg)
     if not "p" in act.keys():
-        msg = "Phosphorous action \'p\' not included in action dictionary keys"
+        msg = "Phosphorous action 'p' not included in action dictionary keys"
         raise Exception(msg)
     if not "k" in act.keys():
-        msg = "Potassium action \'k\' not included in action dictionary keys"
+        msg = "Potassium action 'k' not included in action dictionary keys"
         raise Exception(msg)
     if not "irrig" in act.keys():
-        msg = "Irrigation action \'irrig\' not included in action dictionary keys"
+        msg = "Irrigation action 'irrig' not included in action dictionary keys"
         raise Exception(msg)
 
     # Planting Single Year environments
     if isinstance(env.unwrapped, Plant_NPK_Env):
         if not "plant" in act.keys():
-            msg = "\'plant\' not included in action dictionary keys"
+            msg = "'plant' not included in action dictionary keys"
             raise Exception(msg)
         if not "harvest" in act.keys():
-            msg = "\'harvest\' not included in action dictionary keys"
+            msg = "'harvest' not included in action dictionary keys"
             raise Exception(msg)
         if len(act.keys()) != env.unwrapped.NUM_ACT:
             msg = "Incorrect action dictionary specification"
             raise Exception(msg)
-        
-        offsets = [1,1,env.unwrapped.num_fert,env.unwrapped.num_fert,env.unwrapped.num_fert,env.unwrapped.num_irrig]
-        act_values = [act["plant"],act["harvest"],act["n"],act["p"],act["k"],act["irrig"]]
+
+        offsets = [
+            1,
+            1,
+            env.unwrapped.num_fert,
+            env.unwrapped.num_fert,
+            env.unwrapped.num_fert,
+            env.unwrapped.num_irrig,
+        ]
+        act_values = [act["plant"], act["harvest"], act["n"], act["p"], act["k"], act["irrig"]]
         offset_flags = np.zeros(env.unwrapped.NUM_ACT)
-        offset_flags[:np.nonzero(act_values)[0][0]] = 1
+        offset_flags[: np.nonzero(act_values)[0][0]] = 1
 
     elif isinstance(env.unwrapped, Harvest_NPK_Env):
         # Check for harvesting actions
         if not "harvest" in act.keys():
-            msg = "\'harvest\' not included in action dictionary keys"
+            msg = "'harvest' not included in action dictionary keys"
             raise Exception(msg)
         if len(act.keys()) != env.unwrapped.NUM_ACT:
             msg = "Incorrect action dictionary specification"
             raise Exception(msg)
-        
-        # Set the offsets to support converting to the correct action
-        offsets = [1,env.unwrapped.num_fert,env.unwrapped.num_fert,env.unwrapped.num_fert,env.unwrapped.num_irrig]
-        act_values = [act["harvest"],act["n"],act["p"],act["k"],act["irrig"]]
-        offset_flags = np.zeros(env.unwrapped.NUM_ACT)
-        offset_flags[:np.nonzero(act_values)[0][0]] = 1
 
-    else: 
+        # Set the offsets to support converting to the correct action
+        offsets = [1, env.unwrapped.num_fert, env.unwrapped.num_fert, env.unwrapped.num_fert, env.unwrapped.num_irrig]
+        act_values = [act["harvest"], act["n"], act["p"], act["k"], act["irrig"]]
+        offset_flags = np.zeros(env.unwrapped.NUM_ACT)
+        offset_flags[: np.nonzero(act_values)[0][0]] = 1
+
+    else:
         if len(act.keys()) != env.unwrapped.NUM_ACT:
             msg = "Incorrect action dictionary specification"
             raise Exception(msg)
         # Set the offsets to support converting to the correct action
-        offsets = [env.unwrapped.num_fert,env.unwrapped.num_fert,env.unwrapped.num_fert,env.unwrapped.num_irrig]
-        act_values = [act["n"],act["p"],act["k"],act["irrig"]]
+        offsets = [env.unwrapped.num_fert, env.unwrapped.num_fert, env.unwrapped.num_fert, env.unwrapped.num_irrig]
+        act_values = [act["n"], act["p"], act["k"], act["irrig"]]
         offset_flags = np.zeros(env.env.unwrapped.NUM_ACT)
-        offset_flags[:np.nonzero(act_values)[0][0]] = 1
-        
-    return np.array([np.sum(offsets*offset_flags) + act_values[np.nonzero(act_values)[0][0]]])
+        offset_flags[: np.nonzero(act_values)[0][0]] = 1
+
+    return np.array([np.sum(offsets * offset_flags) + act_values[np.nonzero(act_values)[0][0]]])
 
 
 def make_demonstrations(expert, env, min_episodes=50):
@@ -354,10 +396,10 @@ def make_demonstrations(expert, env, min_episodes=50):
     Make demonstrations for IRL algorithms
     """
     rollouts = rollout.rollout(
-    expert,
-    env,
-    rollout.make_sample_until(min_timesteps=None, min_episodes=min_episodes),
-    rng=np.random.default_rng(0),
+        expert,
+        env,
+        rollout.make_sample_until(min_timesteps=None, min_episodes=min_episodes),
+        rng=np.random.default_rng(0),
     )
 
     return rollout.flatten_trajectories(rollouts)

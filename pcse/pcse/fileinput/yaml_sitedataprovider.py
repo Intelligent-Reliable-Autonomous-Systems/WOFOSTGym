@@ -27,6 +27,7 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
     sites which is different from most other site data providers that only can
     hold data for a single site/soil type.
     """
+
     current_site_name = None
     current_site_variation = None
 
@@ -34,13 +35,13 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
     compatible_version = "1.0.0"
 
     def __init__(self, fpath=None, force_reload=False):
-        """Initialize the YAMLSiteDataProivder class by first inheriting from the 
+        """Initialize the YAMLSiteDataProivder class by first inheriting from the
         MultiSiteDataProvider class
         """
         MultiSiteDataProvider.__init__(self)
 
         # either force a reload or load cache fails
-        if force_reload is True or self._load_cache(fpath) is False:  
+        if force_reload is True or self._load_cache(fpath) is False:
             # enforce a clear state
             self.clear()
             self._store.clear()
@@ -49,7 +50,7 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
                 self.read_local_repository(fpath)
 
             else:
-                msg = f"No path or specified where to find YAML site parameter files " 
+                msg = f"No path or specified where to find YAML site parameter files "
                 self.logger.info(msg)
                 exc.PCSEError(msg)
 
@@ -69,8 +70,7 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
             self._add_site(site_name, parameters)
 
     def _get_cache_fname(self, fpath):
-        """Returns the name of the cache file for the SiteDataProvider.
-        """
+        """Returns the name of the cache file for the SiteDataProvider."""
         cache_fname = "%s.pkl" % self.__class__.__name__
         if fpath is None:
             PCSE_USER_HOME = os.path.join(get_working_directory(), ".pcse")
@@ -81,8 +81,7 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
         return cache_fname_fp
 
     def _load_cache(self, fpath):
-        """Loads the cache file if possible and returns True, else False.
-        """
+        """Loads the cache file if possible and returns True, else False."""
         try:
             cache_fname_fp = self._get_cache_fname(fpath)
             if os.path.exists(cache_fname_fp):
@@ -91,7 +90,7 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
                 # This only works for files not for github repos
                 if fpath is not None:
                     yaml_file_names = self._get_yaml_files(fpath)
-                    yaml_file_dates = [os.stat(fn).st_mtime for site,fn in yaml_file_names.items()]
+                    yaml_file_dates = [os.stat(fn).st_mtime for site, fn in yaml_file_names.items()]
                     # retrieve modification date of cache file
                     cache_date = os.stat(cache_fname_fp).st_mtime
                     # Ensure cache file is more recent then any of the YAML files
@@ -121,23 +120,21 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
         :param parameters: The parameter set loaded by YAML
         """
         try:
-            v = parameters['Version']
+            v = parameters["Version"]
             if version_tuple(v) != version_tuple(self.compatible_version):
                 msg = "Version supported by %s is %s, while parameter set version is %s!"
-                raise exc.PCSEError(msg % (self.__class__.__name__, self.compatible_version, parameters['Version']))
+                raise exc.PCSEError(msg % (self.__class__.__name__, self.compatible_version, parameters["Version"]))
         except Exception as e:
             msg = f"Version check failed on site parameter file: {site_fname}"
             raise exc.PCSEError(msg)
 
     def _add_site(self, site_name, parameters):
-        """Store the parameter sets for the different varieties for the given site.
-        """
+        """Store the parameter sets for the different varieties for the given site."""
         variation_sets = parameters["SiteParameters"]["Variations"]
         self._store[site_name] = variation_sets
 
     def _get_yaml_files(self, fpath):
-        """Returns all the files ending on *.yaml in the given path.
-        """
+        """Returns all the files ending on *.yaml in the given path."""
         fname = os.path.join(fpath, "sites.yaml")
         if not os.path.exists(fname):
             msg = "Cannot find 'sites.yaml' at {f}".format(f=fname)
@@ -164,8 +161,11 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
             raise exc.PCSEError(msg)
         variation_sets = self._store[site_name]
         if site_variation not in variation_sets:
-            msg = "Variation name '%s' not available for site '%s' in " \
-                  "%s " % (site_variation, site_name, self.__class__.__name__)
+            msg = "Variation name '%s' not available for site '%s' in " "%s " % (
+                site_variation,
+                site_name,
+                self.__class__.__name__,
+            )
             raise exc.PCSEError(msg)
 
         self.current_site_name = site_name
@@ -193,13 +193,12 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
         return {k: v.keys() for k, v in self._store.items()}
 
     def print_site_variations(self):
-        """Gives a printed list of sites and variations on screen.
-        """
+        """Gives a printed list of sites and variations on screen."""
         msg = ""
         for site, variation in self.get_site_variations().items():
             msg += "site '%s', available varieties:\n" % site
             for var in variation:
-                msg += (" - '%s'\n" % var)
+                msg += " - '%s'\n" % var
         print(msg)
 
     def __str__(self):
@@ -207,13 +206,15 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
             msg = "%s - site and variation not set: no active site parameter set!\n" % self.__class__.__name__
             return msg
         else:
-            msg = "%s - current active site '%s' with variation '%s'\n" % \
-                  (self.__class__.__name__, self.current_site_name, self.current_site_variation)
+            msg = "%s - current active site '%s' with variation '%s'\n" % (
+                self.__class__.__name__,
+                self.current_site_name,
+                self.current_site_variation,
+            )
             msg += "Available site parameters:\n %s" % str(dict.__str__(self))
             return msg
 
     @property
     def logger(self):
-        loggername = "%s.%s" % (self.__class__.__module__,
-                                self.__class__.__name__)
+        loggername = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         return logging.getLogger(loggername)

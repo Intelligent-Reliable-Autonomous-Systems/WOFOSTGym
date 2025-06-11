@@ -258,7 +258,9 @@ class VecNormalize(VecEnvWrapper):
         # This cast is needed because `RunningMeanStd` keeps stats in float64
         return reward.astype(np.float32)
 
-    def unnormalize_obs(self, obs: Union[np.ndarray, dict[str, np.ndarray]]) -> Union[np.ndarray, dict[str, np.ndarray]]:
+    def unnormalize_obs(
+        self, obs: Union[np.ndarray, dict[str, np.ndarray]]
+    ) -> Union[np.ndarray, dict[str, np.ndarray]]:
         # Avoid modifying by reference the original object
         obs_ = deepcopy(obs)
         if self.norm_obs:

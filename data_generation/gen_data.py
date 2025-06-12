@@ -21,7 +21,7 @@ from typing import Optional
 
 import utils
 import pcse_gym.policies as policies
-from rl_algs.rl_utils import make_env
+from rl_algs.rl_utils import make_env, Agent
 
 
 @dataclass
@@ -102,7 +102,7 @@ def csv(env, args, pol):
     return df
 
 
-def npz(env, args, pol):
+def npz(env: gym.Env, args: DataArgs, pol: Agent) -> None:
     """
     Generate data and save in .npz format from environments
     """

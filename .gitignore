@@ -1,3 +1,6 @@
 *.DS_Store
 *__pycache__/
 *output/
+data_plotting/vis_data_paper.py
+bash_scripts/
+experiments/

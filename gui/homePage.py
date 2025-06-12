@@ -1,6 +1,7 @@
 import sys
 from envPage import EnvironmentPage
 from notif import Notif
+from genDataPage import ViewDataPage
 
 from PySide6.QtWidgets import (
     QApplication, QWidget, QPushButton, QLineEdit,
@@ -105,7 +106,19 @@ class HomePage(QWidget):
     #        FUNCTIONS
     # *************************
     def nav_gen_data(self):
-        pass
+        if not self.save_folder_loc_input_box.text() or not self.data_file_name_input_box.text():
+            self.notif = Notif("Please fill in all fields.")
+            self.notif.show()
+            return
+        
+        file_selections = {
+            "save_folder": "sim_runs/" + self.save_folder_loc_input_box.text(),
+            "data_file": self.data_file_name_input_box.text(),
+        }
+
+        self.gen_data_page = ViewDataPage(pages=self.pages, file_selections=file_selections)
+        self.gen_data_page.show()
+        self.hide()
 
     def run_process(self):
         if not self.save_folder_loc_input_box.text() or not self.data_file_name_input_box.text():

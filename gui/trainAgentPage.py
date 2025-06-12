@@ -2,7 +2,6 @@ import os
 import webbrowser
 import subprocess
 from notif import Notif
-from viewLogsPage import ViewLogsPage
 
 from PySide6.QtWidgets import (
     QWidget, QPushButton, QProgressBar,
@@ -196,9 +195,6 @@ class TrainAgentPage(QWidget):
         train_button = QPushButton("Start Training")
         train_button.clicked.connect(self.start_training)
 
-        view_logs_button = QPushButton("View Logs")
-        view_logs_button.clicked.connect(self.view_logs)
-
         # *************************
         #       MAIN LAYOUT
         # *************************
@@ -214,7 +210,6 @@ class TrainAgentPage(QWidget):
         layout.addWidget(self.header_label)
         layout.addWidget(types)
         layout.addWidget(train_button)
-        layout.addWidget(view_logs_button)
         self.setLayout(layout)
 
         # *************************
@@ -236,17 +231,6 @@ class TrainAgentPage(QWidget):
                                           agent_type=self.types_dropdown.currentText())
         self.training_page.show()
         self.close()
-
-    def view_logs(self):
-        if not os.path.isdir(self.file_selections["save_folder"]):
-            print("-WOFOST- No training logs found in: " + self.file_selections["save_folder"])
-            self.notif = Notif("No training logs found in given save folder.")
-            self.notif.show()
-            return
-
-        self.view_logs_page = ViewLogsPage(pages=self.pages, file_selections=self.file_selections)
-        self.view_logs_page.show()
-        self.hide()
 
     # ===== NAVIGATION =====
     def go_back(self):

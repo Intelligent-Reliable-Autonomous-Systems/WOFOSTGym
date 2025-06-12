@@ -4,6 +4,7 @@ Code to train Behavior Cloning Agent
 Written by Will Solow, 2025
 """
 
+from argparse import Namespace
 import numpy as np
 import torch.nn as nn
 import torch
@@ -14,7 +15,7 @@ from dataclasses import dataclass
 import time
 import utils
 
-from .rl_utils import RL_Args, setup, make_demonstrations
+from rl_algs.rl_utils import RL_Args, setup, make_demonstrations
 
 
 @dataclass
@@ -44,7 +45,7 @@ class Args(RL_Args):
 
 class BC(nn.Module):
 
-    def __init__(self, envs, state_fpath: str = None, **kwargs):
+    def __init__(self, envs, state_fpath: str = None, **kwargs: dict) -> None:
         super().__init__()
         self.env = envs
 
@@ -74,7 +75,7 @@ class BC(nn.Module):
         log_rollouts_n_episodes: int,
         progress_bar: bool,
         reset_tensorboard: bool,
-    ):
+    ) -> None:
         """
         Train the agent
         """
@@ -88,7 +89,7 @@ class BC(nn.Module):
         )
         self.policy = self.bc_trainer.policy
 
-    def get_action(self, x):
+    def get_action(self, x: np.ndarray | torch.Tensor) -> torch.Tensor:
         """
         Helper function to get action for compatibility with generating data
         """
@@ -97,7 +98,7 @@ class BC(nn.Module):
         return self.policy(x)[0]
 
 
-def train(kwargs):
+def train(kwargs: Namespace) -> None:
     """
     BC Trainer function
     """

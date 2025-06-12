@@ -13,11 +13,11 @@ Modified by Will Solow, 2024
 
 from datetime import date
 
-from ...utils.traitlets import Float
-from ...util import limit, AfgenTrait
-from ...base import ParamTemplate, SimulationObject, RatesTemplate, VariableKiosk
-from ...utils.decorators import prepare_rates
-from ...nasapower import WeatherDataProvider
+from pcse.utils.traitlets import Float
+from pcse.util import limit, AfgenTrait
+from pcse.base import ParamTemplate, SimulationObject, RatesTemplate, VariableKiosk
+from pcse.utils.decorators import prepare_rates
+from pcse.nasapower import WeatherDataContainer
 
 
 class NPK_Stress(SimulationObject):
@@ -154,7 +154,7 @@ class NPK_Stress(SimulationObject):
         NPKI = Float()
         RFNPK = Float()
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: current date
         :param kiosk: variable kiosk of this PCSE instance
@@ -166,7 +166,7 @@ class NPK_Stress(SimulationObject):
         self.rates = self.RateVariables(kiosk, publish=["NNI", "PNI", "KNI", "NPKI", "RFNPK"])
 
     @prepare_rates
-    def __call__(self, day: date, drv: WeatherDataProvider):
+    def __call__(self, day: date, drv: WeatherDataContainer) -> tuple[float, float, float]:
         """
         :param day: the current date
         :param drv: the driving variables
@@ -250,7 +250,7 @@ class NPK_Stress(SimulationObject):
 
         return r.NNI, r.NPKI, r.RFNPK
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset states and rates"""
         r = self.rates
 

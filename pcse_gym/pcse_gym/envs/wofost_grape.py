@@ -49,7 +49,7 @@ class Grape_Limited_NPKW_Env(NPK_Env, LNPKW):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`Limited_NPKW_Env`.
 
         Args:
@@ -72,7 +72,7 @@ class Grape_Limited_NPKW_Env(NPK_Env, LNPKW):
 
         self.action_space = gym.spaces.Discrete(1 + 3 * self.num_fert + self.num_irrig)
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
         Converts the integer action to a signal and amount of NPK/Water to be applied.
 
@@ -128,7 +128,7 @@ class Grape_PP_Env(NPK_Env, PP):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`PP_Env`.
 
         Args:
@@ -151,7 +151,7 @@ class Grape_PP_Env(NPK_Env, PP):
 
         self.action_space = gym.spaces.Discrete(1)
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
         Converts the integer action to a signal and amount of NPK/Water to be applied.
 
@@ -180,7 +180,7 @@ class Grape_Limited_NPK_Env(NPK_Env, LNPK):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`Limited_NPK_Env`.
 
         Args:
@@ -203,7 +203,7 @@ class Grape_Limited_NPK_Env(NPK_Env, LNPK):
 
         self.action_space = gym.spaces.Discrete(1 + 3 * self.num_fert)
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
         Converts the integer action to a signal and amount of NPK/Water to be applied.
 
@@ -249,7 +249,7 @@ class Grape_Limited_N_Env(NPK_Env, LN):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`Limited_N_Env`.
 
         Args:
@@ -272,7 +272,7 @@ class Grape_Limited_N_Env(NPK_Env, LN):
 
         self.action_space = gym.spaces.Discrete(1 + self.num_fert)
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
         Converts the integer action to a signal and amount of NPK/Water to be applied.
 
@@ -310,7 +310,7 @@ class Grape_Limited_NW_Env(NPK_Env, LNW):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`Limited_NW_Env`.
 
         Args:
@@ -333,7 +333,7 @@ class Grape_Limited_NW_Env(NPK_Env, LNW):
 
         self.action_space = gym.spaces.Discrete(1 + self.num_fert + self.num_irrig)
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
         Converts the integer action to a signal and amount of NPK/Water to be applied.
 
@@ -379,7 +379,7 @@ class Grape_Limited_W_Env(NPK_Env, LW):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`Limited_W_Env`.
 
         Args:
@@ -402,7 +402,7 @@ class Grape_Limited_W_Env(NPK_Env, LW):
 
         self.action_space = gym.spaces.Discrete(1 + self.num_irrig)
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
         Converts the integer action to a signal and amount of NPK/Water to be applied.
 
@@ -440,7 +440,7 @@ class Grape_Limited_Layered_NPKW_Env(NPK_Env, LNPKW):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`Limited_NPKW_Env`.
 
         Args:
@@ -463,7 +463,7 @@ class Grape_Limited_Layered_NPKW_Env(NPK_Env, LNPKW):
 
         self.action_space = gym.spaces.Discrete(1 + 3 * self.num_fert + self.num_irrig)
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
         Converts the integer action to a signal and amount of NPK/Water to be applied.
 
@@ -519,7 +519,7 @@ class Grape_Layered_PP_Env(NPK_Env, PP):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`PP_Env`.
 
         Args:
@@ -542,7 +542,7 @@ class Grape_Layered_PP_Env(NPK_Env, PP):
 
         self.action_space = gym.spaces.Discrete(1)
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
         Converts the integer action to a signal and amount of NPK/Water to be applied.
 
@@ -571,7 +571,7 @@ class Grape_Limited_Layered_NPK_Env(NPK_Env, LNPK):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`Limited_NPK_Env`.
 
         Args:
@@ -594,7 +594,7 @@ class Grape_Limited_Layered_NPK_Env(NPK_Env, LNPK):
 
         self.action_space = gym.spaces.Discrete(1 + 3 * self.num_fert)
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
         Converts the integer action to a signal and amount of NPK/Water to be applied.
 
@@ -640,7 +640,7 @@ class Grape_Limited_Layered_N_Env(NPK_Env, LN):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`Limited_N_Env`.
 
         Args:
@@ -663,7 +663,7 @@ class Grape_Limited_Layered_N_Env(NPK_Env, LN):
 
         self.action_space = gym.spaces.Discrete(1 + self.num_fert)
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
         Converts the integer action to a signal and amount of NPK/Water to be applied.
 
@@ -701,7 +701,7 @@ class Grape_Limited_Layered_NW_Env(NPK_Env, LNW):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`Limited_NW_Env`.
 
         Args:
@@ -724,7 +724,7 @@ class Grape_Limited_Layered_NW_Env(NPK_Env, LNW):
 
         self.action_space = gym.spaces.Discrete(1 + self.num_fert + self.num_irrig)
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
         Converts the integer action to a signal and amount of NPK/Water to be applied.
 
@@ -770,7 +770,7 @@ class Grape_Limited_Layered_W_Env(NPK_Env, LW):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`Limited_W_Env`.
 
         Args:
@@ -793,7 +793,7 @@ class Grape_Limited_Layered_W_Env(NPK_Env, LW):
 
         self.action_space = gym.spaces.Discrete(1 + self.num_irrig)
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
         Converts the integer action to a signal and amount of NPK/Water to be applied.
 

@@ -9,9 +9,9 @@ import os
 import pickle
 import yaml
 
-from ..base import MultiSiteDataProvider
-from .. import exceptions as exc
-from ..util import version_tuple, get_working_directory
+from pcse.base import MultiSiteDataProvider
+from pcse.utils import exceptions as exc
+from pcse.util import version_tuple, get_working_directory
 
 
 class YAMLSiteDataProvider(MultiSiteDataProvider):
@@ -34,7 +34,7 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
     # Compatibility of data provider with YAML parameter file version
     compatible_version = "1.0.0"
 
-    def __init__(self, fpath=None, force_reload=False):
+    def __init__(self, fpath: str = None, force_reload: bool = False) -> None:
         """Initialize the YAMLSiteDataProivder class by first inheriting from the
         MultiSiteDataProvider class
         """
@@ -57,7 +57,7 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
             with open(self._get_cache_fname(fpath), "wb") as fp:
                 pickle.dump((self.compatible_version, self._store), fp, pickle.HIGHEST_PROTOCOL)
 
-    def read_local_repository(self, fpath):
+    def read_local_repository(self, fpath: str) -> None:
         """Reads the site YAML files on the local file system
 
         :param fpath: the location of the YAML files on the filesystem
@@ -69,7 +69,7 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
             self._check_version(parameters, site_fname=yaml_fname)
             self._add_site(site_name, parameters)
 
-    def _get_cache_fname(self, fpath):
+    def _get_cache_fname(self, fpath: str) -> str:
         """Returns the name of the cache file for the SiteDataProvider."""
         cache_fname = "%s.pkl" % self.__class__.__name__
         if fpath is None:
@@ -80,7 +80,7 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
             cache_fname_fp = os.path.join(fpath, cache_fname)
         return cache_fname_fp
 
-    def _load_cache(self, fpath):
+    def _load_cache(self, fpath: str) -> bool:
         """Loads the cache file if possible and returns True, else False."""
         try:
             cache_fname_fp = self._get_cache_fname(fpath)
@@ -112,7 +112,7 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
 
         return False
 
-    def _check_version(self, parameters, site_fname):
+    def _check_version(self, parameters: dict, site_fname: str) -> None:
         """Checks the version of the parameter input with the version supported by this data provider.
 
         Raises an exception if the parameter set is incompatible.
@@ -128,12 +128,12 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
             msg = f"Version check failed on site parameter file: {site_fname}"
             raise exc.PCSEError(msg)
 
-    def _add_site(self, site_name, parameters):
+    def _add_site(self, site_name: str, parameters: dict) -> None:
         """Store the parameter sets for the different varieties for the given site."""
         variation_sets = parameters["SiteParameters"]["Variations"]
         self._store[site_name] = variation_sets
 
-    def _get_yaml_files(self, fpath):
+    def _get_yaml_files(self, fpath: str) -> list[str]:
         """Returns all the files ending on *.yaml in the given path."""
         fname = os.path.join(fpath, "sites.yaml")
         if not os.path.exists(fname):
@@ -147,7 +147,7 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
                 raise RuntimeError(msg)
         return site_yaml_fnames
 
-    def set_active_site(self, site_name, site_variation):
+    def set_active_site(self, site_name: str, site_variation: str) -> None:
         """Sets the parameters in the internal dict for given site_name and site_variation
 
         It first clears the active set of site/soil parameters in the internal dict.
@@ -176,7 +176,7 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
         # update internal dict with parameter values for this variety
         self.update(parameters)
 
-    def get_default_data(self, site_name, site_variation):
+    def get_default_data(self, site_name: str, site_variation: str) -> dict:
         """
         Gets the default site set by the agromanagement file
         """
@@ -184,7 +184,7 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
 
         return {k: v[0] for k, v in variation_sets[site_variation].items() if k != "Metadata"}
 
-    def get_site_variations(self):
+    def get_site_variations(self) -> dict[str, str]:
         """Return the names of available sites and variations per site.
 
         :return: a dict of type {'site_name1': ['site_variation1', 'site_variation1', ...],
@@ -192,7 +192,7 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
         """
         return {k: v.keys() for k, v in self._store.items()}
 
-    def print_site_variations(self):
+    def print_site_variations(self) -> None:
         """Gives a printed list of sites and variations on screen."""
         msg = ""
         for site, variation in self.get_site_variations().items():
@@ -201,7 +201,7 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
                 msg += " - '%s'\n" % var
         print(msg)
 
-    def __str__(self):
+    def __str__(self) -> str:
         if not self:
             msg = "%s - site and variation not set: no active site parameter set!\n" % self.__class__.__name__
             return msg
@@ -215,6 +215,6 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
             return msg
 
     @property
-    def logger(self):
+    def logger(self) -> logging.Logger:
         loggername = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         return logging.getLogger(loggername)

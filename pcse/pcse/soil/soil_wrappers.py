@@ -6,19 +6,19 @@ Modified by Will Solow, 2024
 
 from datetime import date
 
-from ..utils.traitlets import Instance
-from ..nasapower import WeatherDataProvider
-from ..base import SimulationObject, VariableKiosk
+from pcse.utils.traitlets import Instance
+from pcse.nasapower import WeatherDataContainer
+from pcse.base import SimulationObject, VariableKiosk
 
-from .classic_waterbalance import WaterbalanceFD
-from .classic_waterbalance import WaterbalancePP
+from pcse.soil.classic_waterbalance import WaterbalanceFD
+from pcse.soil.classic_waterbalance import WaterbalancePP
 
-from .multilayer_waterbalance import WaterBalanceLayered
-from .multilayer_waterbalance import WaterBalanceLayered_PP
+from pcse.soil.multilayer_waterbalance import WaterBalanceLayered
+from pcse.soil.multilayer_waterbalance import WaterBalanceLayered_PP
 
-from .npk_soil_dynamics import NPK_Soil_Dynamics
-from .npk_soil_dynamics import NPK_Soil_Dynamics_PP
-from .npk_soil_dynamics import NPK_Soil_Dynamics_LN
+from pcse.soil.npk_soil_dynamics import NPK_Soil_Dynamics
+from pcse.soil.npk_soil_dynamics import NPK_Soil_Dynamics_PP
+from pcse.soil.npk_soil_dynamics import NPK_Soil_Dynamics_LN
 
 
 class BaseSoilModuleWrapper(SimulationObject):
@@ -27,16 +27,16 @@ class BaseSoilModuleWrapper(SimulationObject):
     WaterbalanceFD = Instance(SimulationObject)
     NPK_Soil_Dynamics = Instance(SimulationObject)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         msg = "`initialize` method not yet implemented on %s" % self.__class__.__name__
         raise NotImplementedError(msg)
 
-    def calc_rates(self, day: date, drv: WeatherDataProvider):
+    def calc_rates(self, day: date, drv: WeatherDataContainer) -> None:
         """Calculate state rates"""
         self.WaterbalanceFD.calc_rates(day, drv)
         self.NPK_Soil_Dynamics.calc_rates(day, drv)
 
-    def integrate(self, day: date, delt: float = 1.0):
+    def integrate(self, day: date, delt: float = 1.0) -> None:
         """Integrate state rates"""
         self.WaterbalanceFD.integrate(day, delt)
         self.NPK_Soil_Dynamics.integrate(day, delt)
@@ -47,7 +47,7 @@ class SoilModuleWrapper_LNPKW(BaseSoilModuleWrapper):
     for production conditions limited by both soil water and NPK.
     """
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -65,7 +65,7 @@ class SoilModuleWrapper_PP(BaseSoilModuleWrapper):
     WaterbalanceFD = Instance(SimulationObject)
     NPK_Soil_Dynamics = Instance(SimulationObject)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -83,7 +83,7 @@ class SoilModuleWrapper_LW(BaseSoilModuleWrapper):
     WaterbalanceFD = Instance(SimulationObject)
     NPK_Soil_Dynamics = Instance(SimulationObject)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -102,7 +102,7 @@ class SoilModuleWrapper_LNW(BaseSoilModuleWrapper):
     WaterbalanceFD = Instance(SimulationObject)
     NPK_Soil_Dynamics = Instance(SimulationObject)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -120,7 +120,7 @@ class SoilModuleWrapper_LNPK(BaseSoilModuleWrapper):
     WaterbalanceFD = Instance(SimulationObject)
     NPK_Soil_Dynamics = Instance(SimulationObject)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -139,7 +139,7 @@ class SoilModuleWrapper_LN(BaseSoilModuleWrapper):
     WaterbalanceFD = Instance(SimulationObject)
     NPK_Soil_Dynamics = Instance(SimulationObject)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -154,7 +154,7 @@ class LayeredSoilModuleWrapper_LNPKW(BaseSoilModuleWrapper):
     for production conditions limited by both soil water and NPK.
     """
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -172,7 +172,7 @@ class LayeredSoilModuleWrapper_PP(BaseSoilModuleWrapper):
     WaterbalanceFD = Instance(SimulationObject)
     NPK_Soil_Dynamics = Instance(SimulationObject)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -190,7 +190,7 @@ class LayeredSoilModuleWrapper_LW(BaseSoilModuleWrapper):
     WaterbalanceFD = Instance(SimulationObject)
     NPK_Soil_Dynamics = Instance(SimulationObject)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -209,7 +209,7 @@ class LayeredSoilModuleWrapper_LNW(BaseSoilModuleWrapper):
     WaterbalanceFD = Instance(SimulationObject)
     NPK_Soil_Dynamics = Instance(SimulationObject)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -227,7 +227,7 @@ class LayeredSoilModuleWrapper_LNPK(BaseSoilModuleWrapper):
     WaterbalanceFD = Instance(SimulationObject)
     NPK_Soil_Dynamics = Instance(SimulationObject)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -246,7 +246,7 @@ class LayeredSoilModuleWrapper_LN(BaseSoilModuleWrapper):
     WaterbalanceFD = Instance(SimulationObject)
     NPK_Soil_Dynamics = Instance(SimulationObject)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance

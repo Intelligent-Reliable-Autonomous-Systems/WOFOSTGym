@@ -6,11 +6,11 @@ Modified by Will Solow, 2024
 
 from datetime import date
 
-from ..nasapower import WeatherDataProvider
-from ..utils.traitlets import Float
-from ..utils.decorators import prepare_rates, prepare_states
-from ..util import AfgenTrait
-from ..base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject, VariableKiosk
+from pcse.nasapower import WeatherDataContainer
+from pcse.utils.traitlets import Float
+from pcse.utils.decorators import prepare_rates, prepare_states
+from pcse.util import AfgenTrait
+from pcse.base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject, VariableKiosk
 
 
 class Base_WOFOST_Stem_Dynamics(SimulationObject):
@@ -93,7 +93,7 @@ class Base_WOFOST_Stem_Dynamics(SimulationObject):
         DRST = Float(-99.0)
         GWST = Float(-99.0)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE  instance
@@ -105,7 +105,7 @@ class Base_WOFOST_Stem_Dynamics(SimulationObject):
         raise NotImplementedError(msg)
 
     @prepare_rates
-    def calc_rates(self, day: date, drv: WeatherDataProvider):
+    def calc_rates(self, day: date, drv: WeatherDataContainer) -> None:
         """Compute state rates before integration"""
         rates = self.rates
         states = self.states
@@ -121,7 +121,7 @@ class Base_WOFOST_Stem_Dynamics(SimulationObject):
         rates.GWST = rates.GRST - rates.DRST
 
     @prepare_states
-    def integrate(self, day: date, delt: float = 1.0):
+    def integrate(self, day: date, delt: float = 1.0) -> None:
         """Integrate state rates"""
         params = self.params
         rates = self.rates
@@ -136,7 +136,8 @@ class Base_WOFOST_Stem_Dynamics(SimulationObject):
         DVS = self.kiosk["DVS"]
         states.SAI = states.WST * params.SSATB(DVS)
 
-    def publish_states(self):
+    def publish_states(self) -> None:
+        """Helper function to get VariableKiosk to see states"""
         params = self.params
         rates = self.rates
         states = self.states
@@ -150,7 +151,7 @@ class Base_WOFOST_Stem_Dynamics(SimulationObject):
         DVS = self.kiosk["DVS"]
         states.SAI = states.WST * params.SSATB(DVS)
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset states and rates"""
         # INITIAL STATES
         params = self.params
@@ -177,7 +178,7 @@ class Base_WOFOST_Stem_Dynamics(SimulationObject):
 class Annual_WOFOST_Stem_Dynamics(Base_WOFOST_Stem_Dynamics):
     """Class for Stem Dynamics of annual crops"""
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE  instance
@@ -214,7 +215,7 @@ class Perennial_WOFOST_Stem_Dynamics(Base_WOFOST_Stem_Dynamics):
         SSATB = AfgenTrait()
         TDWI = AfgenTrait()
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE  instance
@@ -244,7 +245,7 @@ class Perennial_WOFOST_Stem_Dynamics(Base_WOFOST_Stem_Dynamics):
         )
         self.rates = self.RateVariables(kiosk, publish=["GRST", "DRST", "GWST"])
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset states and rates"""
         # INITIAL STATES
         params = self.params

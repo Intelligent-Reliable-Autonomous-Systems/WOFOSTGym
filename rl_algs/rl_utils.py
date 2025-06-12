@@ -5,6 +5,7 @@ Written by Will Solow, 2025
 """
 
 import sys
+from argparse import Namespace
 from pathlib import Path
 import gymnasium as gym
 import numpy as np
@@ -18,6 +19,7 @@ import torch, random
 from pcse_gym import wrappers
 import copy
 from imitation.data import rollout
+from stable_baselines3.common.buffers import ReplayBuffer
 
 sys.path.append(str(Path(__file__).parent.parent))
 import utils
@@ -47,11 +49,11 @@ class Agent(ABC):
     """
 
     @abstractmethod
-    def get_action(self, obs):
-        pass
+    def get_action(self, obs: torch.Tensor) -> torch.Tensor:
+        raise NotImplementedError
 
 
-def make_env(kwargs, idx=1, capture_video=False, run_name=None):
+def make_env(kwargs: Namespace, idx: int = 1, capture_video: bool = False, run_name: str = None) -> function:
     """
     Environment constructor for SyncVectorEnv
     """
@@ -70,7 +72,7 @@ def make_env(kwargs, idx=1, capture_video=False, run_name=None):
     return thunk
 
 
-def make_env_pass(env):
+def make_env_pass(env: gym.Env) -> function:
     """
     Environment construction for SyncVectorEnv when we already have the environment
     """
@@ -81,7 +83,7 @@ def make_env_pass(env):
     return thunk
 
 
-def setup(kwargs, args, run_name):
+def setup(kwargs: Namespace, args: Namespace, run_name: str) -> tuple[SummaryWriter, torch.device, gym.Env]:
 
     if kwargs.track:
         import wandb
@@ -116,7 +118,9 @@ def setup(kwargs, args, run_name):
     return writer, device, envs
 
 
-def eval_policy(policy, eval_env, kwargs, device, eval_episodes=5):
+def eval_policy(
+    policy: Agent, eval_env: gym.Env, kwargs: Namespace, device: torch.device, eval_episodes: int = 5
+) -> float:
     """
     Evaluate a policy. Don't perform domain randomization (ie evaluate performance on the base environment)
     And don't perform limited weather resets (ie evaluate performance on the full weather data)
@@ -187,7 +191,9 @@ def eval_policy(policy, eval_env, kwargs, device, eval_episodes=5):
     return avg_reward
 
 
-def eval_policy_lstm(policy, eval_env, kwargs, device, eval_episodes=5):
+def eval_policy_lstm(
+    policy: Agent, eval_env: gym.Env, kwargs: Namespace, device: torch.device, eval_episodes: int = 5
+) -> float:
     """
     Evaluate a policy with an LSTM agent for Recurrent-PPO. Don't perform domain randomization
     (ie evaluate performance on the base environment)
@@ -268,7 +274,7 @@ def eval_policy_lstm(policy, eval_env, kwargs, device, eval_episodes=5):
     return avg_reward
 
 
-def load_data_to_buffer(env, data_path: str, buffer, remove_keys=True):
+def load_data_to_buffer(env: gym.Env, data_path: str, buffer: ReplayBuffer, remove_keys: bool = True) -> ReplayBuffer:
     """
     Load data from .npz file to buffer
     """
@@ -303,7 +309,7 @@ def load_data_to_buffer(env, data_path: str, buffer, remove_keys=True):
     return buffer
 
 
-def convert_action(env, act: dict):
+def convert_action(env: gym.Env, act: dict) -> int:
     """
     Converts the dicionary action to an integer to be pased to the base
     environment.
@@ -391,7 +397,7 @@ def convert_action(env, act: dict):
     return np.array([np.sum(offsets * offset_flags) + act_values[np.nonzero(act_values)[0][0]]])
 
 
-def make_demonstrations(expert, env, min_episodes=50):
+def make_demonstrations(expert: Agent, env: gym.Env, min_episodes: int = 50) -> list:
     """
     Make demonstrations for IRL algorithms
     """

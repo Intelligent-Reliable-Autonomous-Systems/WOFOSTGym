@@ -8,13 +8,13 @@ Modified by Will Solow, 2024
 
 from datetime import date
 
-from ..util import AfgenTrait
-from ..utils.traitlets import Float
-from ..utils.decorators import prepare_rates, prepare_states
-from ..base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject
-from ..utils import signals
-from ..base import VariableKiosk
-from ..nasapower import WeatherDataProvider
+from pcse.util import AfgenTrait
+from pcse.utils.traitlets import Float
+from pcse.utils.decorators import prepare_rates, prepare_states
+from pcse.base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject
+from pcse.utils import signals
+from pcse.base import VariableKiosk
+from pcse.nasapower import WeatherDataContainer
 
 
 class NPK_Soil_Dynamics(SimulationObject):
@@ -248,7 +248,7 @@ class NPK_Soil_Dynamics(SimulationObject):
         RPSUBSOIL = Float(-99.0)
         RKSUBSOIL = Float(-99.0)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -324,7 +324,7 @@ class NPK_Soil_Dynamics(SimulationObject):
         self._connect_signal(self._on_APPLY_NPK, signals.apply_npk)
 
     @prepare_rates
-    def calc_rates(self, day: date, drv: WeatherDataProvider):
+    def calc_rates(self, day: date, drv: WeatherDataContainer) -> None:
         """Compute Rates for model"""
         r = self.rates
         s = self.states
@@ -365,7 +365,7 @@ class NPK_Soil_Dynamics(SimulationObject):
         r.RKAVAIL = r.RKSUBSOIL + p.BG_K_SUPPLY - RKUPTAKE - r.RKSOIL
 
     @prepare_states
-    def integrate(self, day: date, delt: float = 1.0):
+    def integrate(self, day: date, delt: float = 1.0) -> None:
         """Integrate states with rates"""
         rates = self.rates
         states = self.states
@@ -404,7 +404,7 @@ class NPK_Soil_Dynamics(SimulationObject):
         N_recovery: float = None,
         P_recovery: float = None,
         K_recovery: float = None,
-    ):
+    ) -> None:
         """Apply NPK based on amounts and update relevant parameters"""
         if N_amount is not None:
             self._FERT_N_SUPPLY = N_amount * N_recovery
@@ -423,7 +423,7 @@ class NPK_Soil_Dynamics_PP(NPK_Soil_Dynamics):
 
     """
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -433,7 +433,7 @@ class NPK_Soil_Dynamics_PP(NPK_Soil_Dynamics):
         super().initialize(day, kiosk, parvalues)
 
     @prepare_states
-    def integrate(self, day: date, delt: float = 1.0):
+    def integrate(self, day: date, delt: float = 1.0) -> None:
         """Integrate rates into states"""
         rates = self.rates
         states = self.states
@@ -460,7 +460,7 @@ class NPK_Soil_Dynamics_LN(NPK_Soil_Dynamics):
     has limited N.
     """
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -470,7 +470,7 @@ class NPK_Soil_Dynamics_LN(NPK_Soil_Dynamics):
         super().initialize(day, kiosk, parvalues)
 
     @prepare_states
-    def integrate(self, day: date, delt: float = 1.0):
+    def integrate(self, day: date, delt: float = 1.0) -> None:
         """Integrate rates"""
         rates = self.rates
         states = self.states

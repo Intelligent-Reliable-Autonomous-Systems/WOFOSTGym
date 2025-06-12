@@ -7,11 +7,11 @@ Modified by Will Solow, 2024
 from datetime import date
 from collections import namedtuple
 
-from ...base import ParamTemplate, SimulationObject, RatesTemplate, VariableKiosk
-from ...utils.decorators import prepare_rates, prepare_states
-from ...utils.traitlets import Float
-from ...util import AfgenTrait
-from ...nasapower import WeatherDataProvider
+from pcse.base import ParamTemplate, SimulationObject, RatesTemplate, VariableKiosk
+from pcse.utils.decorators import prepare_rates, prepare_states
+from pcse.utils.traitlets import Float
+from pcse.util import AfgenTrait
+from pcse.nasapower import WeatherDataContainer
 
 MaxNutrientConcentrations = namedtuple(
     "MaxNutrientConcentrations",
@@ -259,7 +259,7 @@ class NPK_Demand_Uptake(SimulationObject):
         PDEMAND = Float()
         KDEMAND = Float()
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -307,7 +307,7 @@ class NPK_Demand_Uptake(SimulationObject):
         )
 
     @prepare_rates
-    def calc_rates(self, day: date, drv: WeatherDataProvider):
+    def calc_rates(self, day: date, drv: WeatherDataContainer) -> None:
         """Calculate rates"""
         r = self.rates
         p = self.params
@@ -389,11 +389,11 @@ class NPK_Demand_Uptake(SimulationObject):
             r.RKUPTAKERT = (r.KDEMANDRT / r.KDEMAND) * r.RKUPTAKE
 
     @prepare_states
-    def integrate(self, day: date, delt: float = 1.0):
+    def integrate(self, day: date, delt: float = 1.0) -> None:
         """Integrate states - no states to integrate in NPK Demand Uptake"""
         pass
 
-    def _compute_NPK_max_concentrations(self):
+    def _compute_NPK_max_concentrations(self) -> MaxNutrientConcentrations:
         """Computes the maximum N/P/K concentrations in leaves, stems, roots and storage organs.
 
         Note that max concentrations are first derived from the dilution curve for leaves.
@@ -426,7 +426,7 @@ class NPK_Demand_Uptake(SimulationObject):
 
         return max_NPK_conc
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset states and rates"""
         r = self.rates
         r.RNUPTAKELV = r.RNUPTAKEST = r.RNUPTAKERT = r.RNUPTAKESO = r.RPUPTAKELV = r.RPUPTAKEST = r.RPUPTAKERT = (

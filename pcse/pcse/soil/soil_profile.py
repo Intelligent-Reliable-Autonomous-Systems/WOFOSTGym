@@ -7,10 +7,10 @@ Modified by: Will Solow, 2025
 
 from math import sqrt
 import numpy as np
-from ..utils.traitlets import Float, Int, Instance, Enum, Unicode, Bool, HasTraits, List
-from ..util import Afgen, DotMap
+from pcse.utils.traitlets import Float, Int, Instance, Enum, Unicode, Bool, HasTraits, List
+from pcse.util import Afgen, DotMap
 
-from .. import exceptions as exc
+from pcse.utils import exceptions as exc
 
 
 class pFCurve(Afgen):
@@ -32,7 +32,7 @@ class MFPCurve(Afgen):
     Pgauss = (0.0469100770, 0.2307653449, 0.5000000000, 0.7692346551, 0.9530899230)
     Wgauss = (0.1184634425, 0.2393143352, 0.2844444444, 0.2393143352, 0.1184634425)
 
-    def __init__(self, SMfromPF, CONDfromPF):
+    def __init__(self, SMfromPF: list, CONDfromPF: list) -> None:
         SMfromPF = np.array(SMfromPF)
         CONDfromPF = pFCurve(CONDfromPF)
         MFPfromPF = np.zeros_like(SMfromPF)
@@ -122,7 +122,7 @@ class SoilLayer(HasTraits):
         ]
     )
 
-    def __init__(self, layer, PFFieldCapacity, PFWiltingPoint):
+    def __init__(self, layer: DotMap, PFFieldCapacity: list, PFWiltingPoint: list) -> None:
         self.SMfromPF = pFCurve(layer.SMfromPF)
         self.CONDfromPF = pFCurve(layer.CONDfromPF)
         self.PFfromSM = self._invert_pF(layer.SMfromPF)
@@ -153,24 +153,24 @@ class SoilLayer(HasTraits):
         self._hash = hash((tuple(layer.SMfromPF), tuple(layer.CONDfromPF)))
 
     @property
-    def Thickness_m(self):
+    def Thickness_m(self) -> float:
         return self.Thickness * 1e-2
 
     @property
-    def RHOD_kg_per_m3(self):
+    def RHOD_kg_per_m3(self) -> float:
         return self.RHOD * 1e-3 * 1e06
 
-    def _invert_pF(self, SMfromPF):
+    def _invert_pF(self, SMfromPF: pFCurve) -> float:
         """Inverts the SMfromPF table to get pF from SM"""
         l = []
         for t in zip(reversed(SMfromPF[1::2]), reversed(SMfromPF[0::2])):
             l.extend(t)
         return Afgen(l)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return self._hash
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return self.__class__ == other.__class__ and self._hash == other._hash
 
 
@@ -193,7 +193,7 @@ class SoilProfile(list):
 
     """
 
-    def __init__(self, parvalues):
+    def __init__(self, parvalues: dict) -> None:
         list.__init__(self)
 
         sp = DotMap(parvalues["SoilProfileDescription"])
@@ -207,7 +207,7 @@ class SoilProfile(list):
                 value = SoilLayer(value, sp.PFFieldCapacity, sp.PFWiltingPoint)
             setattr(self, attr, value)
 
-    def determine_rooting_status(self, RD, RDM):
+    def determine_rooting_status(self, RD: float, RDM: float) -> None:
         """Determines the rooting status of the soil layers and update layer weights.
 
         Soil layers can be rooted, partially rooted, potentially rooted or never rooted.
@@ -235,7 +235,7 @@ class SoilProfile(list):
 
         self._compute_layer_weights(RD)
 
-    def _compute_layer_weights(self, RD):
+    def _compute_layer_weights(self, RD: float) -> None:
         """computes the layer weights given the current rooting depth.
 
         :param RD: The current rooting depth
@@ -263,7 +263,7 @@ class SoilProfile(list):
                 msg = "Unknown rooting status: %s" % layer.rooting_status
                 raise exc.PCSEError(msg)
 
-    def validate_max_rooting_depth(self, RDM):
+    def validate_max_rooting_depth(self, RDM: float) -> None:
         """Validate that the maximum rooting depth coincides with a layer boundary.
 
         :param RDM: The maximum rootable depth
@@ -279,7 +279,7 @@ class SoilProfile(list):
             msg = "Current maximum rooting depth (%f) does not coincide with a layer boundary!" % RDM
             raise exc.PCSEError(msg)
 
-    def get_max_rootable_depth(self):
+    def get_max_rootable_depth(self) -> float:
         """Returns the maximum soil rootable depth.
 
         here we assume that the max rootable depth is equal to the lower boundary of the last layer.

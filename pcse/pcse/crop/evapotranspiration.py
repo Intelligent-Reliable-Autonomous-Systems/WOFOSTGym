@@ -7,14 +7,14 @@ Modified by Will Solow, 2024
 from math import exp
 from datetime import date
 
-from ..utils.traitlets import Float, Int, Bool
-from ..utils.decorators import prepare_rates, prepare_states
-from ..base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject, VariableKiosk
-from ..util import limit, AfgenTrait
-from ..nasapower import WeatherDataProvider
+from pcse.utils.traitlets import Float, Int, Bool
+from pcse.utils.decorators import prepare_rates, prepare_states
+from pcse.base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject, VariableKiosk
+from pcse.util import limit, AfgenTrait
+from pcse.nasapower import WeatherDataContainer
 
 
-def SWEAF(ET0, DEPNR):
+def SWEAF(ET0: float, DEPNR: float) -> None:
     """Calculates the Soil Water Easily Available Fraction (SWEAF).
 
     :param ET0: The evapotranpiration from a reference crop.
@@ -148,7 +148,7 @@ class EvapotranspirationCO2(SimulationObject):
         IDOST = Int(-99)
         IDWST = Int(-99)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -164,7 +164,7 @@ class EvapotranspirationCO2(SimulationObject):
         )
 
     @prepare_rates
-    def __call__(self, day: date, drv: WeatherDataProvider):
+    def __call__(self, day: date, drv: WeatherDataContainer) -> tuple[float, float]:
         """Calls the Evapotranspiration object to compute value to be returned to
         model
         """
@@ -218,7 +218,7 @@ class EvapotranspirationCO2(SimulationObject):
         return r.TRA, r.TRAMX
 
     @prepare_states
-    def finalize(self, day: date):
+    def finalize(self, day: date) -> None:
         """Finalize states at end of simulation"""
 
         self.states.IDWST = self._IDWST
@@ -226,7 +226,7 @@ class EvapotranspirationCO2(SimulationObject):
 
         SimulationObject.finalize(self, day)
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset states and rates"""
         s = self.states
         r = self.rates

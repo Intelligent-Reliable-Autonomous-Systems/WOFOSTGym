@@ -10,9 +10,9 @@ Modified by Will Solow, 2024
 import types
 import logging
 
-from ..utils.traitlets import HasTraits
-from .dispatcher import DispatcherObject
-from .simulationobject import SimulationObject
+from pcse.utils.traitlets import HasTraits
+from pcse.base.dispatcher import DispatcherObject
+from pcse.base.simulationobject import SimulationObject
 
 
 class BaseEngine(HasTraits, DispatcherObject):
@@ -24,12 +24,12 @@ class BaseEngine(HasTraits, DispatcherObject):
         DispatcherObject.__init__(self)
 
     @property
-    def logger(self):
+    def logger(self) -> logging.Logger:
         """Initialize logger object"""
         loggername = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         return logging.getLogger(loggername)
 
-    def __setattr__(self, attr, value):
+    def __setattr__(self, attr, value) -> None:
         """Sets the attribute with the value to a specific sublcass object
         __setattr__ has been modified  to enforce that class attributes
         must be defined before they can be assigned. There are a few
@@ -54,7 +54,7 @@ class BaseEngine(HasTraits, DispatcherObject):
             raise AttributeError(msg)
 
     @property
-    def subSimObjects(self):
+    def subSimObjects(self) -> list[SimulationObject]:
         """Find SimulationObjects embedded within self."""
 
         subSimObjects = []
@@ -64,7 +64,7 @@ class BaseEngine(HasTraits, DispatcherObject):
                 subSimObjects.append(attr)
         return subSimObjects
 
-    def get_variable(self, varname):
+    def get_variable(self, varname: str) -> object:
         """Return the value of the specified state or rate variable.
 
         :param varname: Name of the variable.
@@ -94,7 +94,7 @@ class BaseEngine(HasTraits, DispatcherObject):
                 break
         return value
 
-    def zerofy(self):
+    def zerofy(self) -> None:
         """Zerofy the value of all rate variables of any sub-SimulationObjects."""
         # Walk over possible sub-simulation objects.
         if self.subSimObjects is not None:

@@ -65,7 +65,7 @@ class DataArgs(utils.Args):
     lon_high: float = 5
 
 
-def npz_multiple(envs:gym.Env, args:DataArgs, pols:list[Agent], pols_kwargs:dict[str, str]) -> None:
+def npz_multiple(envs: gym.Env, args: DataArgs, pols: list[Agent], pols_kwargs: dict[str, str]) -> None:
     """
     Generate data and save in .npz format from environments
     """

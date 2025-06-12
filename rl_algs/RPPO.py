@@ -14,7 +14,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.distributions.categorical import Categorical
 from typing import Optional
-from .rl_utils import RL_Args, Agent, setup, eval_policy_lstm
+from rl_algs.rl_utils import RL_Args, Agent, setup, eval_policy_lstm
 
 
 @dataclass
@@ -69,7 +69,7 @@ def layer_init(layer, std=np.sqrt(2), bias_const=0.0):
 
 
 class RPPO(nn.Module, Agent):
-    def __init__(self, envs, state_fpath: str = None, **kwargs):
+    def __init__(self, envs, state_fpath: str = None, **kwargs: dict) -> None:
         super().__init__()
         self.env = envs
         self.network = nn.Sequential(
@@ -146,7 +146,7 @@ class RPPO(nn.Module, Agent):
         return layer
 
 
-def train(kwargs):
+def train(kwargs: Namespace) -> None:
     """
     RPPO Training Function
     """

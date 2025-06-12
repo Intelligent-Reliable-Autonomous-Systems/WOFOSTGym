@@ -7,13 +7,15 @@ Modified by: Will Solow, 2025
 
 from math import sqrt
 import numpy as np
+import datetime
 
-from ..utils.traitlets import Float, Int, Instance, Bool
-from ..utils.decorators import prepare_rates, prepare_states
-from ..util import limit
-from ..base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject
-from ..utils import exceptions as exc
-from ..utils import signals
+from pcse.utils.traitlets import Float, Int, Instance, Bool
+from pcse.utils.decorators import prepare_rates, prepare_states
+from pcse.util import limit
+from pcse.base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject, VariableKiosk
+from pcse.utils import exceptions as exc
+from pcse.utils import signals
+from pcse.nasapower import WeatherDataContainer
 
 from .soil_profile import SoilProfile
 
@@ -43,7 +45,7 @@ class WaterBalanceLayered_PP(SimulationObject):
         MEVS = Float(-99.0)
         MWTRA = Float(-99.0)
 
-    def initialize(self, day, kiosk, parvalues):
+    def initialize(self, day: datetime.date, kiosk: VariableKiosk, parvalues: dict) -> None:
         self.soil_profile = SoilProfile(parvalues)
         parvalues._soildata["soil_profile"] = self.soil_profile
 
@@ -65,7 +67,7 @@ class WaterBalanceLayered_PP(SimulationObject):
         self.states = self.StateVariables(kiosk, publish=["MWC", "MSM", "MEVST", "MWTRAT"], **states)
 
     @prepare_rates
-    def calc_rates(self, day, drv):
+    def calc_rates(self, day: datetime.date, drv: WeatherDataContainer) -> None:
         r = self.rates
         # Transpiration and maximum soil and surface water evaporation rates
         # are calculated by the crop Evapotranspiration module.
@@ -95,7 +97,7 @@ class WaterBalanceLayered_PP(SimulationObject):
         self.RAINold = drv.RAIN
 
     @prepare_states
-    def integrate(self, day, delt=1.0):
+    def integrate(self, day: datetime.date, delt: float = 1.0) -> None:
         self.states.MSM = self.states.MSM
         self.states.MWC = self.states.MWC
 
@@ -313,7 +315,7 @@ class WaterBalanceLayered(SimulationObject):
         MBOTTOMFLOW = Float(-99.0)
         MPERC = Float(-99.0)
 
-    def initialize(self, day, kiosk, parvalues):
+    def initialize(self, day: datetime.date, kiosk: VariableKiosk, parvalues: dict) -> None:
 
         assert (
             "SoilProfileDescription" in parvalues
@@ -360,7 +362,7 @@ class WaterBalanceLayered(SimulationObject):
             TOPRED = 0.0
             LOWRED = 0.0
         elif p.MWAV <= TOPLIM:
-            # available water fits in layer(s) 1..ILR, these layers are rooted or almost rooted
+            # available water fits in layer(s) 1pcse.ILR, these layers are rooted or almost rooted
             # reduce amounts with ratio WAV / TOPLIM
             TOPRED = p.MWAV / TOPLIM
             LOWRED = 0.0
@@ -495,7 +497,7 @@ class WaterBalanceLayered(SimulationObject):
         self._connect_signal(self._on_IRRIGATE, signals.irrigate)
 
     @prepare_rates
-    def calc_rates(self, day, drv):
+    def calc_rates(self, day: datetime.date, drv: WeatherDataContainer) -> None:
         p = self.params
         s = self.states
         k = self.kiosk
@@ -834,7 +836,7 @@ class WaterBalanceLayered(SimulationObject):
         r.MFlow = Flow
 
     @prepare_states
-    def integrate(self, day, delt):
+    def integrate(self, day: datetime.date, delt: float = 1.0) -> None:
         p = self.params
         s = self.states
         k = self.kiosk
@@ -915,7 +917,7 @@ class WaterBalanceLayered(SimulationObject):
         s.MSM_MEAN = s.MW / RD
 
     @prepare_states
-    def finalize(self, day):
+    def finalize(self, day: datetime.date) -> None:
         s = self.states
         p = self.params
         if self.soil_profile.GroundWater:
@@ -939,7 +941,7 @@ class WaterBalanceLayered(SimulationObject):
                 msg = "Waterbalance not closing on %s with checksum: %f" % (day, checksum)
                 raise exc.WaterBalanceError(msg)
 
-    def _determine_rooting_depth(self):
+    def _determine_rooting_depth(self) -> float:
         """Determines appropriate use of the rooting depth (RD)
 
         This function includes the logic to determine the depth of the upper (rooted)
@@ -951,18 +953,18 @@ class WaterBalanceLayered(SimulationObject):
             # Hold RD at default value
             return self._default_RD
 
-    def _on_CROP_START(self):
+    def _on_CROP_START(self) -> None:
         self.crop_start = True
 
-    def _on_CROP_FINISH(self):
+    def _on_CROP_FINISH(self) -> None:
         pass
         # self.in_crop_cycle = False
         # self.rooted_layer_needs_reset = True
 
-    def _on_IRRIGATE(self, amount, efficiency):
+    def _on_IRRIGATE(self, amount: float, efficiency: float) -> None:
         self._RIRR = amount * efficiency
 
-    def _setup_new_crop(self):
+    def _setup_new_crop(self) -> None:
         """Retrieves the crop maximum rootable depth, validates it and updates the rooting status
         in order to have a correct calculation of the summary waterbalance states.
 

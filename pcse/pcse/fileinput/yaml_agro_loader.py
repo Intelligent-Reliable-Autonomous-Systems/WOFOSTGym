@@ -6,7 +6,7 @@ Modified by Will Solow, 2024
 
 import os
 import yaml
-from ..utils import exceptions as exc
+from pcse.utils import exceptions as exc
 
 
 class YAMLAgroManagementReader(list):
@@ -16,7 +16,7 @@ class YAMLAgroManagementReader(list):
         relative path the file is assumed to be in the current working directory.
     """
 
-    def __init__(self, fname):
+    def __init__(self, fname: str) -> None:
         """Initialize class `YAMLAgroManagementReader"""
         fname_fp = os.path.normpath(os.path.abspath(fname))
         if not os.path.exists(fname_fp):
@@ -32,5 +32,5 @@ class YAMLAgroManagementReader(list):
 
         list.__init__(self, r["AgroManagement"])
 
-    def __str__(self):
+    def __str__(self) -> None:
         return yaml.dump(self, default_flow_style=False)

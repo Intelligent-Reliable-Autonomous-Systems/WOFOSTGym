@@ -7,12 +7,12 @@ Modified by Will Solow, 2024
 
 from datetime import date
 
-from ..nasapower import WeatherDataProvider
-from ..utils.traitlets import Float
-from ..utils import signals
-from ..util import AfgenTrait, limit
-from ..utils.decorators import prepare_rates, prepare_states
-from ..base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject, VariableKiosk
+from pcse.nasapower import WeatherDataContainer
+from pcse.utils.traitlets import Float
+from pcse.utils import signals
+from pcse.util import AfgenTrait, limit
+from pcse.utils.decorators import prepare_rates, prepare_states
+from pcse.base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject, VariableKiosk
 
 
 class Base_WOFOST_Storage_Organ_Dynamics(SimulationObject):
@@ -102,7 +102,7 @@ class Base_WOFOST_Storage_Organ_Dynamics(SimulationObject):
         GWSO = Float(-99.0)
         DHSO = Float(-99.0)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE  instance
@@ -114,7 +114,7 @@ class Base_WOFOST_Storage_Organ_Dynamics(SimulationObject):
         raise NotImplementedError(msg)
 
     @prepare_rates
-    def calc_rates(self, day: date, drv: WeatherDataProvider):
+    def calc_rates(self, day: date, drv: WeatherDataContainer) -> None:
         """Compute rates for integration"""
         rates = self.rates
         states = self.states
@@ -132,7 +132,7 @@ class Base_WOFOST_Storage_Organ_Dynamics(SimulationObject):
         rates.GWSO = rates.GRSO - rates.DRSO
 
     @prepare_states
-    def integrate(self, day: date, delt: float = 1.0):
+    def integrate(self, day: date, delt: float = 1.0) -> None:
         """Integrate rates"""
         params = self.params
         rates = self.rates
@@ -148,7 +148,7 @@ class Base_WOFOST_Storage_Organ_Dynamics(SimulationObject):
         # Calculate Pod Area Index (PAI)
         states.PAI = states.WSO * params.SPA(self.kiosk.DVS)
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset states and rates"""
         # INITIAL STATES
         params = self.params
@@ -175,7 +175,7 @@ class Base_WOFOST_Storage_Organ_Dynamics(SimulationObject):
 
         r.GRSO = r.DRSO = r.GWSO = r.DHSO = 0
 
-    def _on_CROP_HARVEST(self, day: date, efficiency: float = 1.0):
+    def _on_CROP_HARVEST(self, day: date, efficiency: float = 1.0) -> None:
         """Receive the on crop harvest signal and update relevant states"""
         self.states.LHW = (efficiency) * self.states.HWSO
         self.states.HWSO = (1 - efficiency) * self.states.HWSO
@@ -184,7 +184,7 @@ class Base_WOFOST_Storage_Organ_Dynamics(SimulationObject):
 class Annual_WOFOST_Storage_Organ_Dynamics(Base_WOFOST_Storage_Organ_Dynamics):
     """Class for handling annual crop storage organs"""
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE  instance
@@ -232,7 +232,7 @@ class Perennial_WOFOST_Storage_Organ_Dynamics(Base_WOFOST_Storage_Organ_Dynamics
         RDRSOB = AfgenTrait()
         RDRSOF = AfgenTrait()
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE  instance
@@ -272,7 +272,7 @@ class Perennial_WOFOST_Storage_Organ_Dynamics(Base_WOFOST_Storage_Organ_Dynamics
 
         self.rates = self.RateVariables(kiosk, publish=["GRSO", "DRSO", "GWSO", "DHSO"])
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset states and rates"""
         # INITIAL STATES
         params = self.params

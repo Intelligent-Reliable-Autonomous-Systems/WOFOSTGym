@@ -84,7 +84,7 @@ senders = {}
 sendersBack = {}
 
 
-def connect(receiver, signal=Any, sender=Any, weak=True):
+def connect(receiver, signal=Any, sender=Any, weak: bool = True) -> None:
     """Connect receiver to sender for signal
 
     receiver -- a callable Python object which is to receive
@@ -180,7 +180,7 @@ def connect(receiver, signal=Any, sender=Any, weak=True):
     receivers.append(receiver)
 
 
-def disconnect(receiver, signal=Any, sender=Any, weak=True):
+def disconnect(receiver, signal=Any, sender=Any, weak=True) -> None:
     """Disconnect receiver from sender for signal
 
     receiver -- the registered receiver to disconnect

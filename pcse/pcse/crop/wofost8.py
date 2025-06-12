@@ -7,31 +7,31 @@ Modified by Will Solow, 2024
 
 from datetime import date
 
-from ..nasapower import WeatherDataProvider
-from ..utils.traitlets import Float, Instance, Unicode, Bool
-from ..utils.decorators import prepare_rates, prepare_states
-from ..base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject, VariableKiosk
-from .. import signals
-from ..util import Afgen, AfgenTrait
-from .. import exceptions as exc
-from .phenology import Annual_Phenology, Perennial_Phenology, Grape_Phenology
-from .respiration import WOFOST_Maintenance_Respiration as MaintenanceRespiration
-from .respiration import Perennial_WOFOST_Maintenance_Respiration as Perennial_MaintenanceRespiration
-from .stem_dynamics import Annual_WOFOST_Stem_Dynamics as Annual_Stem_Dynamics
-from .root_dynamics import Annual_WOFOST_Root_Dynamics as Annual_Root_Dynamics
-from .leaf_dynamics import Annual_WOFOST_Leaf_Dynamics_NPK as Annual_Leaf_Dynamics
-from .stem_dynamics import Perennial_WOFOST_Stem_Dynamics as Perennial_Stem_Dynamics
-from .root_dynamics import Perennial_WOFOST_Root_Dynamics as Perennial_Root_Dynamics
-from .leaf_dynamics import Perennial_WOFOST_Leaf_Dynamics_NPK as Perennial_Leaf_Dynamics
-from .storage_organ_dynamics import Annual_WOFOST_Storage_Organ_Dynamics as Annual_Storage_Organ_Dynamics
-from .storage_organ_dynamics import Perennial_WOFOST_Storage_Organ_Dynamics as Perennial_Storage_Organ_Dynamics
-from .assimilation import WOFOST_Assimilation as Assimilation
-from .partitioning import Annual_Partitioning_NPK as Annual_Partitioning
-from .partitioning import Perennial_Partitioning_NPK as Perennial_Partitioning
-from .evapotranspiration import EvapotranspirationCO2 as Evapotranspiration
+from pcse.nasapower import WeatherDataContainer
+from pcse.utils.traitlets import Float, Instance, Unicode, Bool
+from pcse.utils.decorators import prepare_rates, prepare_states
+from pcse.base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject, VariableKiosk
+from pcse.utils import signals
+from pcse.util import Afgen, AfgenTrait
+from pcse.utils import exceptions as exc
+from pcse.crop.phenology import Annual_Phenology, Perennial_Phenology, Grape_Phenology
+from pcse.crop.respiration import WOFOST_Maintenance_Respiration as MaintenanceRespiration
+from pcse.crop.respiration import Perennial_WOFOST_Maintenance_Respiration as Perennial_MaintenanceRespiration
+from pcse.crop.stem_dynamics import Annual_WOFOST_Stem_Dynamics as Annual_Stem_Dynamics
+from pcse.crop.root_dynamics import Annual_WOFOST_Root_Dynamics as Annual_Root_Dynamics
+from pcse.crop.leaf_dynamics import Annual_WOFOST_Leaf_Dynamics_NPK as Annual_Leaf_Dynamics
+from pcse.crop.stem_dynamics import Perennial_WOFOST_Stem_Dynamics as Perennial_Stem_Dynamics
+from pcse.crop.root_dynamics import Perennial_WOFOST_Root_Dynamics as Perennial_Root_Dynamics
+from pcse.crop.leaf_dynamics import Perennial_WOFOST_Leaf_Dynamics_NPK as Perennial_Leaf_Dynamics
+from pcse.crop.storage_organ_dynamics import Annual_WOFOST_Storage_Organ_Dynamics as Annual_Storage_Organ_Dynamics
+from pcse.crop.storage_organ_dynamics import Perennial_WOFOST_Storage_Organ_Dynamics as Perennial_Storage_Organ_Dynamics
+from pcse.crop.assimilation import WOFOST_Assimilation as Assimilation
+from pcse.crop.partitioning import Annual_Partitioning_NPK as Annual_Partitioning
+from pcse.crop.partitioning import Perennial_Partitioning_NPK as Perennial_Partitioning
+from pcse.crop.evapotranspiration import EvapotranspirationCO2 as Evapotranspiration
 
-from .npk_dynamics import NPK_Crop_Dynamics as NPK_crop
-from .nutrients.npk_stress import NPK_Stress as NPK_Stress
+from pcse.crop.npk_dynamics import NPK_Crop_Dynamics as NPK_crop
+from pcse.crop.nutrients.npk_stress import NPK_Stress as NPK_Stress
 
 
 class BaseCropModel(SimulationObject):
@@ -148,12 +148,12 @@ class BaseCropModel(SimulationObject):
     npk_crop_dynamics = Instance(SimulationObject)
     npk_stress = Instance(SimulationObject)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         msg = "`initialize` method not yet implemented on %s" % self.__class__.__name__
         raise NotImplementedError(msg)
 
     @staticmethod
-    def _check_carbon_balance(day, DMI: float, GASS: float, MRES: float, CVF: float, pf: float):
+    def _check_carbon_balance(day, DMI: float, GASS: float, MRES: float, CVF: float, pf: float) -> None:
         """Checks that the carbon balance is valid after integration"""
         (FR, FL, FS, FO) = pf
         checksum = (GASS - MRES - (FR + (FL + FS + FO) * (1.0 - FR)) * DMI / CVF) * 1.0 / (max(0.0001, GASS))
@@ -164,7 +164,7 @@ class BaseCropModel(SimulationObject):
             # raise exc.CarbonBalanceError(msg)
 
     @prepare_rates
-    def calc_rates(self, day: date, drv: WeatherDataProvider):
+    def calc_rates(self, day: date, drv: WeatherDataContainer) -> None:
         """Calculate state rates for integration"""
         params = self.params
         rates = self.rates
@@ -223,7 +223,7 @@ class BaseCropModel(SimulationObject):
         self.npk_crop_dynamics.calc_rates(day, drv)
 
     @prepare_states
-    def integrate(self, day: date, delt: float = 1.0):
+    def integrate(self, day: date, delt: float = 1.0) -> None:
         """Integrate state rates"""
         rates = self.rates
         states = self.states
@@ -267,7 +267,7 @@ class BaseCropModel(SimulationObject):
         states.CEVST += EVS
 
     @prepare_states
-    def finalize(self, day: date):
+    def finalize(self, day: date) -> None:
         """Finalize crop parameters and output at the end of the simulation"""
         # Calculate Harvest Index
         if self.states.TAGP > 0:
@@ -279,7 +279,7 @@ class BaseCropModel(SimulationObject):
 
         SimulationObject.finalize(self, day)
 
-    def _on_CROP_FINISH(self, day, finish_type=None):
+    def _on_CROP_FINISH(self, day: date, finish_type: str = None) -> None:
         """Handler for setting day of finish (DOF) and reason for
         crop finishing (FINISH).
         """
@@ -293,7 +293,7 @@ class Wofost80(BaseCropModel):
     simulation including the implementation of N/P/K dynamics.
     """
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE model instance
@@ -372,7 +372,7 @@ class Wofost80Perennial(BaseCropModel):
         CVR = AfgenTrait()
         CVS = AfgenTrait()
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE model instance
@@ -436,7 +436,7 @@ class Wofost80Perennial(BaseCropModel):
         self._connect_signal(self._on_DORMANT, signal=signals.crop_dormant)
 
     @prepare_rates
-    def calc_rates(self, day: date, drv: WeatherDataProvider):
+    def calc_rates(self, day: date, drv: WeatherDataContainer) -> None:
         """Calculate state rates for integration"""
         params = self.params
         rates = self.rates
@@ -496,7 +496,7 @@ class Wofost80Perennial(BaseCropModel):
         self.npk_crop_dynamics.calc_rates(day, drv)
 
     @prepare_states
-    def integrate(self, day: date, delt: float = 1.0):
+    def integrate(self, day: date, delt: float = 1.0) -> None:
         """Integrate state rates"""
         rates = self.rates
         states = self.states
@@ -537,7 +537,7 @@ class Wofost80Perennial(BaseCropModel):
         states.CTRAT += self.kiosk.TRA
         states.CEVST += self.kiosk.EVS
 
-    def _on_DORMANT(self, day: date):
+    def _on_DORMANT(self, day: date) -> None:
         """Handler for recieving the crop dormancy signal. Upon dormancy, reset
         all crop parameters
         """
@@ -594,7 +594,7 @@ class Wofost80Grape(BaseCropModel):
         CVR = AfgenTrait()
         CVS = AfgenTrait()
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE model instance
@@ -658,7 +658,7 @@ class Wofost80Grape(BaseCropModel):
         self._connect_signal(self._on_DORMANT, signal=signals.crop_dormant)
 
     @prepare_rates
-    def calc_rates(self, day: date, drv: WeatherDataProvider):
+    def calc_rates(self, day: date, drv: WeatherDataContainer) -> None:
         """Calculate state rates for integration"""
         params = self.params
         rates = self.rates
@@ -718,7 +718,7 @@ class Wofost80Grape(BaseCropModel):
         self.npk_crop_dynamics.calc_rates(day, drv)
 
     @prepare_states
-    def integrate(self, day: date, delt: float = 1.0):
+    def integrate(self, day: date, delt: float = 1.0) -> None:
         """Integrate state rates"""
         rates = self.rates
         states = self.states
@@ -759,7 +759,7 @@ class Wofost80Grape(BaseCropModel):
         states.CTRAT += self.kiosk.TRA
         states.CEVST += self.kiosk.EVS
 
-    def _on_DORMANT(self, day: date):
+    def _on_DORMANT(self, day: date) -> None:
         """Handler for recieving the crop dormancy signal. Upon dormancy, reset
         all crop parameters
         """
@@ -796,5 +796,3 @@ class Wofost80Grape(BaseCropModel):
         if abs(checksum) > 0.0001:
             msg = "Error in partitioning of initial biomass (TDWI)!"
             # raise exc.PartitioningError(msg)
-
-        # print(f'Resetting from Dormant: {day}')

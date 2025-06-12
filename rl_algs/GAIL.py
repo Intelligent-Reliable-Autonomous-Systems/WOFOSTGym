@@ -5,6 +5,7 @@ Written by Will Solow, 2025
 """
 
 import numpy as np
+from argparse import Namespace
 import gymnasium as gym
 from stable_baselines3 import PPO
 from stable_baselines3.ppo import MlpPolicy
@@ -13,7 +14,7 @@ from imitation.algorithms.adversarial.gail import GAIL as GAIL_ALG
 from imitation.rewards.reward_nets import BasicRewardNet
 from imitation.util.networks import RunningNorm
 
-from .rl_utils import RL_Args, setup, make_demonstrations
+from rl_algs.rl_utils import RL_Args, setup, make_demonstrations
 from typing import Optional
 from dataclasses import dataclass
 import utils
@@ -45,7 +46,7 @@ class Args(RL_Args):
 
 class GAIL(nn.Module):
 
-    def __init__(self, envs, state_fpath: str = None, **kwargs):
+    def __init__(self, envs: gym.Env, state_fpath: str = None, **kwargs: dict) -> None:
         super().__init__()
         self.env = envs
 
@@ -96,14 +97,14 @@ class GAIL(nn.Module):
                 msg = f"Error loading state dictionary from {state_fpath}"
                 raise Exception(msg)
 
-    def train(self, train_steps: int):
+    def train(self, train_steps: int) -> None:
         """
         Train the agent
         """
         self.gail_trainer.train(train_steps)
         self.policy = self.gail_trainer.gen_algo.policy
 
-    def get_action(self, x):
+    def get_action(self, x: np.ndarray | torch.Tensor) -> torch.Tensor:
         """
         Helper function to get action for compatibility with generating data
         """
@@ -112,7 +113,7 @@ class GAIL(nn.Module):
         return self.policy(x)[0]
 
 
-def train(kwargs):
+def train(kwargs: Namespace) -> None:
     """
     GAIL Training Function
     """

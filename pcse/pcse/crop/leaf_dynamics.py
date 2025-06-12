@@ -9,11 +9,11 @@ from collections import deque
 from array import array
 from datetime import date
 
-from ..utils.traitlets import Float, Instance
-from ..utils.decorators import prepare_rates, prepare_states
-from ..util import limit, AfgenTrait
-from ..base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject, VariableKiosk
-from ..nasapower import WeatherDataProvider
+from pcse.utils.traitlets import Float, Instance
+from pcse.utils.decorators import prepare_rates, prepare_states
+from pcse.util import limit, AfgenTrait
+from pcse.base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject, VariableKiosk
+from pcse.nasapower import WeatherDataContainer
 
 
 class Base_WOFOST_Leaf_Dynamics_NPK(SimulationObject):
@@ -161,7 +161,7 @@ class Base_WOFOST_Leaf_Dynamics_NPK(SimulationObject):
         GLAIEX = Float(-99.0)
         GLASOL = Float(-99.0)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, cropdata: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, cropdata: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -170,7 +170,7 @@ class Base_WOFOST_Leaf_Dynamics_NPK(SimulationObject):
         msg = "Implement `initialize` method in Leaf Dynamics subclass"
         raise NotImplementedError(msg)
 
-    def _calc_LAI(self):
+    def _calc_LAI(self) -> None:
         """Compute LAI as Total leaf area Index as sum of leaf, pod and stem area"""
         k = self.kiosk
         SAI = PAI = 0
@@ -181,7 +181,7 @@ class Base_WOFOST_Leaf_Dynamics_NPK(SimulationObject):
         return self.states.LASUM + SAI + PAI
 
     @prepare_rates
-    def calc_rates(self, day: date, drv: WeatherDataProvider):
+    def calc_rates(self, day: date, drv: WeatherDataContainer) -> None:
         """Calculate state rates"""
         r = self.rates
         s = self.states
@@ -260,7 +260,7 @@ class Base_WOFOST_Leaf_Dynamics_NPK(SimulationObject):
                 r.SLAT = GLA / r.GRLV
 
     @prepare_states
-    def integrate(self, day: date, delt: float = 1.0):
+    def integrate(self, day: date, delt: float = 1.0) -> None:
         """Integrate state rates to new state"""
         p = self.params
         r = self.rates
@@ -316,7 +316,7 @@ class Base_WOFOST_Leaf_Dynamics_NPK(SimulationObject):
         self.states.SLA = tSLA
         self.states.LVAGE = tLVAGE
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset states and rates"""
         # CALCULATE INITIAL STATE VARIABLES
         p = self.params
@@ -365,7 +365,7 @@ class Base_WOFOST_Leaf_Dynamics_NPK(SimulationObject):
 class Annual_WOFOST_Leaf_Dynamics_NPK(Base_WOFOST_Leaf_Dynamics_NPK):
     """Class for simulating leaf dynamics of annual crops"""
 
-    def initialize(self, day: date, kiosk: VariableKiosk, cropdata: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, cropdata: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -452,7 +452,7 @@ class Perennial_WOFOST_Leaf_Dynamics_NPK(Base_WOFOST_Leaf_Dynamics_NPK):
         NLAI_NPK = Float(-99.0)  # coefficient for the reduction due to nutrient NPK stress of the
         # LAI increase (during juvenile phase)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, cropdata: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, cropdata: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -523,7 +523,7 @@ class Perennial_WOFOST_Leaf_Dynamics_NPK(Base_WOFOST_Leaf_Dynamics_NPK):
             ],
         )
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset states and rates"""
         # CALCULATE INITIAL STATE VARIABLES
         p = self.params

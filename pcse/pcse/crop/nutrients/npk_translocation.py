@@ -8,10 +8,10 @@ Modified by Will Solow, 2024
 
 from datetime import date
 
-from ...utils.traitlets import Float
-from ...utils.decorators import prepare_rates, prepare_states
-from ...base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject, VariableKiosk
-from ...nasapower import WeatherDataProvider
+from pcse.utils.traitlets import Float
+from pcse.utils.decorators import prepare_rates, prepare_states
+from pcse.base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject, VariableKiosk
+from pcse.nasapower import WeatherDataContainer
 
 
 class NPK_Translocation(SimulationObject):
@@ -167,7 +167,7 @@ class NPK_Translocation(SimulationObject):
         PTRANSLOCATABLE = Float(-99.0)  # Total P amount that can be translocated to the storage organs [kg P ha-1]
         KTRANSLOCATABLE = Float(-99.0)  # Total K amount that can be translocated to the storage organs [kg K ha-1]
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -222,7 +222,7 @@ class NPK_Translocation(SimulationObject):
         self.kiosk = kiosk
 
     @prepare_rates
-    def calc_rates(self, day: date, drv: WeatherDataProvider):
+    def calc_rates(self, day: date, drv: WeatherDataContainer) -> None:
         """Calculate rates for integration"""
         r = self.rates
         s = self.states
@@ -253,7 +253,7 @@ class NPK_Translocation(SimulationObject):
             r.RKTRANSLOCATIONLV = r.RKTRANSLOCATIONST = r.RKTRANSLOCATIONRT = 0.0
 
     @prepare_states
-    def integrate(self, day: date, delt: float = 1.0):
+    def integrate(self, day: date, delt: float = 1.0) -> None:
         """Integrate state rates"""
         p = self.params
         s = self.states
@@ -282,7 +282,7 @@ class NPK_Translocation(SimulationObject):
         else:
             s.NTRANSLOCATABLE = s.PTRANSLOCATABLE = s.KTRANSLOCATABLE = 0
 
-    def reset(self):
+    def reset(self) -> NOne:
         """Reset states and rates"""
         s = self.states
         r = self.rates

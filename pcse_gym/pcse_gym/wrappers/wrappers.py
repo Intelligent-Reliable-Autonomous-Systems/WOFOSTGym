@@ -9,10 +9,10 @@ import gymnasium as gym
 from gymnasium.spaces import Dict, Discrete, Box
 from abc import abstractmethod, ABC
 import torch
+from argparse import Namespace
 
 from pcse_gym.envs.wofost_base import NPK_Env, Plant_NPK_Env, Harvest_NPK_Env, Multi_NPK_Env
 from pcse_gym.envs.wofost_base import LNPKW, LNPK, PP, LNW, LN, LW
-
 from pcse_gym import exceptions as exc
 
 
@@ -21,7 +21,7 @@ class NPKNaNToZeroWrapper(gym.ObservationWrapper):
     RL agents
     """
 
-    def __init__(self, env: gym.Env):
+    def __init__(self, env: gym.Env) -> None:
         """Initialize the :class:`NPKNaNToZeroWrapper` wrapper with an environment.
 
         Casts all NaN's to zero
@@ -32,7 +32,7 @@ class NPKNaNToZeroWrapper(gym.ObservationWrapper):
         super().__init__(env)
         self.env = env
 
-    def observation(self, obs):
+    def observation(self, obs: np.ndarray) -> np.ndarray:
         """Casts all NaNs in crop to zero
 
         Args:
@@ -40,7 +40,7 @@ class NPKNaNToZeroWrapper(gym.ObservationWrapper):
         """
         return np.nan_to_num(obs, nan=0.0)
 
-    def reset(self, **kwargs):
+    def reset(self, **kwargs: dict) -> tuple[np.ndarray, dict]:
         """Reset the environment to the initial state specified by the
         agromanagement, crop, and soil files.
 
@@ -57,7 +57,7 @@ class NPKDictObservationWrapper(gym.ObservationWrapper):
     without relying on direct indexing
     """
 
-    def __init__(self, env: gym.Env):
+    def __init__(self, env: gym.Env) -> None:
         """Initialize the :class:`NPKDictObservationWrapper` wrapper with an environment.
 
         Handles extended weather forecasts by appending an _i to all weather
@@ -102,7 +102,7 @@ class NPKDictObservationWrapper(gym.ObservationWrapper):
             dict(output_dict + weather_dict + [("DAYS", Box(low=-np.inf, high=np.inf, shape=(1,)))])
         )
 
-    def observation(self, obs):
+    def observation(self, obs: np.ndarray) -> dict[str, float]:
         """Puts the outputted variables in a dictionary.
 
         Note that the dictionary must be in order of the variables. This will not
@@ -115,7 +115,7 @@ class NPKDictObservationWrapper(gym.ObservationWrapper):
         keys = self.output_vars + self.forecast_vars + ["DAYS"]
         return dict([(keys[i], obs[i]) for i in range(len(keys))])
 
-    def reset(self, **kwargs):
+    def reset(self, **kwargs: dict) -> tuple[np.ndarray, dict]:
         """Reset the environment to the initial state specified by the
         agromanagement, crop, and soil files.
 
@@ -135,7 +135,7 @@ class NPKDictActionWrapper(gym.ActionWrapper):
     an action as a dictionary. See policies.py for more information.
     """
 
-    def __init__(self, env: gym.Env):
+    def __init__(self, env: gym.Env) -> None:
         """Initialize the :class:`NPKDictActionWrapper` wrapper with an environment.
 
         Args:
@@ -294,7 +294,7 @@ class NPKDictActionWrapper(gym.ActionWrapper):
                     }
                 )
 
-    def action(self, act: dict):
+    def action(self, act: dict) -> int:
         """
         Converts the dicionary action to an integer to be pased to the base
         environment.
@@ -377,7 +377,7 @@ class NPKDictActionWrapper(gym.ActionWrapper):
 
         return np.sum(offsets * offset_flags) + act_values[np.nonzero(act_values)[0][0]]
 
-    def reset(self, **kwargs):
+    def reset(self, **kwargs: dict) -> tuple[np.ndarray, dict]:
         """
         Forward keyword environments to base env
         """
@@ -394,7 +394,7 @@ class RewardWrapper(gym.Wrapper, ABC):
     otherwise
     """
 
-    def __init__(self, env: gym.Env):
+    def __init__(self, env: gym.Env) -> None:
         """Initialize the :class:`RewardWrapper` wrapper with an environment.
 
         Args:
@@ -405,7 +405,7 @@ class RewardWrapper(gym.Wrapper, ABC):
         self.env = env
 
     @abstractmethod
-    def _get_reward(self, output: dict, act_tuple):
+    def _get_reward(self, output: dict, act_tuple: tuple[int, int, int, int]) -> None:
         """
         The get reward function shaping the reward. Implement this.
         """
@@ -425,7 +425,7 @@ class RewardWrapper(gym.Wrapper, ABC):
             msg = "Cannot wrap environment with another reward wrapper."
             raise exc.WOFOSTGymError(msg)
 
-    def step(self, action: int):
+    def step(self, action: int) -> tuple[np.ndarray, float, bool, bool, dict]:
         """Run one timestep of the environment's dynamics.
 
         Sends action to the WOFOST model and recieves the resulting observation
@@ -474,7 +474,7 @@ class RewardWrapper(gym.Wrapper, ABC):
 
         return observation, reward, termination, truncation, self.env.unwrapped.log
 
-    def reset(self, **kwargs):
+    def reset(self, **kwargs: dict) -> tuple[np.ndarray, dict]:
         """
         Forward keyword environments to base env
         """
@@ -486,7 +486,7 @@ class RewardFertilizationCostWrapper(RewardWrapper):
     is applied
     """
 
-    def __init__(self, env: gym.Env, args):
+    def __init__(self, env: gym.Env, args: Namespace) -> None:
         """Initialize the :class:`RewardFertilizationCostWrapper` wrapper with an environment.
 
         Args:
@@ -502,7 +502,7 @@ class RewardFertilizationCostWrapper(RewardWrapper):
 
         self.cost = args.cost
 
-    def _get_reward(self, output: dict, act_tuple: tuple):
+    def _get_reward(self, output: dict, act_tuple: tuple[float, float, float, float]) -> float:
         """Gets the reward as a penalty based on the amount of NPK/Water applied
 
         Args:
@@ -539,7 +539,7 @@ class RewardFertilizationThresholdWrapper(RewardWrapper):
     threshold is crossed during fertilization or irrigation
     """
 
-    def __init__(self, env: gym.Env, args):
+    def __init__(self, env: gym.Env, args: Namespace) -> None:
         """Initialize the :class:`RewardFertilizationThresholdWrapper` wrapper with an environment.
 
         Args:
@@ -573,7 +573,7 @@ class RewardFertilizationThresholdWrapper(RewardWrapper):
         # Set the reward range in case of normalization
         self.reward_range = [4 * -1e4, 10000]
 
-    def _get_reward(self, output, act_tuple):
+    def _get_reward(self, output: dict, act_tuple: tuple[float, float, float, float]) -> float:
         """Convert the reward by applying a high penalty if a fertilization
         threshold is crossed
 
@@ -602,7 +602,7 @@ class RewardFertilizationThresholdWrapper(RewardWrapper):
 class RewardLimitedRunoffWrapper(RewardWrapper):
     """Modifies the reward to be a function with high penalties for if Nitrogen Runoff Occurs"""
 
-    def __init__(self, env: gym.Env, args):
+    def __init__(self, env: gym.Env, args: Namespace) -> None:
         """Initialize the :class:`RewardFertilizationThresholdWrapper` wrapper with an environment.
 
         Args:
@@ -616,7 +616,7 @@ class RewardLimitedRunoffWrapper(RewardWrapper):
         # Set the reward range in case of normalization
         self.reward_range = [4 * -1e5, 10000]
 
-    def _get_reward(self, output, act_tuple):
+    def _get_reward(self, output: dict, act_tuple: tuple[float, float, float, float]) -> float:
         """Convert the reward by applying a high penalty if a fertilization
         threshold is crossed
 
@@ -631,7 +631,7 @@ class RewardLimitedRunoffWrapper(RewardWrapper):
 
 class NormalizeObservation(gym.Wrapper):
 
-    def __init__(self, env: gym.Env):
+    def __init__(self, env: gym.Env) -> None:
         """
         Initialize normalization wrapper
         """
@@ -662,7 +662,7 @@ class NormalizeObservation(gym.Wrapper):
         else:
             self.reward_range = [0, 10000]
 
-    def normalize(self, obs):
+    def normalize(self, obs: np.ndarray) -> np.ndarray:
         """
         Normalize the observation
         """
@@ -671,7 +671,7 @@ class NormalizeObservation(gym.Wrapper):
 
         return obs
 
-    def unnormalize(self, obs):
+    def unnormalize(self, obs: np.ndarray) -> np.ndarray:
         """
         Normalize the observation
         """
@@ -679,7 +679,7 @@ class NormalizeObservation(gym.Wrapper):
 
         return obs
 
-    def step(self, action):
+    def step(self, action: int) -> tuple[np.ndarray, float, bool, bool, dict]:
         """Steps through the environment and normalizes the observation."""
         obs, rews, terminateds, truncateds, infos = self.env.step(action)
         if self.is_vector_env:
@@ -688,7 +688,7 @@ class NormalizeObservation(gym.Wrapper):
             obs = self.normalize(np.array([obs]))[0]
         return obs, rews, terminateds, truncateds, infos
 
-    def reset(self, **kwargs):
+    def reset(self, **kwargs: dict) -> tuple[np.ndarray, dict]:
         """Resets the environment and normalizes the observation."""
         obs, info = self.env.reset(**kwargs)
 
@@ -700,7 +700,7 @@ class NormalizeObservation(gym.Wrapper):
 
 class NormalizeReward(gym.Wrapper):
 
-    def __init__(self, env: gym.Env):
+    def __init__(self, env: gym.Env) -> None:
         """
         Initialize normalization wrapper for rwards
         """
@@ -723,7 +723,7 @@ class NormalizeReward(gym.Wrapper):
         if hasattr(env, "ranges"):
             self.ranges = env.ranges
 
-    def unnormalize_obs(self, obs):
+    def unnormalize_obs(self, obs: np.ndarray) -> np.ndarray:
         """
         Normalize the observation
         """
@@ -731,7 +731,7 @@ class NormalizeReward(gym.Wrapper):
 
         return obs
 
-    def step(self, action):
+    def step(self, action: int) -> tuple[np.ndarray, float, bool, bool, dict]:
         """Steps through the environment and normalizes the observation."""
         obs, rews, terminateds, truncateds, infos = self.env.step(action)
         if isinstance(rews, torch.Tensor):
@@ -742,13 +742,13 @@ class NormalizeReward(gym.Wrapper):
             rews = self.normalize(np.array([rews]))[0]
         return obs, rews, terminateds, truncateds, infos
 
-    def reset(self, **kwargs):
+    def reset(self, **kwargs: dict) -> tuple[np.ndarray, dict]:
         """Resets the environment and normalizes the observation."""
         obs, info = self.env.reset(**kwargs)
 
         return obs, info
 
-    def normalize(self, rews):
+    def normalize(self, rews: float) -> float:
         """
         Normalize the observation
         """
@@ -756,7 +756,7 @@ class NormalizeReward(gym.Wrapper):
 
         return rews
 
-    def unnormalize(self, rews):
+    def unnormalize(self, rews: float) -> float:
         """
         Unnormalize the reward
         """

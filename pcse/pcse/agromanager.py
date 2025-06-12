@@ -11,15 +11,17 @@ Modified by Will Solow, 2024
 
 from datetime import date, timedelta
 import logging
+from collections.abc import Iterable
 
-from .base import DispatcherObject, VariableKiosk, ParameterProvider, AncillaryObject
-from .utils.traitlets import HasTraits, Float, Int, Instance, Enum, Bool, Unicode
-from .utils import exceptions as exc
-from .util import ConfigurationLoader
-from . import signals
+from pcse.base import DispatcherObject, VariableKiosk, ParameterProvider, AncillaryObject
+from pcse.utils.traitlets import HasTraits, Float, Int, Instance, Enum, Bool, Unicode
+from pcse.utils import exceptions as exc
+from pcse.util import ConfigurationLoader
+from pcse.utils import signals
+from pcse.nasapower import WeatherDataContainer
 
 
-def check_date_range(day, start, end):
+def check_date_range(day, start: date, end: date) -> bool:
     """returns True if start <= day < end
 
     Optionally, end may be None. in that case return True if start <= day
@@ -36,7 +38,7 @@ def check_date_range(day, start, end):
         return start <= day < end
 
 
-def take_first(iterator):
+def take_first(iterator: Iterable) -> object:
     """Return the first item of the given iterator."""
     for item in iterator:
         return item
@@ -68,7 +70,7 @@ class BaseSiteCalendar(HasTraits, DispatcherObject):
 
     def __init__(
         self,
-        kiosk,
+        kiosk: VariableKiosk,
         site_name: str = None,
         site_variation: str = None,
         site_start_date: date = None,
@@ -76,7 +78,7 @@ class BaseSiteCalendar(HasTraits, DispatcherObject):
         latitude: float = None,
         longitude: float = None,
         year: int = None,
-    ):
+    ) -> None:
         """Initialize the SiteCalendar Instance
 
         Args:
@@ -103,13 +105,13 @@ class BaseSiteCalendar(HasTraits, DispatcherObject):
 
         self._connect_signal(self._on_SITE_FINISH, signal=signals.site_finish)
 
-    def reset(self):
+    def reset(self) -> None:
         """
         Reset crop calendar
         """
         self.duration = 0
 
-    def __call__(self, day: date):
+    def __call__(self, day: date) -> None:
         """Runs the site calendar to determine if any actions are needed.
 
         :param day:  a date object for the current simulation day
@@ -145,7 +147,7 @@ class BaseSiteCalendar(HasTraits, DispatcherObject):
             msg = "site_end_date before or equal to site_start_date for crop '%s'!"
             raise exc.PCSEError(msg % (self.sitestart_date, self.site_end_date))
 
-    def _on_SITE_FINISH(self):
+    def _on_SITE_FINISH(self) -> None:
         """Register that crop has reached the end of its cycle."""
         self.in_site_cycle = False
 
@@ -163,7 +165,7 @@ class SiteCalendar(BaseSiteCalendar):
 
     def __init__(
         self,
-        kiosk,
+        kiosk: VariableKiosk,
         site_name: str = None,
         site_variation: str = None,
         site_start_date: date = None,
@@ -188,7 +190,7 @@ class PerennialSiteCalendar(BaseSiteCalendar):
 
     def __init__(
         self,
-        kiosk,
+        kiosk: VariableKiosk,
         site_name: str = None,
         site_variation: str = None,
         site_start_date: date = None,
@@ -196,7 +198,7 @@ class PerennialSiteCalendar(BaseSiteCalendar):
         latitude: float = None,
         longitude: float = None,
         year: int = None,
-    ):
+    ) -> None:
         super().__init__(kiosk, site_name, site_variation, site_start_date, site_end_date, latitude, longitude, year)
 
 
@@ -228,7 +230,7 @@ class BaseCropCalendar(HasTraits, DispatcherObject):
 
     def __init__(
         self,
-        kiosk,
+        kiosk: VariableKiosk,
         crop_name: str = None,
         crop_variety: str = None,
         crop_start_date: date = None,
@@ -236,7 +238,7 @@ class BaseCropCalendar(HasTraits, DispatcherObject):
         crop_end_date: date = None,
         crop_end_type: date = None,
         max_duration: int = None,
-    ):
+    ) -> None:
         """Initialize Crop Calendar Class
 
         Args:
@@ -265,13 +267,13 @@ class BaseCropCalendar(HasTraits, DispatcherObject):
         self._connect_signal(self._on_CROP_FINISH, signal=signals.crop_finish)
         self._connect_signal(self._on_CROP_START, signal=signals.crop_start)
 
-    def reset(self):
+    def reset(self) -> None:
         """
         Reset crop calendar
         """
         self.duration = 0
 
-    def validate(self, campaign_start_date: date, next_campaign_start_date: date):
+    def validate(self, campaign_start_date: date, next_campaign_start_date: date) -> None:
         """Validate the crop calendar internally and against the interval for
         the agricultural campaign.
 
@@ -299,7 +301,7 @@ class BaseCropCalendar(HasTraits, DispatcherObject):
             )
             raise exc.PCSEError(msg)
 
-    def __call__(self, day: date):
+    def __call__(self, day: date) -> None:
         """Runs the crop calendar to determine if any actions are needed.
 
         :param day:  a date object for the current simulation day
@@ -341,11 +343,11 @@ class BaseCropCalendar(HasTraits, DispatcherObject):
             self.in_crop_cycle = False
             self._send_signal(signal=signals.crop_finish, day=day, finish_type=finish_type, crop_delete=True)
 
-    def _on_CROP_FINISH(self):
+    def _on_CROP_FINISH(self) -> None:
         """Register that crop has reached the end of its cycle."""
         self.in_crop_cycle = False
 
-    def _on_CROP_START(self):
+    def _on_CROP_START(self) -> None:
         """Register that a crop has started"""
         self.in_crop_cycle = True
         self.duration = 0
@@ -370,7 +372,7 @@ class CropCalendar(BaseCropCalendar):
 
     def __init__(
         self,
-        kiosk,
+        kiosk: VariableKiosk,
         crop_name: str = None,
         crop_variety: str = None,
         crop_start_date: date = None,
@@ -388,7 +390,7 @@ class CropCalendarHarvest(BaseCropCalendar):
 
     def __init__(
         self,
-        kiosk,
+        kiosk: VariableKiosk,
         crop_name: str = None,
         crop_variety: str = None,
         crop_start_date: date = None,
@@ -420,7 +422,7 @@ class CropCalendarHarvest(BaseCropCalendar):
             max_duration=max_duration,
         )
 
-    def __call__(self, day):
+    def __call__(self, day: date) -> None:
         """Runs the crop calendar to determine if any actions are needed.
 
         :param day:  a date object for the current simulation day
@@ -457,11 +459,11 @@ class CropCalendarHarvest(BaseCropCalendar):
             self.in_crop_cycle = False
             self._send_signal(signal=signals.crop_finish, day=day, finish_type=finish_type, crop_delete=True)
 
-    def _on_CROP_FINISH(self, day=date):
+    def _on_CROP_FINISH(self, day=date) -> None:
         """Register that crop has reached the end of its cycle."""
         self.in_crop_cycle = False
 
-    def _on_CROP_START(self, day=date):
+    def _on_CROP_START(self, day=date) -> None:
         """Register that a crop has started"""
         self.in_crop_cycle = True
         self.duration = 0
@@ -471,7 +473,7 @@ class CropCalendarPlant(BaseCropCalendar):
 
     def __init__(
         self,
-        kiosk,
+        kiosk: VariableKiosk,
         crop_name: str = None,
         crop_variety: str = None,
         crop_start_date: date = None,
@@ -503,7 +505,7 @@ class CropCalendarPlant(BaseCropCalendar):
             max_duration=max_duration,
         )
 
-    def __call__(self, day):
+    def __call__(self, day: date) -> None:
         """Runs the crop calendar to determine if any actions are needed.
 
         :param day:  a date object for the current simulation day
@@ -548,7 +550,7 @@ class PerennialCropCalendar(BaseCropCalendar):
 
     def __init__(
         self,
-        kiosk,
+        kiosk: VariableKiosk,
         crop_name: str = None,
         crop_variety: str = None,
         crop_start_date: date = None,
@@ -556,7 +558,7 @@ class PerennialCropCalendar(BaseCropCalendar):
         crop_end_date: date = None,
         crop_end_type: date = None,
         max_duration: int = None,
-    ):
+    ) -> None:
         super().__init__(
             kiosk, crop_name, crop_variety, crop_start_date, crop_start_type, crop_end_date, crop_end_type, max_duration
         )
@@ -574,7 +576,7 @@ class BaseAgroManager(AncillaryObject):
     start_date = Instance(date)
     end_date = Instance(date)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """Initilize method
         Args:
             day   - current date
@@ -582,14 +584,14 @@ class BaseAgroManager(AncillaryObject):
         msg = "`initialize` method not yet implemented on %s" % self.__class__.__name__
         raise NotImplementedError(msg)
 
-    def reset(self):
+    def reset(self) -> None:
         """
         Reset agromanager
         """
         self._site_calendar.reset()
         self._crop_calendar.reset()
 
-    def __call__(self, day: date, drv):
+    def __call__(self, day: date, drv: WeatherDataContainer) -> None:
         """Calls the AgroManager to execute and crop calendar actions, timed or state events.
 
         :param day: The current simulation date
@@ -603,7 +605,7 @@ class BaseAgroManager(AncillaryObject):
         if self._crop_calendar is not None:
             self._crop_calendar(day)
 
-    def _on_SITE_FINISH(self, day: date):
+    def _on_SITE_FINISH(self, day: date) -> None:
         """Send signal to terminate after the crop cycle finishes.
 
         The simulation will be terminated when the following conditions are met:
@@ -630,7 +632,7 @@ class AgroManagerAnnual(BaseAgroManager):
     state events.
     """
 
-    def initialize(self, kiosk: VariableKiosk, agromanagement: dict):
+    def initialize(self, kiosk: VariableKiosk, agromanagement: dict) -> None:
         """Initialize the AgroManager.
 
         :param kiosk: A PCSE variable Kiosk
@@ -683,7 +685,7 @@ class AgroManagerPlant(BaseAgroManager):
     state events.
     """
 
-    def initialize(self, kiosk: VariableKiosk, agromanagement: dict):
+    def initialize(self, kiosk: VariableKiosk, agromanagement: dict) -> None:
         """Initialize the AgroManagerHarvest.
 
         :param kiosk: A PCSE variable Kiosk
@@ -733,7 +735,7 @@ class AgroManagerHarvest(BaseAgroManager):
     state events.
     """
 
-    def initialize(self, kiosk: VariableKiosk, agromanagement: dict):
+    def initialize(self, kiosk: VariableKiosk, agromanagement: dict) -> None:
         """Initialize the AgroManager.
 
         :param kiosk: A PCSE variable Kiosk
@@ -783,7 +785,7 @@ class AgroManagerPerennial(BaseAgroManager):
     state events.
     """
 
-    def initialize(self, kiosk: VariableKiosk, agromanagement: dict):
+    def initialize(self, kiosk: VariableKiosk, agromanagement: dict) -> None:
         """Initialize the AgroManager.
 
         :param kiosk: A PCSE variable Kiosk
@@ -816,7 +818,7 @@ class AgroManagerPerennial(BaseAgroManager):
             cc.validate(self._site_calendar.site_start_date, self._site_calendar.site_end_date)
             self._crop_calendar = cc
 
-    def __call__(self, day: date, drv):
+    def __call__(self, day: date, drv: WeatherDataContainer) -> None:
         """Calls the AgroManager to execute and crop calendar actions, timed or state events.
 
         :param day: The current simulation date
@@ -830,7 +832,7 @@ class AgroManagerPerennial(BaseAgroManager):
         if self._crop_calendar is not None:
             self._crop_calendar(day)
 
-    def _on_SITE_FINISH(self, day: date):
+    def _on_SITE_FINISH(self, day: date) -> None:
         """Send signal to terminate after the crop cycle finishes.
 
         The simulation will be terminated when the following conditions are met:
@@ -860,7 +862,7 @@ class AgroManagerPlantPerennial(BaseAgroManager):
     state events.
     """
 
-    def initialize(self, kiosk: VariableKiosk, agromanagement: dict):
+    def initialize(self, kiosk: VariableKiosk, agromanagement: dict) -> None:
         """Initialize the AgroManagerHarvest.
 
         :param kiosk: A PCSE variable Kiosk
@@ -910,7 +912,7 @@ class AgroManagerHarvestPerennial(BaseAgroManager):
     state events.
     """
 
-    def initialize(self, kiosk: VariableKiosk, agromanagement: dict):
+    def initialize(self, kiosk: VariableKiosk, agromanagement: dict) -> None:
         """Initialize the AgroManager.
 
         :param kiosk: A PCSE variable Kiosk

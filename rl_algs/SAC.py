@@ -16,7 +16,7 @@ import torch.optim as optim
 
 from stable_baselines3.common.buffers import ReplayBuffer
 from torch.distributions.categorical import Categorical
-from .rl_utils import RL_Args, Agent, setup, eval_policy
+from rl_algs.rl_utils import RL_Args, Agent, setup, eval_policy
 
 
 @dataclass
@@ -73,7 +73,7 @@ class SoftQNetwork(nn.Module):
 
 
 class SAC(nn.Module, Agent):
-    def __init__(self, envs, state_fpath: str = None, **kwargs):
+    def __init__(self, envs, state_fpath: str = None, **kwargs: dict) -> None:
         super().__init__()
         self.env = envs
         obs_shape = envs.single_observation_space.shape
@@ -96,7 +96,7 @@ class SAC(nn.Module, Agent):
 
         return logits
 
-    def get_action(self, x):
+    def get_action(self, x: np.ndarray | torch.Tensor) -> torch.Tensor:
         """
         Helper function to get the action of the policy
         """
@@ -118,7 +118,7 @@ class SAC(nn.Module, Agent):
         return action, log_prob, action_probs
 
 
-def train(kwargs):
+def train(kwargs: Namespace) -> None:
     args = kwargs.SAC
 
     assert args.num_envs == 1, "vectorized envs are not supported at the moment"

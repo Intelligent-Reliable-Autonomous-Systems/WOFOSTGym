@@ -6,11 +6,11 @@ Modified by Will Solow, 2024
 
 from datetime import date
 
-from ..nasapower import WeatherDataProvider
-from ..utils.traitlets import Float
-from ..utils.decorators import prepare_rates, prepare_states
-from ..util import AfgenTrait, limit
-from ..base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject, VariableKiosk
+from pcse.nasapower import WeatherDataContainer
+from pcse.utils.traitlets import Float
+from pcse.utils.decorators import prepare_rates, prepare_states
+from pcse.util import AfgenTrait, limit
+from pcse.base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject, VariableKiosk
 
 
 class Base_WOFOST_Root_Dynamics(SimulationObject):
@@ -154,7 +154,7 @@ class Base_WOFOST_Root_Dynamics(SimulationObject):
         DWRT = Float(-99.0)
         TWRT = Float(-99.0)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE  instance
@@ -166,7 +166,7 @@ class Base_WOFOST_Root_Dynamics(SimulationObject):
         raise NotImplementedError(msg)
 
     @prepare_rates
-    def calc_rates(self, day: date, drv: WeatherDataProvider):
+    def calc_rates(self, day: date, drv: WeatherDataContainer) -> None:
         """Calculate state rates for integration"""
         p = self.params
         r = self.rates
@@ -194,7 +194,7 @@ class Base_WOFOST_Root_Dynamics(SimulationObject):
             r.RR = 0.0
 
     @prepare_states
-    def integrate(self, day: date, delt: float = 1.0):
+    def integrate(self, day: date, delt: float = 1.0) -> None:
         """Integrate rates for new states"""
         rates = self.rates
         states = self.states
@@ -208,7 +208,10 @@ class Base_WOFOST_Root_Dynamics(SimulationObject):
         # New root depth
         states.RD += rates.RR
 
-    def publish_states(self):
+    def publish_states(self) -> None:
+        """
+        Helper function so that VariableKiosk sees the states
+        """
         states = self.states
 
         # Dry weight of living roots
@@ -220,7 +223,7 @@ class Base_WOFOST_Root_Dynamics(SimulationObject):
         # New root depth
         states.RD = states.RD
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset all states and rates to initial values"""
         # INITIAL STATES
         params = self.params
@@ -247,7 +250,7 @@ class Base_WOFOST_Root_Dynamics(SimulationObject):
 class Annual_WOFOST_Root_Dynamics(Base_WOFOST_Root_Dynamics):
     """Class for handling root dynamics of annual crops"""
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE  instance
@@ -293,7 +296,7 @@ class Perennial_WOFOST_Root_Dynamics(Base_WOFOST_Root_Dynamics):
         KTHRESH = Float(-99.0)  # Threshold above which excess K stress occurs
         RDRRNPK = AfgenTrait()
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE  instance
@@ -323,7 +326,7 @@ class Perennial_WOFOST_Root_Dynamics(Base_WOFOST_Root_Dynamics):
 
         self.rates = self.RateVariables(kiosk, publish=["RR", "GRRT", "DRRT1", "DRRT2", "DRRT3", "DRRT", "GWRT"])
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset all states and rates to initial values"""
         # INITIAL STATES
         params = self.params

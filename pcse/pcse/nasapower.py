@@ -7,6 +7,7 @@ Modified by Will Solow, 2024
 
 import os
 import datetime as dt
+from math import exp
 import pathlib
 
 import numpy as np
@@ -15,9 +16,8 @@ import requests
 import logging
 import pickle
 
-from .util import reference_ET, check_angstromAB
-from .utils import exceptions as exc
-from math import exp
+from pcse.util import reference_ET, check_angstromAB
+from pcse.utils import exceptions as exc
 
 # Define some lambdas to take care of unit conversions.
 MJ_to_J = lambda x: x * 1e6
@@ -26,7 +26,7 @@ tdew_to_hpa = lambda x: ea_from_tdew(x) * 10.0
 to_date = lambda d: d.date()
 
 
-def ea_from_tdew(tdew):
+def ea_from_tdew(tdew: float) -> float:
     """
     Calculates actual vapour pressure, ea [kPa] from the dewpoint temperature
     using equation (14) in the FAO paper. As the dewpoint temperature is the
@@ -70,10 +70,10 @@ class SlotPickleMixin(object):
     http://code.activestate.com/recipes/578433-mixin-for-pickling-objects-with-__slots__/
     """
 
-    def __getstate__(self):
+    def __getstate__(self) -> dict:
         return dict((slot, getattr(self, slot)) for slot in self.__slots__ if hasattr(self, slot))
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: dict) -> None:
         for slot, value in state.items():
             setattr(self, slot, value)
 
@@ -153,7 +153,7 @@ class WeatherDataContainer(SlotPickleMixin):
         "TMINRA": (-50.0, 60.0),
     }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: list, **kwargs: dict) -> None:
 
         # only keyword parameters should be used for weather data container
         if len(args) > 0:
@@ -203,7 +203,7 @@ class WeatherDataContainer(SlotPickleMixin):
             msg = "WeatherDataContainer: unknown keywords '%s' are ignored!"
             logging.warning(msg, kwargs.keys())
 
-    def __setattr__(self, key, value):
+    def __setattr__(self, key: str, value: float) -> None:
 
         # Range checking on known meteo variables.
         if key in self.ranges:
@@ -213,7 +213,7 @@ class WeatherDataContainer(SlotPickleMixin):
                 raise exc.PCSEError(msg)
         SlotPickleMixin.__setattr__(self, key, value)
 
-    def __str__(self):
+    def __str__(self) -> str:
         msg = "Weather data for %s (DAY)\n" % self.DAY
         for v in self.required:
             value = getattr(self, v, None)
@@ -234,7 +234,7 @@ class WeatherDataContainer(SlotPickleMixin):
         msg += "Elevation (ELEV): %6.1f m.\n" % self.ELEV
         return msg
 
-    def add_variable(self, varname, value, unit):
+    def add_variable(self, varname: str, value: float, unit: str) -> None:
         """Adds an attribute <varname> with <value> and given <unit>
 
         :param varname: Name of variable to be set as attribute name (string)
@@ -282,11 +282,11 @@ class WeatherDataProvider(object):
         self.store = {}
 
     @property
-    def logger(self):
+    def logger(self) -> logging.Logger:
         loggername = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         return logging.getLogger(loggername)
 
-    def _dump(self, cache_fname):
+    def _dump(self, cache_fname: str) -> None:
         """Dumps the contents into cache_fname using pickle.
 
         Dumps the values of self.store, longitude, latitude, elevation and description
@@ -295,7 +295,7 @@ class WeatherDataProvider(object):
             dmp = (self.store, self.elevation, self.longitude, self.latitude, self.description, self.ETmodel)
             pickle.dump(dmp, fp, pickle.HIGHEST_PROTOCOL)
 
-    def _load(self, cache_fname):
+    def _load(self, cache_fname: str) -> None:
         """Loads the contents from cache_fname using pickle.
 
         Loads the values of self.store, longitude, latitude, elevation and description
@@ -313,7 +313,7 @@ class WeatherDataProvider(object):
 
         self.store.update(store)
 
-    def export(self):
+    def export(self) -> list[dict]:
         """Exports the contents of the WeatherDataProvider as a list of dictionaries.
 
         The results from export can be directly converted to a Pandas dataframe
@@ -332,7 +332,7 @@ class WeatherDataProvider(object):
         return weather_data
 
     @property
-    def first_date(self):
+    def first_date(self) -> dt.date:
         try:
             self._first_date = min(self.store)[0]
         except ValueError:
@@ -340,7 +340,7 @@ class WeatherDataProvider(object):
         return self._first_date
 
     @property
-    def last_date(self):
+    def last_date(self) -> dt.date:
         try:
             self._last_date = max(self.store)[0]
         except ValueError:
@@ -348,18 +348,18 @@ class WeatherDataProvider(object):
         return self._last_date
 
     @property
-    def missing(self):
+    def missing(self) -> int:
         missing = (self.last_date - self.first_date).days - len(self.store) + 1
         return missing
 
     @property
-    def missing_days(self):
+    def missing_days(self) -> list[dt.date]:
         numdays = (self.last_date - self.first_date).days
         all_days = {self.first_date + dt.timedelta(days=i) for i in range(numdays)}
         avail_days = {t[0] for t in self.store.keys()}
         return sorted(all_days - avail_days)
 
-    def check_keydate(self, key):
+    def check_keydate(self, key: str) -> dt.date:
         """Check representations of date for storage/retrieval of weather data.
 
         The following formats are supported:
@@ -392,7 +392,7 @@ class WeatherDataProvider(object):
             msg = "Key for WeatherDataProvider not recognized as date: %s"
             raise KeyError(msg % key)
 
-    def _store_WeatherDataContainer(self, wdc, keydate, member_id=0):
+    def _store_WeatherDataContainer(self, wdc: WeatherDataContainer, keydate: dt.date, member_id: int = 0) -> None:
         """Stores the WDC under given keydate and member_id."""
 
         if member_id != 0 and self.supports_ensembles is False:
@@ -406,7 +406,7 @@ class WeatherDataProvider(object):
 
         self.store[(kd, member_id)] = wdc
 
-    def __call__(self, day, member_id=0):
+    def __call__(self, day: dt.date, member_id: int = 0) -> WeatherDataContainer:
 
         if self.supports_ensembles is False and member_id != 0:
             msg = "Retrieving ensemble weather is not supported by %s" % self.__class__.__name__
@@ -430,7 +430,7 @@ class WeatherDataProvider(object):
                 msg = "No weather data for (%s, %i)." % (keydate, member_id)
                 raise exc.WeatherDataProviderError(msg)
 
-    def __str__(self):
+    def __str__(self) -> str:
 
         msg = "Weather data provided by: %s\n" % self.__class__.__name__
         msg += "--------Description---------\n"
@@ -510,7 +510,7 @@ class NASAPowerWeatherDataProvider(WeatherDataProvider):
     angstA = 0.29
     angstB = 0.49
 
-    def __init__(self, latitude, longitude, force_update=False, ETmodel="PM"):
+    def __init__(self, latitude: float, longitude: float, force_update: bool = False, ETmodel: str = "PM") -> None:
 
         WeatherDataProvider.__init__(self)
 
@@ -567,7 +567,7 @@ class NASAPowerWeatherDataProvider(WeatherDataProvider):
                     msg = "Outdated cache file failed loading."
                     raise exc.PCSEError(msg)
 
-    def _get_and_process_NASAPower(self, latitude, longitude):
+    def _get_and_process_NASAPower(self, latitude: float, longitude: float) -> None:
         """Handles the retrieval and processing of the NASA Power data"""
         powerdata = self._query_NASAPower_server(latitude, longitude)
         if not powerdata:
@@ -596,7 +596,7 @@ class NASAPowerWeatherDataProvider(WeatherDataProvider):
         print(cache_filename)
         self._dump(cache_filename)
 
-    def _estimate_AngstAB(self, df_power):
+    def _estimate_AngstAB(self, df_power: pd.DataFrame) -> tuple[float, float]:
         """Determine Angstrom A/B parameters from Top-of-Atmosphere (ALLSKY_TOA_SW_DWN) and
         top-of-Canopy (ALLSKY_SFC_SW_DWN) radiation values.
 
@@ -640,7 +640,7 @@ class NASAPowerWeatherDataProvider(WeatherDataProvider):
 
         return angstrom_a, angstrom_b
 
-    def _query_NASAPower_server(self, latitude, longitude):
+    def _query_NASAPower_server(self, latitude: float, longitude: float) -> str:
         """Query the NASA Power server for data on given latitude/longitude"""
 
         start_date = dt.date(1983, 7, 1)
@@ -674,7 +674,7 @@ class NASAPowerWeatherDataProvider(WeatherDataProvider):
         self.logger.debug(msg)
         return req.json()
 
-    def _find_cache_file(self, latitude, longitude):
+    def _find_cache_file(self, latitude: float, longitude: float) -> str:
         """Try to find a cache file for given latitude/longitude.
 
         Returns None if the cache file does not exist, else it returns the full path
@@ -686,7 +686,7 @@ class NASAPowerWeatherDataProvider(WeatherDataProvider):
         else:
             return None
 
-    def _get_cache_filename(self, latitude, longitude):
+    def _get_cache_filename(self, latitude: float, longitude: float) -> str:
         """Constructs the filename used for cache files given latitude and longitude
 
         The latitude and longitude is coded into the filename by truncating on
@@ -702,7 +702,7 @@ class NASAPowerWeatherDataProvider(WeatherDataProvider):
         cache_filename = os.path.join(METEO_CACHE_DIR, fname)
         return cache_filename
 
-    def _write_cache_file(self):
+    def _write_cache_file(self) -> None:
         """Writes the meteo data from NASA Power to a cache file."""
         cache_filename = self._get_cache_filename(self.latitude, self.longitude)
         try:
@@ -711,7 +711,7 @@ class NASAPowerWeatherDataProvider(WeatherDataProvider):
             msg = "Failed to write cache to file '%s' due to: %s" % (cache_filename, e)
             self.logger.warning(msg)
 
-    def _load_cache_file(self):
+    def _load_cache_file(self) -> bool:
         """Loads the data from the cache file. Return True if successful."""
         cache_filename = self._get_cache_filename(self.latitude, self.longitude)
         try:
@@ -724,7 +724,7 @@ class NASAPowerWeatherDataProvider(WeatherDataProvider):
             self.logger.warning(msg)
             return False
 
-    def _make_WeatherDataContainers(self, recs):
+    def _make_WeatherDataContainers(self, recs: pd.DataFrame) -> None:
         """Create a WeatherDataContainers from recs, compute ET and store the WDC's."""
 
         for rec in recs:
@@ -760,7 +760,7 @@ class NASAPowerWeatherDataProvider(WeatherDataProvider):
             # add wdc to dictionary for thisdate
             self._store_WeatherDataContainer(wdc, wdc.DAY)
 
-    def _process_POWER_records(self, powerdata):
+    def _process_POWER_records(self, powerdata: pd.DataFrame) -> pd.DataFrame:
         """Process the meteorological records returned by NASA POWER"""
         msg = "Start parsing of POWER records from URL retrieval."
         self.logger.debug(msg)
@@ -782,7 +782,7 @@ class NASAPowerWeatherDataProvider(WeatherDataProvider):
 
         return df_power
 
-    def _POWER_to_PCSE(self, df_power):
+    def _POWER_to_PCSE(self, df_power: pd.DataFrame) -> None:
         # Convert POWER data to a dataframe with PCSE compatible inputs
         df_pcse = pd.DataFrame(
             {

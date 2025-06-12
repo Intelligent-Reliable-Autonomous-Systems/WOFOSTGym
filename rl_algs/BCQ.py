@@ -4,7 +4,9 @@ Docs: https://github.com/sfujim/BCQ
 Modified to fit CleanRL format, Will Solow, 2024
 """
 
+from argparse import Namespace
 import numpy as np
+import gymnasium as Gym
 import time
 from dataclasses import dataclass
 import torch
@@ -14,7 +16,7 @@ from stable_baselines3.common.buffers import ReplayBuffer
 import torch.optim as optim
 import torch.nn.functional as F
 
-from .rl_utils import load_data_to_buffer, RL_Args, Agent, setup
+from rl_algs.rl_utils import load_data_to_buffer, RL_Args, Agent, setup
 
 
 @dataclass
@@ -58,7 +60,7 @@ class Args(RL_Args):
 
 
 class BCQ(nn.Module, Agent):
-    def __init__(self, env, state_fpath: str = None, **kwargs):
+    def __init__(self, env: gym.Env, state_fpath: str = None, **kwargs: dict) -> None:
         super(BCQ, self).__init__()
         self.env = env
         self.q1 = nn.Linear(np.array(env.single_observation_space.shape).prod(), 256)
@@ -79,7 +81,7 @@ class BCQ(nn.Module, Agent):
                 msg = f"Error loading state dictionary from {state_fpath}"
                 raise Exception(msg)
 
-    def forward(self, state):
+    def forward(self, state: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         q = F.relu(self.q1(state))
         q = F.relu(self.q2(q))
 
@@ -88,7 +90,7 @@ class BCQ(nn.Module, Agent):
         i = self.i3(i)
         return self.q3(q), F.log_softmax(i, dim=-1), i
 
-    def get_action(self, state):
+    def get_action(self, state: torch.Tensor) -> int:
         """
         Get best action deterministically. Compatibility function for generating data
         """
@@ -98,7 +100,7 @@ class BCQ(nn.Module, Agent):
 
         return int((imt * q + (1.0 - imt) * -1e8).argmax(-1))
 
-    def select_action(self, args, device, state):
+    def select_action(self, args: Namespace, device: torch.device, state: torch.Tensor) -> int:
         """
         Select action according to policy with probability (1-eps)
         otherwise, select random action
@@ -115,7 +117,9 @@ class BCQ(nn.Module, Agent):
             return np.random.randint(self.env.single_action_space.n)
 
 
-def eval_policy(policy, eval_env, args, device, eval_episodes=10):
+def eval_policy(
+    policy: Agent, eval_env: gym.Env, args: Namespace, device: torch.device, eval_episodes: int = 10
+) -> float:
     """
     Runs policy x times on evaluation environment
     """
@@ -134,7 +138,7 @@ def eval_policy(policy, eval_env, args, device, eval_episodes=10):
     return avg_reward
 
 
-def train(kwargs):
+def train(kwargs: Namespace) -> None:
     """
     BCQ Training function
     """

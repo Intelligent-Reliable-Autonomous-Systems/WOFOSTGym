@@ -12,9 +12,9 @@ import os
 import pickle
 import yaml
 
-from ..base import MultiCropDataProvider
-from .. import exceptions as exc
-from ..util import version_tuple, get_working_directory
+from pcse.base import MultiCropDataProvider
+from pcse.utils import exceptions as exc
+from pcse.util import version_tuple, get_working_directory
 
 
 class YAMLCropDataProvider(MultiCropDataProvider):
@@ -80,7 +80,7 @@ class YAMLCropDataProvider(MultiCropDataProvider):
     # Compatibility of data provider with YAML parameter file version
     compatible_version = "1.0.0"
 
-    def __init__(self, fpath=None, force_reload=False):
+    def __init__(self, fpath: str = None, force_reload: bool = False) -> None:
         """Initialize the YAMLCropDataProivder class by first inheriting from the
         MultiCropDataProvider class
         """
@@ -102,7 +102,7 @@ class YAMLCropDataProvider(MultiCropDataProvider):
             with open(self._get_cache_fname(fpath), "wb") as fp:
                 pickle.dump((self.compatible_version, self._store), fp, pickle.HIGHEST_PROTOCOL)
 
-    def read_local_repository(self, fpath):
+    def read_local_repository(self, fpath: str) -> str:
         """Reads the crop YAML files on the local file system
 
         :param fpath: the location of the YAML files on the filesystem
@@ -125,7 +125,7 @@ class YAMLCropDataProvider(MultiCropDataProvider):
             cache_fname_fp = os.path.join(fpath, cache_fname)
         return cache_fname_fp
 
-    def _load_cache(self, fpath):
+    def _load_cache(self, fpath: str) -> bool:
         """Loads the cache file if possible and returns True, else False."""
         try:
             cache_fname_fp = self._get_cache_fname(fpath)
@@ -157,7 +157,7 @@ class YAMLCropDataProvider(MultiCropDataProvider):
 
         return False
 
-    def _check_version(self, parameters, crop_fname):
+    def _check_version(self, parameters: dict, crop_fname: str) -> None:
         """Checks the version of the parameter input with the version supported by this data provider.
 
         Raises an exception if the parameter set is incompatible.
@@ -173,12 +173,12 @@ class YAMLCropDataProvider(MultiCropDataProvider):
             msg = f"Version check failed on crop parameter file: {crop_fname}"
             raise exc.PCSEError(msg)
 
-    def _add_crop(self, crop_name, parameters):
+    def _add_crop(self, crop_name: str, parameters: dict) -> None:
         """Store the parameter sets for the different varieties for the given crop."""
         variety_sets = parameters["CropParameters"]["Varieties"]
         self._store[crop_name] = variety_sets
 
-    def _get_yaml_files(self, fpath):
+    def _get_yaml_files(self, fpath: str) -> list[str]:
         """Returns all the files ending on *.yaml in the given path."""
         fname = os.path.join(fpath, "crops.yaml")
         if not os.path.exists(fname):
@@ -192,7 +192,7 @@ class YAMLCropDataProvider(MultiCropDataProvider):
                 raise RuntimeError(msg)
         return crop_yaml_fnames
 
-    def set_active_crop(self, crop_name, crop_variety):
+    def set_active_crop(self, crop_name: str, crop_variety: str) -> None:
         """Sets the parameters in the internal dict for given crop_name and crop_variety
 
         It first clears the active set of crop parameters in the internal dict.
@@ -221,7 +221,7 @@ class YAMLCropDataProvider(MultiCropDataProvider):
         # update internal dict with parameter values for this variety
         self.update(parameters)
 
-    def get_default_data(self, crop_name, crop_variety):
+    def get_default_data(self, crop_name: str, crop_variety: str) -> None:
         """
         Gets the default crop set by the agromanagement file
         """
@@ -229,7 +229,7 @@ class YAMLCropDataProvider(MultiCropDataProvider):
 
         return {k: v[0] for k, v in variety_sets[crop_variety].items() if k != "Metadata"}
 
-    def get_crops_varieties(self):
+    def get_crops_varieties(self) -> dict[str, str]:
         """Return the names of available crops and varieties per crop.
 
         :return: a dict of type {'crop_name1': ['crop_variety1', 'crop_variety1', ...],
@@ -237,7 +237,7 @@ class YAMLCropDataProvider(MultiCropDataProvider):
         """
         return {k: v.keys() for k, v in self._store.items()}
 
-    def print_crops_varieties(self):
+    def print_crops_varieties(self) -> None:
         """Gives a printed list of crops and varieties on screen."""
         msg = ""
         for crop, varieties in self.get_crops_varieties().items():
@@ -246,7 +246,7 @@ class YAMLCropDataProvider(MultiCropDataProvider):
                 msg += " - '%s'\n" % var
         print(msg)
 
-    def __str__(self):
+    def __str__(self) -> str:
         if not self:
             msg = "%s - crop and variety not set: no active crop parameter set!\n" % self.__class__.__name__
             return msg
@@ -260,6 +260,6 @@ class YAMLCropDataProvider(MultiCropDataProvider):
             return msg
 
     @property
-    def logger(self):
+    def logger(self) -> logging.Logger:
         loggername = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         return logging.getLogger(loggername)

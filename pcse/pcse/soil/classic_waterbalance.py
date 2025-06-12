@@ -9,13 +9,13 @@ Modified by Will Solow, 2024
 from datetime import date
 from math import sqrt
 
-from ..nasapower import WeatherDataProvider
-from ..utils.traitlets import Float, Int, Instance, Bool, List
-from ..utils.decorators import prepare_rates, prepare_states
-from ..util import limit, Afgen
-from ..base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject, VariableKiosk
-from ..utils import signals
-from ..utils import exceptions as exc
+from pcse.nasapower import WeatherDataContainer
+from pcse.utils.traitlets import Float, Int, Instance, Bool, List
+from pcse.utils.decorators import prepare_rates, prepare_states
+from pcse.util import limit, Afgen
+from pcse.base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject, VariableKiosk
+from pcse.utils import signals
+from pcse.utils import exceptions as exc
 
 
 class WaterbalanceFD(SimulationObject):
@@ -240,7 +240,7 @@ class WaterbalanceFD(SimulationObject):
         DSS = Float(-99.0)
         DRAINT = Float(-99.0)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE  instance
@@ -359,7 +359,7 @@ class WaterbalanceFD(SimulationObject):
         self._increments_W = []
 
     @prepare_rates
-    def calc_rates(self, day: date, drv: WeatherDataProvider):
+    def calc_rates(self, day: date, drv: WeatherDataContainer) -> None:
         """Calculate state rates for integration"""
         s = self.states
         p = self.params
@@ -466,7 +466,7 @@ class WaterbalanceFD(SimulationObject):
         r.DRAINT = drv.RAIN
 
     @prepare_states
-    def integrate(self, day: date, delt: float = 1.0):
+    def integrate(self, day: date, delt: float = 1.0) -> None:
         """Integrate states from rates"""
         s = self.states
         p = self.params
@@ -523,7 +523,7 @@ class WaterbalanceFD(SimulationObject):
         self.RDold = RD
 
     @prepare_states
-    def finalize(self, day: date):
+    def finalize(self, day: date) -> None:
         """Finalize states"""
         s = self.states
         p = self.params
@@ -562,7 +562,7 @@ class WaterbalanceFD(SimulationObject):
         # Run finalize on the subSimulationObjects
         SimulationObject.finalize(self, day)
 
-    def _determine_rooting_depth(self):
+    def _determine_rooting_depth(self) -> float:
         """Determines appropriate use of the rooting depth (RD)
 
         This function includes the logic to determine the depth of the upper (rooted)
@@ -574,7 +574,7 @@ class WaterbalanceFD(SimulationObject):
             # Hold RD at default value
             return self.DEFAULT_RD
 
-    def _redistribute_water(self, RDchange: float):
+    def _redistribute_water(self, RDchange: float) -> None:
         """Redistributes the water between the root zone and the lower zone.
 
         :param RDchange: Change in root depth [cm] positive for downward growth,
@@ -609,18 +609,18 @@ class WaterbalanceFD(SimulationObject):
             # total water add to rootzone by root zone reset
             s.WART += WDR
 
-    def _on_CROP_START(self):
+    def _on_CROP_START(self) -> None:
         """Recieves crop start signal"""
 
         self.in_crop_cycle = True
         self.rooted_layer_needs_reset = True
 
-    def _on_CROP_FINISH(self):
+    def _on_CROP_FINISH(self) -> None:
         """Recieves crop finish signal"""
         self.in_crop_cycle = False
         self.rooted_layer_needs_reset = True
 
-    def _on_IRRIGATE(self, amount: float, efficiency: float = 1.0):
+    def _on_IRRIGATE(self, amount: float, efficiency: float = 1.0) -> None:
         """Recieves irrigation signal"""
         self.states.TOTIRRIG += amount
         self._RIRR = amount * efficiency
@@ -850,7 +850,7 @@ class WaterbalancePP(SimulationObject):
         DSS = Float(-99.0)
         DRAINT = Float(-99.0)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE  instance
@@ -967,7 +967,7 @@ class WaterbalancePP(SimulationObject):
         self._increments_W = []
 
     @prepare_rates
-    def calc_rates(self, day: date, drv: WeatherDataProvider):
+    def calc_rates(self, day: date, drv: WeatherDataContainer) -> None:
         """Compute state rates"""
         s = self.states
         p = self.params
@@ -1074,7 +1074,7 @@ class WaterbalancePP(SimulationObject):
         r.DRAINT = drv.RAIN
 
     @prepare_states
-    def integrate(self, day: date, delt: float = 1.0):
+    def integrate(self, day: date, delt: float = 1.0) -> None:
         """Integrate state rates"""
         s = self.states
         p = self.params
@@ -1131,7 +1131,7 @@ class WaterbalancePP(SimulationObject):
         self.RDold = RD
 
     @prepare_states
-    def finalize(self, day: date):
+    def finalize(self, day: date) -> None:
         """Finalize states"""
 
         s = self.states
@@ -1171,7 +1171,7 @@ class WaterbalancePP(SimulationObject):
         # Run finalize on the subSimulationObjects
         SimulationObject.finalize(self, day)
 
-    def _determine_rooting_depth(self):
+    def _determine_rooting_depth(self) -> float:
         """Determines appropriate use of the rooting depth (RD)
 
         This function includes the logic to determine the depth of the upper (rooted)
@@ -1183,7 +1183,7 @@ class WaterbalancePP(SimulationObject):
             # Hold RD at default value
             return self.DEFAULT_RD
 
-    def _redistribute_water(self, RDchange: float):
+    def _redistribute_water(self, RDchange: float) -> None:
         """Redistributes the water between the root zone and the lower zone.
 
         :param RDchange: Change in root depth [cm] positive for downward growth,
@@ -1218,17 +1218,17 @@ class WaterbalancePP(SimulationObject):
             # total water add to rootzone by root zone reset
             s.WART += WDR
 
-    def _on_CROP_START(self):
+    def _on_CROP_START(self) -> None:
         """Receives on crop start signal"""
         self.in_crop_cycle = True
         self.rooted_layer_needs_reset = True
 
-    def _on_CROP_FINISH(self):
+    def _on_CROP_FINISH(self) -> None:
         """Receives on crop finish signal"""
         self.in_crop_cycle = False
         self.rooted_layer_needs_reset = True
 
-    def _on_IRRIGATE(self, amount: float, efficiency: float = 1.0):
+    def _on_IRRIGATE(self, amount: float, efficiency: float = 1.0) -> None:
         """Receives irrigate signal"""
         self.states.TOTIRRIG += amount
         self._RIRR = amount * efficiency

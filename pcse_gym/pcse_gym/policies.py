@@ -4,9 +4,10 @@ Written by: Will Solow, 2024
 """
 
 import gymnasium as gym
+import numpy as np
+from abc import abstractmethod, ABC
 from pcse_gym.exceptions import PolicyException
 from pcse_gym.envs.wofost_base import Plant_NPK_Env, Harvest_NPK_Env
-from abc import abstractmethod, ABC
 
 
 class Policy(ABC):
@@ -19,7 +20,7 @@ class Policy(ABC):
 
     required_vars = list
 
-    def __init__(self, env: gym.Env, required_vars: list = []):
+    def __init__(self, env: gym.Env, required_vars: list = []) -> None:
         """Initialize the :class:`Policy`.
 
         Args:
@@ -31,7 +32,7 @@ class Policy(ABC):
 
         self._validate()
 
-    def __call__(self, obs: dict):
+    def __call__(self, obs: dict) -> int:
         """Calls the _get_action() method.
 
         Helper method so that the HandCrafted Policies share same call
@@ -40,14 +41,14 @@ class Policy(ABC):
         it is."""
         return self._get_action(obs)
 
-    def get_action(self, obs: dict):
+    def get_action(self, obs: dict) -> int:
         """Calls the _get_action() method
 
         Useful for compatibility with RL agent policies
         """
         return self._get_action(obs)
 
-    def _validate(self):
+    def _validate(self) -> None:
         """Check that the policy is valid given the observation space and that
         the environment is wrapped with the NPKDictObservationWrapper
         """
@@ -68,16 +69,17 @@ class Policy(ABC):
             raise PolicyException(msg)
 
     @abstractmethod
-    def _get_action(self, obs: dict):
+    def _get_action(self, obs: dict) -> int:
         """Return the action for the environment to take"""
         msg = "Policy Subclass should implement this"
         raise NotImplementedError(msg)
 
     @abstractmethod
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Returns the string representation
         """
+        raise NotImplementedError
 
 
 class No_Action(Policy):
@@ -85,7 +87,7 @@ class No_Action(Policy):
 
     required_vars = []
 
-    def __init__(self, env: gym.Env, **kwargs):
+    def __init__(self, env: gym.Env, **kwargs: dict) -> None:
         """Initialize the :class:`No_Action`.
 
         Args:
@@ -93,10 +95,10 @@ class No_Action(Policy):
         """
         super().__init__(env, required_vars=self.required_vars)
 
-    def _get_action(self, obs):
+    def _get_action(self, obs: np.ndarray) -> dict:
         return {"n": 0, "p": 0, "k": 0, "irrig": 0}
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Returns a human readable string
         """
@@ -108,7 +110,7 @@ class Weekly_N(Policy):
 
     required_vars = []
 
-    def __init__(self, env: gym.Env, amount: float = 0, **kwargs):
+    def __init__(self, env: gym.Env, amount: float = 0, **kwargs: dict) -> None:
         """Initialize the :class:`Weekly_N`.
 
         Args:
@@ -118,7 +120,7 @@ class Weekly_N(Policy):
         self.amount = amount
         super().__init__(env, required_vars=self.required_vars)
 
-    def _validate(self):
+    def _validate(self) -> None:
         """Validates that the weekly amount is within the range of allowable actions"""
         super()._validate()
 
@@ -126,11 +128,11 @@ class Weekly_N(Policy):
             msg = "N Amount exceeds total Nitrogen actions"
             raise PolicyException(msg)
 
-    def _get_action(self, obs: dict):
+    def _get_action(self, obs: dict) -> int:
         """Return an action with an amount of N fertilization"""
         return {"n": self.amount, "p": 0, "k": 0, "irrig": 0}
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Returns a human readable string
         """
@@ -142,7 +144,7 @@ class Interval_N(Policy):
 
     required_vars = ["DAYS"]
 
-    def __init__(self, env: gym.Env, amount: float = 0, interval: int = 1, **kwargs):
+    def __init__(self, env: gym.Env, amount: float = 0, interval: int = 1, **kwargs: dict) -> None:
         """Initialize the :class:`Interval_N`.
 
         Args:
@@ -153,7 +155,7 @@ class Interval_N(Policy):
         self.interval = interval
         super().__init__(env, required_vars=self.required_vars)
 
-    def _validate(self):
+    def _validate(self) -> None:
         """Validates that the weekly amount is within the range of allowable actions"""
         super()._validate()
 
@@ -161,14 +163,14 @@ class Interval_N(Policy):
             msg = "W Amount exceeds total Fertilization actions"
             raise PolicyException(msg)
 
-    def _get_action(self, obs: dict):
+    def _get_action(self, obs: dict) -> int:
         """Return an action with an amount of N fertilization"""
         if obs["DAYS"] % self.interval == 0:
             return {"n": self.amount, "p": 0, "k": 0, "irrig": 0}
         else:
             return {"n": 0, "p": 0, "k": 0, "irrig": 0}
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Returns a human readable string
         """
@@ -180,7 +182,7 @@ class Interval_NW(Policy):
 
     required_vars = ["DAYS"]
 
-    def __init__(self, env: gym.Env, amount: float = 0, interval: int = 1, **kwargs):
+    def __init__(self, env: gym.Env, amount: float = 0, interval: int = 1, **kwargs: dict) -> None:
         """Initialize the :class:`Interval_N`.
 
         Args:
@@ -191,7 +193,7 @@ class Interval_NW(Policy):
         self.interval = interval
         super().__init__(env, required_vars=self.required_vars)
 
-    def _validate(self):
+    def _validate(self) -> None:
         """Validates that the weekly amount is within the range of allowable actions"""
         super()._validate()
 
@@ -199,7 +201,7 @@ class Interval_NW(Policy):
             msg = "W Amount exceeds total Fertilization actions"
             raise PolicyException(msg)
 
-    def _get_action(self, obs: dict):
+    def _get_action(self, obs: dict) -> int:
         """Return an action with an amount of N fertilization"""
         if obs["DAYS"] % self.interval * 2 == 0:
             return {"n": self.amount, "p": 0, "k": 0, "irrig": 0}
@@ -208,7 +210,7 @@ class Interval_NW(Policy):
         else:
             return {"n": 0, "p": 0, "k": 0, "irrig": 0}
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Returns a human readable string
         """
@@ -220,7 +222,7 @@ class Interval_W(Policy):
 
     required_vars = ["DAYS"]
 
-    def __init__(self, env: gym.Env, amount: float = 0, interval: int = 1, **kwargs):
+    def __init__(self, env: gym.Env, amount: float = 0, interval: int = 1, **kwargs: dict) -> None:
         """Initialize the :class:`Interval_W`.
 
         Args:
@@ -231,7 +233,7 @@ class Interval_W(Policy):
         self.interval = interval
         super().__init__(env, required_vars=self.required_vars)
 
-    def _validate(self):
+    def _validate(self) -> None:
         """Validates that the weekly amount is within the range of allowable actions"""
         super()._validate()
 
@@ -239,14 +241,14 @@ class Interval_W(Policy):
             msg = "W Amount exceeds total Irrigation actions"
             raise PolicyException(msg)
 
-    def _get_action(self, obs: dict):
+    def _get_action(self, obs: dict) -> int:
         """Return an action with an amount of N fertilization"""
         if obs["DAYS"] % self.interval == 0:
             return {"n": 0, "p": 0, "k": 0, "irrig": self.amount}
         else:
             return {"n": 0, "p": 0, "k": 0, "irrig": 0}
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Returns a human readable string
         """
@@ -260,7 +262,7 @@ class No_Action_Harvest(Policy):
 
     required_vars = ["DAYS"]
 
-    def __init__(self, env: gym.Env, **kwargs):
+    def __init__(self, env: gym.Env, **kwargs: dict) -> None:
         """Initialize the :class:`No_Action_Harvest`.
 
         Args:
@@ -269,7 +271,7 @@ class No_Action_Harvest(Policy):
         """
         super().__init__(env, required_vars=self.required_vars)
 
-    def _validate(self):
+    def _validate(self) -> None:
         """Validates that the environment is a harvesting environment"""
         super()._validate()
 
@@ -277,14 +279,14 @@ class No_Action_Harvest(Policy):
             msg = "Environment does not inherit from `Harvest_NPK_Env`"
             raise PolicyException(msg)
 
-    def _get_action(self, obs: dict):
+    def _get_action(self, obs: dict) -> int:
         """Return an action which harvests on day 225"""
         if obs["DAYS"] == 225:
             return {"harvest": 1, "n": 0, "p": 0, "k": 0, "irrig": 0}
 
         return {"harvest": 0, "n": 0, "p": 0, "k": 0, "irrig": 0}
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Returns a human readable string
         """
@@ -298,7 +300,7 @@ class No_Action_Plant(Policy):
 
     required_vars = ["DAYS"]
 
-    def __init__(self, env: gym.Env, **kwargs):
+    def __init__(self, env: gym.Env, **kwargs: dict) -> None:
         """Initialize the :class:`No_Action_Plant`.
 
         Args:
@@ -307,7 +309,7 @@ class No_Action_Plant(Policy):
         """
         super().__init__(env, required_vars=self.required_vars)
 
-    def _validate(self):
+    def _validate(self) -> None:
         """Validates that the environment is a planting environment"""
         super()._validate()
 
@@ -315,7 +317,7 @@ class No_Action_Plant(Policy):
             msg = "Environment does not inherit from `Plant_NPK_Env`"
             raise PolicyException(msg)
 
-    def _get_action(self, obs: dict):
+    def _get_action(self, obs: dict) -> int:
         """Return an action which plants on day 30 and harvests on day 225"""
         if obs["DAYS"] == 30:
             return {"plant": 1, "harvest": 0, "n": 0, "p": 0, "k": 0, "irrig": 0}
@@ -324,7 +326,7 @@ class No_Action_Plant(Policy):
 
         return {"plant": 0, "harvest": 0, "n": 0, "p": 0, "k": 0, "irrig": 0}
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Returns a human readable string
         """
@@ -334,7 +336,7 @@ class No_Action_Plant(Policy):
 class Threshold_N(Policy):
     required_vars = ["TOTN"]
 
-    def __init__(self, env: gym.Env, amount: float = 0, threshold: int = 1, **kwargs):
+    def __init__(self, env: gym.Env, amount: float = 0, threshold: int = 1, **kwargs: dict) -> None:
         """Initialize the :class:`Threshold_N`.
 
         Args:
@@ -346,14 +348,14 @@ class Threshold_N(Policy):
         self.amount = amount
         super().__init__(env, required_vars=self.required_vars)
 
-    def _get_action(self, obs):
+    def _get_action(self, obs: np.ndarray) -> dict:
         """Returns an action that applies Nitrogen until a threshold is met"""
         if obs["TOTN"] > self.threshold:
             return {"n": 0, "p": 0, "k": 0, "irrig": 0}
         else:
             return {"n": self.amount, "p": 0, "k": 0, "irrig": 0}
 
-    def _validate(self):
+    def _validate(self) -> None:
         """Validates that the weekly amount is within the range of allowable actions"""
         super()._validate()
 
@@ -361,7 +363,7 @@ class Threshold_N(Policy):
             msg = "N Amount exceeds total Nitrogen actions"
             raise PolicyException(msg)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Returns a human readable string
         """
@@ -371,7 +373,7 @@ class Threshold_N(Policy):
 class Below_N(Policy):
     required_vars = ["NAVAIL"]
 
-    def __init__(self, env: gym.Env, amount: float = 0, threshold: int = 1, **kwargs):
+    def __init__(self, env: gym.Env, amount: float = 0, threshold: int = 1, **kwargs: dict) -> None:
         """Initialize the :class:`Below_N`.
 
         Args:
@@ -383,14 +385,14 @@ class Below_N(Policy):
         self.amount = amount
         super().__init__(env, required_vars=self.required_vars)
 
-    def _get_action(self, obs):
+    def _get_action(self, obs: np.ndarray) -> dict:
         """Returns an action that applies Nitrogen while below a certain threshold"""
         if obs["NAVAIL"] < self.threshold:
             return {"n": self.amount, "p": 0, "k": 0, "irrig": 0}
         else:
             return {"n": 0, "p": 0, "k": 0, "irrig": 0}
 
-    def _validate(self):
+    def _validate(self) -> None:
         """Validates that the weekly amount is within the range of allowable actions"""
         super()._validate()
 
@@ -398,7 +400,7 @@ class Below_N(Policy):
             msg = "N Amount exceeds total Nitrogen actions"
             raise PolicyException(msg)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Returns a human readable string
         """
@@ -408,7 +410,7 @@ class Below_N(Policy):
 class Below_W(Policy):
     required_vars = ["SM"]
 
-    def __init__(self, env: gym.Env, amount: float = 0, threshold: int = 1, **kwargs):
+    def __init__(self, env: gym.Env, amount: float = 0, threshold: int = 1, **kwargs: dict) -> None:
         """Initialize the :class:`Below_W`.
 
         Args:
@@ -420,14 +422,14 @@ class Below_W(Policy):
         self.amount = amount
         super().__init__(env, required_vars=self.required_vars)
 
-    def _get_action(self, obs):
+    def _get_action(self, obs: np.ndarray) -> dict:
         """Returns an action that applies Nitrogen while below a certain threshold"""
         if obs["SM"] < self.threshold:
             return {"n": 0, "p": 0, "k": 0, "irrig": self.amount}
         else:
             return {"n": 0, "p": 0, "k": 0, "irrig": 0}
 
-    def _validate(self):
+    def _validate(self) -> None:
         """Validates that the weekly amount is within the range of allowable actions"""
         super()._validate()
 
@@ -435,7 +437,7 @@ class Below_W(Policy):
             msg = "N Amount exceeds total Irrigation actions"
             raise PolicyException(msg)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Returns a human readable string
         """
@@ -449,7 +451,7 @@ class BiWeekly_NW(Policy):
 
     required_vars = ["DAYS"]
 
-    def __init__(self, env: gym.Env, **kwargs):
+    def __init__(self, env: gym.Env, **kwargs: dict) -> None:
         """Initialize the :class:`Interval_N`.
 
         Args:
@@ -458,11 +460,11 @@ class BiWeekly_NW(Policy):
         """
         super().__init__(env, required_vars=self.required_vars)
 
-    def _validate(self):
+    def _validate(self) -> None:
         """Validates that the weekly amount is within the range of allowable actions"""
         super()._validate()
 
-    def _get_action(self, obs: dict):
+    def _get_action(self, obs: dict) -> int:
         """Return an action with an amount of N fertilization"""
         if obs["DAYS"] % 14 == 0:
             return {"n": 1, "p": 0, "k": 0, "irrig": 0}
@@ -471,7 +473,7 @@ class BiWeekly_NW(Policy):
         else:
             return {"n": 0, "p": 0, "k": 0, "irrig": 0}
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Returns a human readable string
         """
@@ -485,7 +487,7 @@ class Monthly_NW(Policy):
 
     required_vars = ["DAYS"]
 
-    def __init__(self, env: gym.Env, **kwargs):
+    def __init__(self, env: gym.Env, **kwargs: dict) -> None:
         """Initialize the :class:`Interval_N`.
 
         Args:
@@ -494,11 +496,11 @@ class Monthly_NW(Policy):
         """
         super().__init__(env, required_vars=self.required_vars)
 
-    def _validate(self):
+    def _validate(self) -> None:
         """Validates that the weekly amount is within the range of allowable actions"""
         super()._validate()
 
-    def _get_action(self, obs: dict):
+    def _get_action(self, obs: dict) -> int:
         """Return an action with an amount of N fertilization"""
         if obs["DAYS"] % 56 == 0:
             return {"n": 1, "p": 0, "k": 0, "irrig": 0}
@@ -507,7 +509,7 @@ class Monthly_NW(Policy):
         else:
             return {"n": 0, "p": 0, "k": 0, "irrig": 0}
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Returns a human readable string
         """

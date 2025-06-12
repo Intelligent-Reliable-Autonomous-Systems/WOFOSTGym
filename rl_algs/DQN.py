@@ -5,17 +5,19 @@ Modified by: Will Solow, 2024
 """
 
 import random
+from argparse import Namespace
 import time
 from dataclasses import dataclass
 import wandb
 
+import gymnasium as gym
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from stable_baselines3.common.buffers import ReplayBuffer
-from .rl_utils import RL_Args, Agent, setup, eval_policy
+from rl_algs.rl_utils import RL_Args, Agent, setup, eval_policy
 
 
 @dataclass
@@ -51,7 +53,7 @@ class Args(RL_Args):
 
 
 class DQN(nn.Module, Agent):
-    def __init__(self, env, state_fpath: str = None, **kwargs):
+    def __init__(self, env: gym.Env, state_fpath: str = None, **kwargs: dict) -> None:
         super().__init__()
         self.env = env
         self.network = nn.Sequential(
@@ -72,22 +74,22 @@ class DQN(nn.Module, Agent):
                 msg = f"Error loading state dictionary from {state_fpath}"
                 raise Exception(msg)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.network(x)
 
-    def get_action(self, x):
+    def get_action(self, x: np.ndarray | torch.Tensor) -> torch.Tensor:
         """
         Returns action from network. Helps with compatibility
         """
         return torch.argmax(self.network(x), dim=-1)
 
 
-def linear_schedule(start_e: float, end_e: float, duration: int, t: int):
+def linear_schedule(start_e: float, end_e: float, duration: int, t: int) -> float:
     slope = (end_e - start_e) / duration
     return max(slope * t + start_e, end_e)
 
 
-def train(kwargs):
+def train(kwargs: Namespace) -> None:
     """
     DQN Training Function
     """

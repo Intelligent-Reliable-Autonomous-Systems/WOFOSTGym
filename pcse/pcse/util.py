@@ -16,13 +16,13 @@ import datetime as dt
 import numpy as np
 import dotmap
 
-from .utils import exceptions as exc
-from .utils.traitlets import TraitType
+from pcse.utils import exceptions as exc
+from pcse.utils.traitlets import TraitType
 
 
 # Working directory used to map to the .pcse file
 # Change only if needed
-def get_working_directory():
+def get_working_directory() -> str:
     return os.getcwd()
 
 
@@ -45,7 +45,7 @@ class ConfigurationLoader(object):
     model_config_file = None
     description = None
 
-    def __init__(self, config):
+    def __init__(self, config: str | Path | dict) -> None:
 
         if isinstance(config, (str, Path)):
             # check if model configuration file is an absolute or relative path. If
@@ -112,7 +112,7 @@ class ConfigurationLoader(object):
             msg = "One or more compulsary configuration items missing: %s" % list(diff)
             raise exc.PCSEError(msg)
 
-    def __str__(self):
+    def __str__(self) -> str:
         msg = "PCSE ConfigurationLoader from file:\n"
         msg += "  %s\n\n" % self.model_config_file
         if self.description is not None:
@@ -152,7 +152,7 @@ class Afgen(object):
         0.0
     """
 
-    def _check_x_ascending(self, tbl_xy):
+    def _check_x_ascending(self, tbl_xy: list[float]) -> tuple[list, list]:
         """Checks that the x values are strictly ascending.
 
         Also truncates any trailing (0.,0.) pairs as a results of data coming
@@ -185,7 +185,7 @@ class Afgen(object):
 
         return x, y
 
-    def __init__(self, tbl_xy):
+    def __init__(self, tbl_xy: list[float]) -> None:
 
         x_list, y_list = self._check_x_ascending(tbl_xy)
         x_list = self.x_list = list(map(float, x_list))
@@ -193,7 +193,7 @@ class Afgen(object):
         intervals = list(zip(x_list, x_list[1:], y_list, y_list[1:]))
         self.slopes = [(y2 - y1) / (x2 - x1) for x1, x2, y1, y2 in intervals]
 
-    def __call__(self, x):
+    def __call__(self, x: float) -> float:
 
         if x <= self.x_list[0]:
             return self.y_list[0]
@@ -209,7 +209,7 @@ class Afgen(object):
 class MultiAfgen(object):
     """Emulates the AFGEN function in WOFOST for multi dimensional trait tables"""
 
-    def _check_x_ascending(self, tbl_xyz):
+    def _check_x_ascending(self, tbl_xyz: list) -> tuple[list, list]:
         """Checks that the x values are strictly ascending.
 
         Also truncates any trailing (0.,0.) pairs as a results of data coming
@@ -252,7 +252,7 @@ class MultiAfgen(object):
 
         return z, xy
 
-    def __init__(self, tbl_xyz):
+    def __init__(self, tbl_xyz: list) -> None:
         z_list, xy_list = self._check_x_ascending(tbl_xyz)
 
         z_list = self.z_list = list(map(float, z_list))
@@ -261,7 +261,7 @@ class MultiAfgen(object):
         intervals = list(zip(z_list, z_list[1:], xy_list, xy_list[1:]))
         self.slopes = [(y2 - y1) / (x2 - x1) for x1, x2, y1, y2 in intervals]
 
-    def __call__(self, z, x):
+    def __call__(self, z: float, x: float) -> float:
 
         if z <= self.z_list[0]:
             return Afgen(self.xy_list[0])(x)
@@ -281,7 +281,7 @@ class AfgenTrait(TraitType):
     default_value = Afgen([0, 0, 1, 1])
     into_text = "An AFGEN table of XY pairs"
 
-    def validate(self, obj, value):
+    def validate(self, obj: object, value: Afgen | Iterable) -> Afgen:
         if isinstance(value, Afgen):
             return value
         elif isinstance(value, Iterable):
@@ -295,7 +295,7 @@ class MultiAfgenTrait(TraitType):
     default_value = MultiAfgen([0, [0, 0, 1, 1], 1, [0, 1, 1, 2]])
     into_text = "An AFGEN table of XY pairs"
 
-    def validate(self, obj, value):
+    def validate(self, obj: object, value: MultiAfgen | Iterable) -> MultiAfgen:
         if isinstance(value, MultiAfgen):
             return value
         elif isinstance(value, Iterable):
@@ -303,21 +303,21 @@ class MultiAfgenTrait(TraitType):
         self.error(obj, value)
 
 
-def limit(vmin: float, vmax: float, v: float):
+def limit(vmin: float, vmax: float, v: float) -> float:
     """limits the range of v between min and max"""
 
     if vmin > vmax:
         raise RuntimeError("Min value (%f) larger than max (%f)" % (vmin, vmax))
 
-    if v < vmin:  # V below range: return min
+    if v < vmin:
         return vmin
-    elif v < vmax:  # v within range: return v
+    elif v < vmax:
         return v
-    else:  # v above range: return max
+    else:
         return vmax
 
 
-def check_date(indate):
+def check_date(indate: dt.datetime | dt.date | str) -> dt.date:
     """Check representations of date and try to force into a datetime.date
 
     The following formats are supported:
@@ -355,7 +355,7 @@ def check_date(indate):
         raise KeyError(msg % indate)
 
 
-def version_tuple(v):
+def version_tuple(v: str) -> tuple:
     """Creates a version tuple from a version string for consistent comparison of versions.
 
     Conversion to tuples is needed because version '2.12.9' is higher then '2.7.8' however::
@@ -377,7 +377,7 @@ def version_tuple(v):
 astro_nt = namedtuple("AstroResults", "DAYL, DAYLP, SINLD, COSLD, DIFPP, " "ATMTR, DSINBE, ANGOT")
 
 
-def doy(day):
+def doy(day: dt.date) -> int:
     """Converts a date or datetime object to day-of-year (Jan 1st = doy 1)"""
     # Check if day is a date or datetime object
     if isinstance(day, (datetime.date, datetime.datetime)):
@@ -387,7 +387,7 @@ def doy(day):
         raise RuntimeError(msg)
 
 
-def astro(day, latitude, radiation, _cache={}):
+def astro(day: dt.date, latitude: float, radiation: float, _cache: dict = {}) -> astro_nt:
     """python version of ASTRO routine by Daniel van Kraalingen.
 
     This subroutine calculates astronomic daylength, diurnal radiation
@@ -508,7 +508,7 @@ def astro(day, latitude, radiation, _cache={}):
     return retvalue
 
 
-def daylength(day, latitude, angle=-4, _cache={}):
+def daylength(day: dt.date, latitude: float, angle: float = -4, _cache: dict = {}) -> float:
     """Calculates the daylength for a given day, altitude and base.
 
     :param day:         date/datetime object
@@ -571,7 +571,20 @@ hPa2kPa = lambda x: x / 10.0
 SatVapourPressure = lambda temp: 0.6108 * exp((17.27 * temp) / (237.3 + temp))
 
 
-def reference_ET(DAY, LAT, ELEV, TMIN, TMAX, IRRAD, VAP, WIND, ANGSTA, ANGSTB, ETMODEL="PM", **kwargs):
+def reference_ET(
+    DAY: dt.date,
+    LAT: float,
+    ELEV: float,
+    TMIN: float,
+    TMAX: float,
+    IRRAD: float,
+    VAP: float,
+    WIND: float,
+    ANGSTA: float,
+    ANGSTB: float,
+    ETMODEL: str = "PM",
+    **kwargs: dict,
+) -> tuple[float, float, float]:
     """Calculates reference evapotranspiration values E0, ES0 and ET0.
 
         The open water (E0) and bare soil evapotranspiration (ES0) are calculated with
@@ -653,7 +666,18 @@ def reference_ET(DAY, LAT, ELEV, TMIN, TMAX, IRRAD, VAP, WIND, ANGSTA, ANGSTB, E
     return E0, ES0, ET0
 
 
-def penman(DAY, LAT, ELEV, TMIN, TMAX, AVRAD, VAP, WIND2, ANGSTA, ANGSTB):
+def penman(
+    DAY: dt.date,
+    LAT: float,
+    ELEV: float,
+    TMIN: float,
+    TMAX: float,
+    AVRAD: float,
+    VAP: float,
+    WIND2: float,
+    ANGSTA: float,
+    ANGSTB: float,
+) -> tuple[float, float, float]:
     """Calculates E0, ES0, ET0 based on the Penman model.
 
      This routine calculates the potential evapo(transpi)ration rates from
@@ -749,7 +773,9 @@ def penman(DAY, LAT, ELEV, TMIN, TMAX, AVRAD, VAP, WIND2, ANGSTA, ANGSTB):
     return E0, ES0, ET0
 
 
-def penman_monteith(DAY, LAT, ELEV, TMIN, TMAX, AVRAD, VAP, WIND2):
+def penman_monteith(
+    DAY: dt.date, LAT: float, ELEV: float, TMIN: float, TMAX: float, AVRAD: float, VAP: float, WIND2: float
+) -> float:
     """Calculates reference ET0 based on the Penman-Monteith model.
 
      This routine calculates the potential evapotranspiration rate from
@@ -847,7 +873,7 @@ def penman_monteith(DAY, LAT, ELEV, TMIN, TMAX, AVRAD, VAP, WIND2):
     return ET0
 
 
-def check_angstromAB(xA, xB):
+def check_angstromAB(xA: float, xB: float) -> list[float, float]:
     """Routine checks validity of Angstrom coefficients.
 
     This is the  python version of the FORTRAN routine 'WSCAB' in 'weather.for'.
@@ -877,6 +903,6 @@ def check_angstromAB(xA, xB):
 class DotMap(dotmap.DotMap):
     """DotMap subclass with _dynamic switched off by default."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: list, **kwargs: dict) -> None:
         kwargs.update(_dynamic=False)
         super().__init__(*args, **kwargs)

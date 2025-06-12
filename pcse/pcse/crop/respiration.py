@@ -6,10 +6,10 @@ Modified by Will Solow, 2024
 
 from datetime import date
 
-from ..utils.traitlets import Float
-from ..base import ParamTemplate, SimulationObject, RatesTemplate, VariableKiosk
-from ..util import AfgenTrait
-from ..nasapower import WeatherDataProvider
+from pcse.utils.traitlets import Float
+from pcse.base import ParamTemplate, SimulationObject, RatesTemplate, VariableKiosk
+from pcse.util import AfgenTrait
+from pcse.nasapower import WeatherDataContainer
 
 
 class WOFOST_Maintenance_Respiration(SimulationObject):
@@ -89,7 +89,7 @@ class WOFOST_Maintenance_Respiration(SimulationObject):
     class RateVariables(RatesTemplate):
         PMRES = Float(-99.0)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE  instance
@@ -101,7 +101,7 @@ class WOFOST_Maintenance_Respiration(SimulationObject):
         self.rates = self.RateVariables(kiosk, publish="PMRES")
         self.kiosk = kiosk
 
-    def __call__(self, day: date, drv: WeatherDataProvider):
+    def __call__(self, day: date, drv: WeatherDataContainer) -> float:
         """Calculate the maintenence respiration of the crop"""
         p = self.params
         kk = self.kiosk
@@ -112,7 +112,7 @@ class WOFOST_Maintenance_Respiration(SimulationObject):
         self.rates.PMRES = RMRES * TEFF
         return self.rates.PMRES
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset states and rates"""
         self.rates.PMRES = 0
 
@@ -194,7 +194,7 @@ class Perennial_WOFOST_Maintenance_Respiration(SimulationObject):
     class RateVariables(RatesTemplate):
         PMRES = Float(-99.0)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE  instance
@@ -206,7 +206,7 @@ class Perennial_WOFOST_Maintenance_Respiration(SimulationObject):
         self.rates = self.RateVariables(kiosk, publish="PMRES")
         self.kiosk = kiosk
 
-    def __call__(self, day: date, drv: WeatherDataProvider):
+    def __call__(self, day: date, drv: WeatherDataContainer) -> None:
         """Calculate the maintenence respiration of the crop"""
         p = self.params
         kk = self.kiosk
@@ -222,6 +222,6 @@ class Perennial_WOFOST_Maintenance_Respiration(SimulationObject):
         self.rates.PMRES = RMRES * TEFF
         return self.rates.PMRES
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset states and rates"""
         self.rates.PMRES = 0

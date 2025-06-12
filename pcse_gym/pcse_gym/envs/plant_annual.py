@@ -51,7 +51,7 @@ class Plant_Limited_NPKW_Env(Plant_NPK_Env, LNPKW):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`Plant_Limited_NPKW_Env`.
 
         Args:
@@ -73,7 +73,7 @@ class Plant_Limited_NPKW_Env(Plant_NPK_Env, LNPKW):
 
         self.action_space = gym.spaces.Discrete(3 + 3 * args.num_fert + args.num_irrig)
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
         Includes actions for planting and harvesting.
         Converts the integer action to a signal and amount of NPK/Water to be applied.
@@ -156,7 +156,7 @@ class Plant_PP_Env(Plant_NPK_Env, PP):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`Plant_PP_Env`.
 
         Args:
@@ -178,7 +178,7 @@ class Plant_PP_Env(Plant_NPK_Env, PP):
 
         self.action_space = gym.spaces.Discrete(3)
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
         Includes actions for planting and Planting.
         Converts the integer action to a signal and amount of NPK/Water to be applied.
@@ -235,7 +235,7 @@ class Plant_Limited_NPK_Env(Plant_NPK_Env, LNPK):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`Plant_Limited_NPK_Env`.
 
         Args:
@@ -257,7 +257,7 @@ class Plant_Limited_NPK_Env(Plant_NPK_Env, LNPK):
 
         self.action_space = gym.spaces.Discrete(3 + 3 * self.num_fert)
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
         Includes actions for planting and harvesting.
         Converts the integer action to a signal and amount of NPK/Water to be applied.
@@ -332,7 +332,7 @@ class Plant_Limited_N_Env(Plant_NPK_Env, LN):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`Plant_Limited_N_Env`.
 
         Args:
@@ -353,7 +353,7 @@ class Plant_Limited_N_Env(Plant_NPK_Env, LN):
         )
         self.action_space = gym.spaces.Discrete(3 + self.num_fert)
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
         Includes actions for planting and harvesting.
         Converts the integer action to a signal and amount of NPK/Water to be applied.
@@ -420,7 +420,7 @@ class Plant_Limited_NW_Env(Plant_NPK_Env, LNW):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`Plant_Limited_NW_Env`.
 
         Args:
@@ -441,7 +441,7 @@ class Plant_Limited_NW_Env(Plant_NPK_Env, LNW):
         )
         self.action_space = gym.spaces.Discrete(3 + self.num_fert + self.num_irrig)
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
         Includes actions for planting and harvesting.
         Converts the integer action to a signal and amount of NPK/Water to be applied.
@@ -516,7 +516,7 @@ class Plant_Limited_W_Env(Plant_NPK_Env, LW):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`Plant_Limited_W_Env`.
 
         Args:
@@ -538,7 +538,7 @@ class Plant_Limited_W_Env(Plant_NPK_Env, LW):
 
         self.action_space = gym.spaces.Discrete(3 + self.num_irrig)
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
         Includes actions for planting and harvesting.
         Converts the integer action to a signal and amount of NPK/Water to be applied.
@@ -605,7 +605,7 @@ class Plant_Limited_Layered_NPKW_Env(Plant_NPK_Env, LNPKW):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`Plant_Limited_NPKW_Env`.
 
         Args:
@@ -627,7 +627,7 @@ class Plant_Limited_Layered_NPKW_Env(Plant_NPK_Env, LNPKW):
 
         self.action_space = gym.spaces.Discrete(3 + 3 * args.num_fert + args.num_irrig)
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
         Includes actions for planting and harvesting.
         Converts the integer action to a signal and amount of NPK/Water to be applied.
@@ -710,7 +710,7 @@ class Plant_Layered_PP_Env(Plant_NPK_Env, PP):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`Plant_PP_Env`.
 
         Args:
@@ -732,7 +732,7 @@ class Plant_Layered_PP_Env(Plant_NPK_Env, PP):
 
         self.action_space = gym.spaces.Discrete(3)
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
         Includes actions for planting and Planting.
         Converts the integer action to a signal and amount of NPK/Water to be applied.
@@ -789,7 +789,7 @@ class Plant_Limited_Layered_NPK_Env(Plant_NPK_Env, LNPK):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`Plant_Limited_NPK_Env`.
 
         Args:
@@ -811,7 +811,7 @@ class Plant_Limited_Layered_NPK_Env(Plant_NPK_Env, LNPK):
 
         self.action_space = gym.spaces.Discrete(3 + 3 * self.num_fert)
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
         Includes actions for planting and harvesting.
         Converts the integer action to a signal and amount of NPK/Water to be applied.
@@ -886,7 +886,7 @@ class Plant_Limited_Layered_N_Env(Plant_NPK_Env, LN):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`Plant_Limited_N_Env`.
 
         Args:
@@ -907,7 +907,7 @@ class Plant_Limited_Layered_N_Env(Plant_NPK_Env, LN):
         )
         self.action_space = gym.spaces.Discrete(3 + self.num_fert)
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
         Includes actions for planting and harvesting.
         Converts the integer action to a signal and amount of NPK/Water to be applied.
@@ -974,7 +974,7 @@ class Plant_Limited_Layered_NW_Env(Plant_NPK_Env, LNW):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`Plant_Limited_NW_Env`.
 
         Args:
@@ -995,7 +995,7 @@ class Plant_Limited_Layered_NW_Env(Plant_NPK_Env, LNW):
         )
         self.action_space = gym.spaces.Discrete(3 + self.num_fert + self.num_irrig)
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
         Includes actions for planting and harvesting.
         Converts the integer action to a signal and amount of NPK/Water to be applied.
@@ -1070,7 +1070,7 @@ class Plant_Limited_Layered_W_Env(Plant_NPK_Env, LW):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`Plant_Limited_W_Env`.
 
         Args:
@@ -1092,7 +1092,7 @@ class Plant_Limited_Layered_W_Env(Plant_NPK_Env, LW):
 
         self.action_space = gym.spaces.Discrete(3 + self.num_irrig)
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
         Includes actions for planting and harvesting.
         Converts the integer action to a signal and amount of NPK/Water to be applied.

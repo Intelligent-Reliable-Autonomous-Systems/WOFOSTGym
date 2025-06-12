@@ -5,6 +5,7 @@ Written by Will Solow, 2025
 """
 
 import numpy as np
+from argparse import Namespace
 from stable_baselines3 import PPO
 from stable_baselines3.ppo import MlpPolicy
 
@@ -12,7 +13,7 @@ from imitation.algorithms.adversarial.airl import AIRL as AIRL_ALG
 from imitation.rewards.reward_nets import BasicShapedRewardNet
 from imitation.util.networks import RunningNorm
 
-from .rl_utils import RL_Args, setup, make_demonstrations
+from rl_algs.rl_utils import RL_Args, setup, make_demonstrations
 from typing import Optional
 from dataclasses import dataclass
 import utils
@@ -44,7 +45,7 @@ class Args(RL_Args):
 
 class AIRL(nn.Module):
 
-    def __init__(self, envs, state_fpath: str = None, **kwargs):
+    def __init__(self, envs, state_fpath: str = None, **kwargs: dict) -> None:
         super().__init__()
         self.env = envs
 
@@ -97,14 +98,14 @@ class AIRL(nn.Module):
                 msg = f"Error loading state dictionary from {state_fpath}"
                 raise Exception(msg)
 
-    def train(self, train_steps: int):
+    def train(self, train_steps: int) -> None:
         """
         Train the agent
         """
         self.airl_trainer.train(train_steps)  # Train for 800_000 steps to match expert.
         self.policy = self.airl_trainer.gen_algo.policy
 
-    def get_action(self, x):
+    def get_action(self, x: np.ndarray | torch.Tensor) -> torch.Tensor:
         """
         Helper function to get action for compatibility with generating data
         """
@@ -113,7 +114,7 @@ class AIRL(nn.Module):
         return self.policy(x)[0]
 
 
-def train(kwargs):
+def train(kwargs: Namespace) -> None:
     """
     AIRL Training Function
     """

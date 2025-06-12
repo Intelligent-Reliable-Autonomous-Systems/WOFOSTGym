@@ -6,6 +6,7 @@
 Written by: Will Solow, 2024
 """
 
+from argparse import Namespace
 import gymnasium as gym
 import warnings
 import numpy as np
@@ -115,7 +116,7 @@ COLORS = [
 ]
 
 
-def wrap_env_reward(env: gym.Env, args):
+def wrap_env_reward(env: gym.Env, args: Namespace) -> function:
     """
     Function to wrap the environment with a given reward function
     Based on the reward functions created in the pcse_gym/wrappers/
@@ -133,7 +134,7 @@ def wrap_env_reward(env: gym.Env, args):
         raise Exception(msg)
 
 
-def make_gym_env(args, run_name=None):
+def make_gym_env(args: Namespace, run_name: str = None) -> gym.Env:
     """
     Make a gym environment. Ensures that OrderEnforcing and PassiveEnvChecker
     are not applied to environment
@@ -211,7 +212,7 @@ def make_gym_env(args, run_name=None):
     return env
 
 
-def make_gym_envs(args, config_fpaths, run_name=None):
+def make_gym_envs(args: Namespace, config_fpaths: list, run_name: str = None) -> list[gym.Env]:
     """
     Make multiple gym environments from a list of configurations
     """
@@ -249,7 +250,7 @@ def make_gym_envs(args, config_fpaths, run_name=None):
     return envs
 
 
-def get_gym_args(args: Args):
+def get_gym_args(args: Args) -> tuple[str, dict]:
     """
     Returns the Environment ID and required arguments for the WOFOST Gym
     Environment
@@ -272,7 +273,7 @@ def get_gym_args(args: Args):
     return args.env_id, env_kwargs
 
 
-def correct_config_flatten(args, d):
+def correct_config_flatten(args: Namespace, d: dict) -> DictConfig:
     """
     Flatten dictionaries and get all non-dictionary key-value pairs
     """
@@ -295,7 +296,7 @@ def correct_config_flatten(args, d):
     return OmegaConf.merge(OmegaConf.structured(args), flat_dict)
 
 
-def correct_config_floats(args, d):
+def correct_config_floats(args: Namespace, d: dict) -> DictConfig:
     """
     Correct configurations by casting float types to list
     """
@@ -307,7 +308,7 @@ def correct_config_floats(args, d):
     return OmegaConf.merge(OmegaConf.structured(args), d)
 
 
-def correct_config_lists(d):
+def correct_config_lists(d: dict) -> dict:
     """
     Correct configuration for loading floats to list
     """
@@ -329,7 +330,7 @@ def correct_config_lists(d):
     return d
 
 
-def correct_commandline_lists(d):
+def correct_commandline_lists(d: dict) -> dict:
     """
     Correct any lists passed by command line
     """
@@ -369,7 +370,15 @@ def correct_commandline_lists(d):
     return d
 
 
-def save_file_npz(args: Args, obs: np.ndarray | list, actions, rewards, next_obs, dones, output_vars):
+def save_file_npz(
+    args: Args,
+    obs: np.ndarray | list,
+    actions: np.ndarray,
+    rewards: np.ndarray,
+    next_obs: np.ndarray,
+    dones: np.ndarray,
+    output_vars: np.darray,
+) -> None:
     """
     Save observations and rewards as .npz file
     """
@@ -391,7 +400,7 @@ def save_file_npz(args: Args, obs: np.ndarray | list, actions, rewards, next_obs
     )
 
 
-def load_data_file(fname):
+def load_data_file(fname: str) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     Load the data file and get the list of variables for graphing"""
     assert isinstance(fname, str), f"File (args.data_file) `{fname}` is not of type String"
@@ -430,7 +439,7 @@ def load_data_file(fname):
         return obs, actions, rewards, next_obs, dones, output_vars
 
 
-def get_valid_agents():
+def get_valid_agents() -> dict[str, object]:
     """
     Get the valid agents in the rl_algs folder
     """
@@ -452,7 +461,7 @@ def get_valid_agents():
     return constr
 
 
-def get_valid_trainers():
+def get_valid_trainers() -> dict[str, object]:
     """
     Get the valid training functions for each agent
     """
@@ -474,7 +483,7 @@ def get_valid_trainers():
     return trainer
 
 
-def get_functions(file):
+def get_functions(file: str) -> dict[str, function]:
     """
     Get the functions that correspond only to a specific file
     """
@@ -482,7 +491,7 @@ def get_functions(file):
     return functions
 
 
-def get_classes(file):
+def get_classes(file: str) -> dict[str, object]:
     """
     Get the classes that are declared in a specific file
     """
@@ -490,7 +499,7 @@ def get_classes(file):
     return classes
 
 
-def get_reward_wrappers(file):
+def get_reward_wrappers(file: str):
     """
     Get the classes that are declared in a specific file
     """
@@ -502,14 +511,14 @@ def get_reward_wrappers(file):
     return classes
 
 
-def normalize(arr):
+def normalize(arr: np.ndarray) -> np.ndarray:
     """
     Min-Max normalize array
     """
     return (arr - np.min(arr)) / (np.max(arr) - np.min(arr) + 1e-12)
 
 
-def obs_to_numpy(obs):
+def obs_to_numpy(obs: dict | torch.Tensor | np.ndarray) -> np.ndarray:
     """
     Convert observation to numpy.ndarray based on type
     """
@@ -521,7 +530,7 @@ def obs_to_numpy(obs):
         return np.squeeze(obs)
 
 
-def action_to_numpy(env, act):
+def action_to_numpy(env: gym.Env, act: float | torch.Tensor | np.ndarray | dict) -> np.ndarray:
     """
     Converts the dicionary action to an integer to be pased to the base
     environment.

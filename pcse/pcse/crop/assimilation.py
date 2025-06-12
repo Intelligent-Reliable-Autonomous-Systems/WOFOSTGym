@@ -9,13 +9,24 @@ from math import sqrt, exp, cos, pi
 from collections import deque
 from datetime import date
 
-from ..utils.traitlets import Instance, Float
-from ..util import astro, AfgenTrait
-from ..base import ParamTemplate, SimulationObject, VariableKiosk
-from ..nasapower import WeatherDataProvider
+from pcse.utils.traitlets import Instance, Float
+from pcse.util import astro, AfgenTrait
+from pcse.base import ParamTemplate, SimulationObject, VariableKiosk
+from pcse.nasapower import WeatherDataContainer
 
 
-def totass(DAYL, AMAX, EFF, LAI, KDIF, AVRAD, DIFPP, DSINBE, SINLD, COSLD):
+def totass(
+    DAYL: float,
+    AMAX: float,
+    EFF: float,
+    LAI: float,
+    KDIF: float,
+    AVRAD: float,
+    DIFPP: float,
+    DSINBE: float,
+    SINLD: float,
+    COSLD: float,
+) -> None:
     """This routine calculates the daily total gross CO2 assimilation by
     performing a Gaussian integration over time. At three different times of
     the day, irradiance is computed and used to calculate the instantaneous
@@ -69,7 +80,7 @@ def totass(DAYL, AMAX, EFF, LAI, KDIF, AVRAD, DIFPP, DSINBE, SINLD, COSLD):
     return DTGA
 
 
-def assim(AMAX, EFF, LAI, KDIF, SINB, PARDIR, PARDIF):
+def assim(AMAX: float, EFF: float, LAI: float, KDIF: float, SINB: float, PARDIR: float, PARDIF: float) -> float:
     """This routine calculates the gross CO2 assimilation rate of
     the whole crop, FGROS, by performing a Gaussian integration
     over depth in the crop canopy. At three different depths in
@@ -116,12 +127,7 @@ def assim(AMAX, EFF, LAI, KDIF, SINB, PARDIR, PARDIF):
 
         # direct light absorbed by leaves perpendicular on direct
         # beam and assimilation of sunlit leaf area
-        VISPP = (1.0 - SCV) * PARDIR / SINB
-        if VISPP <= 0.0:
-            FGRSUN = FGRSH
-        else:
-            FGRSUN = AMAX * (1.0 - (AMAX - FGRSH) * (1.0 - exp(-VISPP * EFF / max(2.0, AMAX))) / (EFF * VISPP))
-
+        VISPP = (1.0 - SCV) * PARDIR / SINBWeatherDataContainer
         # fraction of sunlit leaf area (FSLLA) and local
         # assimilation rate (FGL)
         FSLLA = exp(-KDIRBL * LAIC)
@@ -202,7 +208,7 @@ class WOFOST_Assimilation(SimulationObject):
         CO2EFFTB = AfgenTrait()
         CO2 = Float(-99.0)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, cropdata: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, cropdata: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this Engine instance
@@ -214,7 +220,7 @@ class WOFOST_Assimilation(SimulationObject):
         self.kiosk = kiosk
         self._TMNSAV = deque(maxlen=7)
 
-    def __call__(self, day: date, drv: WeatherDataProvider):
+    def __call__(self, day: date, drv: WeatherDataContainer) -> float:
         """Computes the assimilation of CO2 into the crop"""
         p = self.params
         k = self.kiosk
@@ -249,6 +255,6 @@ class WOFOST_Assimilation(SimulationObject):
 
         return PGASS
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset states and rates"""
         self._TMNSAV = deque(maxlen=7)

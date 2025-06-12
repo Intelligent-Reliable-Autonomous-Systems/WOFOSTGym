@@ -12,17 +12,17 @@ from functools import wraps
 
 
 class descript(object):
-    def __init__(self, f, lockattr):
+    def __init__(self, f, lockattr) -> None:
         self.f = f
         self.lockattr = lockattr
 
-    def __get__(self, instance, klass):
+    def __get__(self, instance: object, klass: function):
         if instance is None:
             # Class method was requested
             return self.make_unbound(klass)
         return self.make_bound(instance)
 
-    def make_unbound(self, klass):
+    def make_unbound(self, klass) -> function:
         @wraps(self.f)
         def wrapper(*args, **kwargs):
             """This documentation will vanish :)"""
@@ -33,7 +33,7 @@ class descript(object):
 
         return wrapper
 
-    def make_bound(self, instance):
+    def make_bound(self, instance: object) -> function:
         @wraps(self.f)
         def wrapper(*args, **kwargs):
             """This documentation will disapear :)"""
@@ -54,7 +54,7 @@ class descript(object):
         return wrapper
 
 
-def prepare_states(f):
+def prepare_states(f: function) -> descript:
     """
     Class method decorator unlocking and locking the states object.
 
@@ -66,7 +66,7 @@ def prepare_states(f):
     return descript(f, "states")
 
 
-def prepare_rates(f):
+def prepare_rates(f: function) -> descript:
     """
     Class method decorator unlocking and locking the rates object.
 

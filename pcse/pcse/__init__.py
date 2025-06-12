@@ -44,16 +44,16 @@ import os
 import pathlib
 
 # Import first to avoid circular imports
-from . import util
-from .utils import exceptions, decorators, traitlets, signals
+from pcse import util
+from pcse.utils import exceptions, decorators, traitlets, signals
 
 import logging.config
-from .base import ParameterProvider
-from .nasapower import NASAPowerWeatherDataProvider
-from . import fileinput
-from . import agromanager
-from . import soil
-from . import crop
+from pcse.base import ParameterProvider
+from pcse.nasapower import NASAPowerWeatherDataProvider
+from pcse import fileinput
+from pcse import agromanager
+from pcse import soil
+from pcse import crop
 
 user_path = pathlib.Path(__file__).parent.resolve()
 

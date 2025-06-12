@@ -10,17 +10,17 @@ Modified by Will Solow, 2024
 
 import datetime
 
-from ..utils.traitlets import Float, Instance, Enum, Bool, Int, Dict
-from ..utils.decorators import prepare_rates, prepare_states
+from pcse.utils.traitlets import Float, Instance, Enum, Bool, Int, Dict
+from pcse.utils.decorators import prepare_rates, prepare_states
 
-from ..util import limit, AfgenTrait, daylength
-from ..base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject, VariableKiosk
-from ..utils import signals
-from ..utils import exceptions as exc
-from ..nasapower import WeatherDataProvider
+from pcse.util import limit, AfgenTrait, daylength
+from pcse.base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject, VariableKiosk
+from pcse.utils import signals
+from pcse.utils import exceptions as exc
+from pcse.nasapower import WeatherDataContainer
 
 
-def daily_temp_units(drv: WeatherDataProvider, T0BC: float, TMBC: float):
+def daily_temp_units(drv: WeatherDataContainer, T0BC: float, TMBC: float) -> float:
     """
     Compute the daily temperature units using the BRIN model.
     Used for predicting budbreak in grapes.
@@ -140,7 +140,7 @@ class Vernalisation(SimulationObject):
         ISVERNALISED = Bool()  # True when VERNSAT is reached and
         # Forced when DVS > VERNDVS
 
-    def initialize(self, day: datetime.date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: datetime.date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE  instance
@@ -156,7 +156,7 @@ class Vernalisation(SimulationObject):
         self.rates = self.RateVariables(kiosk, publish=["VERNR", "VERNFAC"])
 
     @prepare_rates
-    def calc_rates(self, day: datetime.date, drv: WeatherDataProvider):
+    def calc_rates(self, day: datetime.date, drv: WeatherDataContainer) -> None:
         """Compute state rates for integration"""
         rates = self.rates
         states = self.states
@@ -177,7 +177,7 @@ class Vernalisation(SimulationObject):
             rates.VERNFAC = 1.0
 
     @prepare_states
-    def integrate(self, day: datetime.date, delt: float = 1.0):
+    def integrate(self, day: datetime.date, delt: float = 1.0) -> None:
         """Integrate state rates"""
         states = self.states
         rates = self.rates
@@ -207,7 +207,7 @@ class Vernalisation(SimulationObject):
         else:  # Reduction factor for phenologic development
             states.ISVERNALISED = False
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset states and rates"""
         s = self.states
         r = self.rates
@@ -345,7 +345,7 @@ class Base_Phenology(SimulationObject):
         STAGE = Enum(["sowing", "emerging", "vegetative", "reproductive", "mature", "dead"])
         DATBE = Int(-99)  # Current number of days above TSUMEM
 
-    def initialize(self, day: datetime.date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: datetime.date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE  instance
@@ -355,7 +355,7 @@ class Base_Phenology(SimulationObject):
         msg = "Base Phenology not implemented - implement in subclass!"
         raise NotImplementedError(msg)
 
-    def _get_initial_stage(self, day: datetime.date):
+    def _get_initial_stage(self, day: datetime.date) -> tuple[int, datetime.date, str]:
         """Set the initial state of the crop given the start type"""
         p = self.params
 
@@ -387,7 +387,7 @@ class Base_Phenology(SimulationObject):
         return DVS, DOP, STAGE
 
     @prepare_rates
-    def calc_rates(self, day, drv):
+    def calc_rates(self, day: datetime.date, drv: WeatherDataContainer) -> None:
         """Calculates the rates for phenological development"""
         p = self.params
         r = self.rates
@@ -448,7 +448,7 @@ class Base_Phenology(SimulationObject):
         self.logger.debug(msg % day)
 
     @prepare_states
-    def integrate(self, day, delt=1.0):
+    def integrate(self, day: datetime.date, delt: float = 1.0) -> None:
         """Updates the state variable and checks for phenologic stages"""
 
         p = self.params
@@ -499,7 +499,7 @@ class Base_Phenology(SimulationObject):
         msg = "Finished state integration for %s"
         self.logger.debug(msg % day)
 
-    def _next_stage(self, day):
+    def _next_stage(self, day: datetime.date) -> None:
         """Moves states.STAGE to the next phenological stage"""
         s = self.states
         p = self.params
@@ -537,11 +537,11 @@ class Base_Phenology(SimulationObject):
         msg = "Changed phenological stage '%s' to '%s' on %s"
         self.logger.info(msg % (current_STAGE, s.STAGE, day))
 
-    def _on_CROP_HARVEST(self, day):
+    def _on_CROP_HARVEST(self, day: datetime.date) -> None:
         if self.params.CROP_END_TYPE in ["harvest"]:
             self._send_signal(signal=signals.crop_finish, day=day, finish_type="harvest", crop_delete=True)
 
-    def _on_CROP_FINISH(self, day, finish_type=None):
+    def _on_CROP_FINISH(self, day: datetime.date, finish_type: str = None) -> None:
         """Handler for setting day of harvest (DOH). Although DOH is not
         strictly related to phenology (but to management) this is the most
         logical place to put it.
@@ -553,7 +553,7 @@ class Base_Phenology(SimulationObject):
 class Annual_Phenology(Base_Phenology):
     """Annual Phenology for the crop. Inherits from the Base_Phenology class"""
 
-    def initialize(self, day: datetime.date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: datetime.date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE  instance
@@ -664,7 +664,7 @@ class Perennial_Phenology(Base_Phenology):
         DCYCLE = Int(-99)  # Days in Crop cycle
         DATBE = Int(-99)  # Current number of days above TSUMEM
 
-    def initialize(self, day: datetime.date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: datetime.date, kiosk: VariableKiosk, parvalues: dict) -> None:
         self.params = self.Parameters(parvalues)
         self.kiosk = kiosk
 
@@ -695,7 +695,7 @@ class Perennial_Phenology(Base_Phenology):
             self.vernalisation = Vernalisation(day, kiosk, parvalues)
 
     @prepare_rates
-    def calc_rates(self, day, drv):
+    def calc_rates(self, day: datetime.date, drv: WeatherDataContainer) -> None:
         """Calculates the rates for phenological development"""
         p = self.params
         r = self.rates
@@ -762,7 +762,7 @@ class Perennial_Phenology(Base_Phenology):
         self.logger.debug(msg % day)
 
     @prepare_states
-    def integrate(self, day, delt=1.0):
+    def integrate(self, day: datetime.date, delt: float = 1.0) -> None:
         """Updates the state variable and checks for phenologic stages"""
 
         p = self.params
@@ -858,7 +858,7 @@ class Perennial_Phenology(Base_Phenology):
         self.logger.debug(msg % day)
         self._DAY_LENGTH = 0
 
-    def _next_stage(self, day: datetime.date):
+    def _next_stage(self, day: datetime.date) -> None:
         """Moves states.STAGE to the next phenological stage"""
         s = self.states
         p = self.params
@@ -897,7 +897,7 @@ class Perennial_Phenology(Base_Phenology):
         msg = "Changed phenological stage '%s' to '%s' on %s"
         self.logger.info(msg % (current_STAGE, s.STAGE, day))
 
-    def _on_DORMANT(self, day: datetime.date):
+    def _on_DORMANT(self, day: datetime.date) -> None:
         """Handler for dormant signal. Reset all nonessential states and rates to 0"""
         if self.params.IDSL >= 2:
             self.vernalisation.reset()
@@ -1094,7 +1094,7 @@ class Grape_Phenology(SimulationObject):
         DON = Instance(datetime.date)  # Day of Endodormancy
         DOC = Instance(datetime.date)  # Day of Ecodormancy
 
-    def initialize(self, day: datetime.date, kiosk: VariableKiosk, parvalues: dict):
+    def initialize(self, day: datetime.date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE  instance
@@ -1168,7 +1168,7 @@ class Grape_Phenology(SimulationObject):
         if self.params.IDSL >= 2:
             self.vernalisation = Vernalisation(day, kiosk, parvalues)
 
-    def _get_initial_stage(self, day: datetime.date):
+    def _get_initial_stage(self, day: datetime.date) -> tuple[float, datetime.date, str]:
         """Set the initial state of the crop given the start type"""
         p = self.params
 
@@ -1196,7 +1196,7 @@ class Grape_Phenology(SimulationObject):
         return DVS, DOP, STAGE
 
     @prepare_rates
-    def calc_rates(self, day, drv):
+    def calc_rates(self, day: datetime.date, drv: WeatherDataContainer) -> None:
         """
         Calculates the rates for phenological development
         """
@@ -1271,7 +1271,7 @@ class Grape_Phenology(SimulationObject):
             raise Exception(msg, self.states.STAGE)
 
     @prepare_states
-    def integrate(self, day, delt=1.0):
+    def integrate(self, day: datetime.date, delt: float = 1.0) -> None:
         """
         Updates the state variable and checks for phenologic stages
         """
@@ -1356,7 +1356,7 @@ class Grape_Phenology(SimulationObject):
             msg = "Unrecognized STAGE defined in phenology submodule: %s."
             raise Exception(msg, self.states.STAGE)
 
-    def _next_stage(self, day):
+    def _next_stage(self, day: datetime.date) -> None:
         """Moves states.STAGE to the next phenological stage"""
         s = self.states
         p = self.params
@@ -1397,11 +1397,11 @@ class Grape_Phenology(SimulationObject):
 
         msg = "Changed phenological stage '%s' to '%s' on %s"
 
-    def _on_CROP_HARVEST(self, day):
+    def _on_CROP_HARVEST(self, day: datetime.date) -> None:
         if self.params.CROP_END_TYPE in ["harvest"]:
             self._send_signal(signal=signals.crop_finish, day=day, finish_type="harvest", crop_delete=True)
 
-    def _on_CROP_FINISH(self, day, finish_type=None):
+    def _on_CROP_FINISH(self, day: datetime.date, finish_type: str = None) -> None:
         """Handler for setting day of harvest (DOH). Although DOH is not
         strictly related to phenology (but to management) this is the most
         logical place to put it.
@@ -1409,7 +1409,7 @@ class Grape_Phenology(SimulationObject):
         if finish_type in ["harvest"]:
             self._for_finalize["DOH"] = day
 
-    def _on_DORMANT(self, day: datetime.date):
+    def _on_DORMANT(self, day: datetime.date) -> None:
         """Handler for dormant signal. Reset all nonessential states and rates to 0"""
         if self.params.IDSL >= 2:
             self.vernalisation.reset()

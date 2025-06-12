@@ -14,7 +14,7 @@ import pcse_gym
 import pcse_gym.policies as policies
 from pcse_gym.envs.wofost_base import Plant_NPK_Env, Harvest_NPK_Env
 import utils
-import vis_data
+import data_plotting.vis_data as vis_data
 
 if __name__ == "__main__":
     args = tyro.cli(utils.Args)

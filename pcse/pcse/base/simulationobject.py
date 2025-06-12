@@ -11,12 +11,12 @@ import types
 import logging
 from datetime import date
 
-from .dispatcher import DispatcherObject
-from ..utils.traitlets import HasTraits, Instance, Dict
-from ..utils import exceptions as exc
-from .variablekiosk import VariableKiosk
-from .states_rates import StatesTemplate, RatesTemplate, ParamTemplate
-from .parameter_providers import ParameterProvider
+from pcse.base.dispatcher import DispatcherObject
+from pcse.utils.traitlets import HasTraits, Instance, Dict
+from pcse.utils import exceptions as exc
+from pcse.base.variablekiosk import VariableKiosk
+from pcse.base.states_rates import StatesTemplate, RatesTemplate, ParamTemplate
+from pcse.base.parameter_providers import ParameterProvider
 
 
 class SimulationObject(HasTraits, DispatcherObject):
@@ -41,7 +41,7 @@ class SimulationObject(HasTraits, DispatcherObject):
     # Placeholder for variables that are to be set during finalizing.
     _for_finalize = Dict()
 
-    def __init__(self, day: date, kiosk: VariableKiosk, *args, **kwargs):
+    def __init__(self, day: date, kiosk: VariableKiosk, *args: list, **kwargs: dict) -> None:
         """Initialize Simulation Object
 
         Args:
@@ -72,26 +72,26 @@ class SimulationObject(HasTraits, DispatcherObject):
         raise NotImplementedError(msg)
 
     @property
-    def logger(self):
+    def logger(self) -> logging.Logger:
         loggername = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         return logging.getLogger(loggername)
 
-    def reset(self):
+    def reset(self) -> None:
         """
         Reset states and rates
         """
         self.states.reset()
         self.rates.reset()
 
-    def integrate(self, *args, **kwargs):
+    def integrate(self, *args: list, **kwargs: dict) -> None:
         msg = "`integrate` method not yet implemented on %s" % self.__class__.__name__
         raise NotImplementedError(msg)
 
-    def calc_rates(self, *args, **kwargs):
+    def calc_rates(self, *args: list, **kwargs: dict) -> None:
         msg = "`calc_rates` method not yet implemented on %s" % self.__class__.__name__
         raise NotImplementedError(msg)
 
-    def __setattr__(self, attr, value):
+    def __setattr__(self, attr: str, value: object) -> None:
         """Sets the attribute with the value to a specific sublcass object
         __setattr__ has been modified  to enforce that class attributes
         must be defined before they can be assigned. There are a few
@@ -115,7 +115,7 @@ class SimulationObject(HasTraits, DispatcherObject):
             msg = "Assignment to non-existing attribute '%s' prevented." % attr
             raise AttributeError(msg)
 
-    def get_variable(self, varname):
+    def get_variable(self, varname: str) -> object:
         """Return the value of the specified state or rate variable.
 
         :param varname: Name of the variable.
@@ -138,7 +138,7 @@ class SimulationObject(HasTraits, DispatcherObject):
                     break
         return value
 
-    def set_variable(self, varname, value, incr):
+    def set_variable(self, varname: str, value: object, incr: dict) -> None:
         """Sets the value of the specified state or rate variable.
 
         :param varname: Name of the variable to be updated (string).
@@ -187,7 +187,7 @@ class SimulationObject(HasTraits, DispatcherObject):
         for simobj in self.subSimObjects:
             simobj.set_variable(varname, value, incr)
 
-    def _delete(self):
+    def _delete(self) -> None:
         """Runs the _delete() methods on the states/rates objects and recurses
         trough the list of subSimObjects.
         """
@@ -201,7 +201,7 @@ class SimulationObject(HasTraits, DispatcherObject):
             obj._delete()
 
     @property
-    def subSimObjects(self):
+    def subSimObjects(self) -> list[DispatcherObject]:
         """Return SimulationObjects embedded within self."""
 
         subSimObjects = []
@@ -211,7 +211,7 @@ class SimulationObject(HasTraits, DispatcherObject):
                 subSimObjects.append(attr)
         return subSimObjects
 
-    def finalize(self, day):
+    def finalize(self, day: date) -> None:
         """Run the _finalize call on subsimulation objects"""
         # Update the states object with the values stored in the _for_finalize dictionary
         if self.states is not None:
@@ -225,7 +225,7 @@ class SimulationObject(HasTraits, DispatcherObject):
             for simobj in self.subSimObjects:
                 simobj.finalize(day)
 
-    def touch(self):
+    def touch(self) -> None:
         """'Touch' all state variables of this and any sub-SimulationObjects.
 
         The name comes from the UNIX `touch` command which does nothing on the
@@ -243,7 +243,7 @@ class SimulationObject(HasTraits, DispatcherObject):
             for simobj in self.subSimObjects:
                 simobj.touch()
 
-    def zerofy(self):
+    def zerofy(self) -> None:
         """Zerofy the value of all rate variables of this and any sub-SimulationObjects."""
 
         if self.rates is not None:
@@ -269,7 +269,7 @@ class AncillaryObject(HasTraits, DispatcherObject):
     kiosk = Instance(VariableKiosk)
     params = Instance(ParamTemplate)
 
-    def __init__(self, kiosk, *args, **kwargs):
+    def __init__(self, kiosk: VariableKiosk, *args: list, **kwargs: dict) -> None:
         HasTraits.__init__(self, *args, **kwargs)
 
         # Check that kiosk variable is specified and assign to self
@@ -283,7 +283,7 @@ class AncillaryObject(HasTraits, DispatcherObject):
         self.logger.debug("Component successfully initialized!")
 
     @property
-    def logger(self):
+    def logger(self) -> logging.Logger:
         loggername = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         return logging.getLogger(loggername)
 

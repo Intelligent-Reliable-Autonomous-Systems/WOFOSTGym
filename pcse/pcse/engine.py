@@ -17,15 +17,14 @@ Modified by Will Solow, 2024
 
 from datetime import date
 
-from .utils.traitlets import Instance, Bool, List, Dict
-from .base import VariableKiosk, AncillaryObject, SimulationObject, BaseEngine, ParameterProvider
-from .nasapower import WeatherDataProvider, WeatherDataContainer
-from .agromanager import BaseAgroManager
-from .util import ConfigurationLoader
-from .base.timer import Timer
-from . import signals
-from . import exceptions as exc
-import time
+from pcse.utils.traitlets import Instance, Bool, List, Dict
+from pcse.base import VariableKiosk, AncillaryObject, SimulationObject, BaseEngine, ParameterProvider
+from pcse.nasapower import WeatherDataProvider, WeatherDataContainer
+from pcse.agromanager import BaseAgroManager
+from pcse.util import ConfigurationLoader
+from pcse.base.timer import Timer
+from pcse.utils import signals
+from pcse.utils import exceptions as exc
 
 
 class Engine(BaseEngine):
@@ -119,7 +118,7 @@ class Engine(BaseEngine):
         weatherdataprovider: WeatherDataProvider,
         agromanagement: BaseAgroManager,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the Engine Class
 
         Args:
@@ -173,7 +172,7 @@ class Engine(BaseEngine):
         # Calculate initial rates
         self.calc_rates(self.day, self.drv)
 
-    def reset(self):
+    def reset(self) -> None:
         """
         Reset the engine
         """
@@ -203,7 +202,7 @@ class Engine(BaseEngine):
         # Calculate initial rates
         self.calc_rates(self.day, self.drv)
 
-    def calc_rates(self, day: date, drv: WeatherDataContainer):
+    def calc_rates(self, day: date, drv: WeatherDataContainer) -> None:
         """Calculate the rates for computing rate of state change"""
         # Start rate calculation on individual components
         if self.crop is not None:
@@ -221,7 +220,7 @@ class Engine(BaseEngine):
         if self.flag_site_delete:
             self._finish_sitesimulation(day)
 
-    def integrate(self, day: date, delt: float):
+    def integrate(self, day: date, delt: float) -> None:
         """Integrate rates with states based on time change (delta)"""
         # Flush state variables from the kiosk before state updates
         self.kiosk.flush_states()
@@ -238,7 +237,7 @@ class Engine(BaseEngine):
         # Flush rate variables from the kiosk after state updates
         self.kiosk.flush_rates()
 
-    def _run(self):
+    def _run(self) -> None:
         """Make one time step of the simulation."""
         # Update timer
         self.day, delt = self.timer()
@@ -256,7 +255,7 @@ class Engine(BaseEngine):
         if self.flag_terminate is True:
             self._terminate_simulation(self.day)
 
-    def run(self, days: int = 1):
+    def run(self, days: int = 1) -> None:
         """Advances the system state with given number of days"""
 
         days_done = 0
@@ -264,11 +263,11 @@ class Engine(BaseEngine):
             days_done += 1
             self._run()
 
-    def _on_CROP_HARVEST(self, day: date):
+    def _on_CROP_HARVEST(self, day: date) -> None:
         """When the crop harvest signal is recieved"""
         return
 
-    def _on_CROP_FINISH(self, day: date, crop_delete: bool = False):
+    def _on_CROP_FINISH(self, day: date, crop_delete: bool = False) -> None:
         """Sets the variable 'flag_crop_finish' to True when the signal
         CROP_FINISH is received.
 
@@ -292,7 +291,7 @@ class Engine(BaseEngine):
         crop_variety: str = None,
         crop_start_type: str = None,
         crop_end_type: str = None,
-    ):
+    ) -> None:
         """Starts the crop"""
         self.logger.debug("Received signal 'CROP_START' on day %s" % day)
 
@@ -309,7 +308,7 @@ class Engine(BaseEngine):
 
         self.crop = self.mconf.CROP(day, self.kiosk, self.parameterprovider)
 
-    def _on_SITE_START(self, day: date, site_name: str = None, site_variation: str = None):
+    def _on_SITE_START(self, day: date, site_name: str = None, site_variation: str = None) -> None:
         """Starts the site"""
         self.logger.debug("Received signal 'SITE_START' on day %s" % day)
 
@@ -327,7 +326,7 @@ class Engine(BaseEngine):
 
         self.soil = self.mconf.SOIL(self.day, self.kiosk, self.parameterprovider)
 
-    def _on_SITE_FINISH(self, day: date, site_delete: bool = False):
+    def _on_SITE_FINISH(self, day: date, site_delete: bool = False) -> None:
         """Sets the variable 'flag_site_finish' to True when the signal
         SOTE_FINISH is received.
 
@@ -347,19 +346,19 @@ class Engine(BaseEngine):
         if self.crop is not None:
             self._send_signal(signals.crop_finish, day=day, crop_delete=True)
 
-    def _on_TERMINATE(self):
+    def _on_TERMINATE(self) -> None:
         """Sets the variable 'flag_terminate' to True when the signal TERMINATE
         was received.
         """
         self.flag_terminate = True
 
-    def _on_OUTPUT(self):
+    def _on_OUTPUT(self) -> None:
         """Sets the variable 'flag_output to True' when the signal OUTPUT
         was received.
         """
         self.flag_output = True
 
-    def _finish_cropsimulation(self, day: date, clear_override=False):
+    def _finish_cropsimulation(self, day: date, clear_override: bool = False) -> None:
         """Finishes the CropSimulation object when variable 'flag_crop_finish'
         has been set to True based on the signal 'CROP_FINISH' being
         received.
@@ -384,7 +383,7 @@ class Engine(BaseEngine):
 
         self.crop = None
 
-    def _finish_sitesimulation(self, day: date, clear_override=False):
+    def _finish_sitesimulation(self, day: date, clear_override: bool = False) -> None:
         """Finishes the SiteSimulation object when variable 'flag_site_finish'
         has been set to True based on the signal 'SITE_FINISH' being
         received.
@@ -409,7 +408,7 @@ class Engine(BaseEngine):
 
         self.soil = None
 
-    def _terminate_simulation(self, day: date):
+    def _terminate_simulation(self, day: date) -> None:
         """Terminates the entire simulation.
 
         First the finalize() call on the soil component is executed.
@@ -420,7 +419,7 @@ class Engine(BaseEngine):
             self.soil.finalize(self.day)
         self._save_terminal_output()
 
-    def _get_driving_variables(self, day: date):
+    def _get_driving_variables(self, day: date) -> None:
         """Get driving variables, compute derived properties and return it."""
         drv = self.weatherdataprovider(day)
 
@@ -432,7 +431,7 @@ class Engine(BaseEngine):
 
         return drv
 
-    def _save_output(self, day: date):
+    def _save_output(self, day: date) -> None:
         """Appends selected model variables to self._saved_output for this day."""
         # Switch off the flag for generating output
         self.flag_output = False
@@ -443,7 +442,7 @@ class Engine(BaseEngine):
             states[var] = self.get_variable(var)
         self._saved_output = [states]
 
-    def _save_summary_output(self):
+    def _save_summary_output(self) -> None:
         """Appends selected model variables to self._saved_summary_output."""
         # find current value of variables to are to be saved
         states = {}
@@ -451,13 +450,13 @@ class Engine(BaseEngine):
             states[var] = self.get_variable(var)
         self._saved_summary_output = [states]
 
-    def _save_terminal_output(self):
+    def _save_terminal_output(self) -> None:
         """Appends selected model variables to self._saved_terminal_output."""
         # find current value of variables to are to be saved
         for var in self.mconf.TERMINAL_OUTPUT_VARS:
             self._saved_terminal_output[var] = self.get_variable(var)
 
-    def set_variable(self, varname: str, value: float):
+    def set_variable(self, varname: str, value: float) -> dict:
         """Sets the value of the specified state or rate variable.
 
         :param varname: Name of the variable to be updated (string).
@@ -492,7 +491,7 @@ class Engine(BaseEngine):
 
         return increments
 
-    def get_output(self):
+    def get_output(self) -> dict[str, object]:
         """Returns the variables have have been stored during the simulation.
 
         If no output is stored an empty list is returned. Otherwise, the output is
@@ -501,12 +500,12 @@ class Engine(BaseEngine):
 
         return self._saved_output
 
-    def get_summary_output(self):
+    def get_summary_output(self) -> dict[str, object]:
         """Returns the summary variables have have been stored during the simulation."""
 
         return self._saved_summary_output
 
-    def get_terminal_output(self):
+    def get_terminal_output(self) -> dict[str, object]:
         """Returns the terminal output variables have have been stored during the simulation."""
 
         return self._saved_terminal_output
@@ -526,6 +525,6 @@ class Wofost8Engine(Engine):
         weatherdataprovider: WeatherDataProvider,
         agromanagement: BaseAgroManager,
         config: dict,
-    ):
+    ) -> None:
         """Initialize WOFOST8Engine Class"""
         Engine.__init__(self, parameterprovider, weatherdataprovider, agromanagement, config=config)

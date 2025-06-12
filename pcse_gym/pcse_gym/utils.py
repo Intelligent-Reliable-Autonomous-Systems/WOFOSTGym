@@ -16,7 +16,7 @@ def make_config(
     soil: BaseSoilModuleWrapper = SoilModuleWrapper_LNPKW,
     crop: BaseCropModel = Wofost80,
     agro: BaseAgroManager = AgroManagerAnnual,
-):
+) -> dict[str, list]:
     """Makes the configuration dictionary to be used to set various values of
     the model.
 
@@ -398,7 +398,7 @@ def make_config(
     }
 
 
-def set_params(env: gym.Env, args: WOFOST_Args):
+def set_params(env: gym.Env, args: WOFOST_Args) -> None:
     """Sets editable WOFOST Model parameters by overriding the value
     in the configuration .yaml file
 
@@ -1063,7 +1063,9 @@ class ParamLoader:
     Class to handle loading the parameter and state/rate names of all variables
     """
 
-    def __init__(self, base_fpath: str = None, name_fpath: str = None, unit_fpath: str = None, range_fpath: str = None):
+    def __init__(
+        self, base_fpath: str = None, name_fpath: str = None, unit_fpath: str = None, range_fpath: str = None
+    ) -> None:
         """
         Initialize State by loading respective .yaml files as specified in utils.Args
         """
@@ -1090,7 +1092,7 @@ class ParamLoader:
             )
             raise Exception(msg)
 
-    def get_name(self, key: str):
+    def get_name(self, key: str) -> str:
         """
         Get the name of a specific key
         """
@@ -1100,7 +1102,7 @@ class ParamLoader:
             msg = f"`{key}` not found in State Names YAML file. Check that key exists in file."
             raise Exception(msg)
 
-    def get_unit(self, key: str):
+    def get_unit(self, key: str) -> float | int | bool:
         """
         Get the unit of a specific key
         """
@@ -1110,7 +1112,7 @@ class ParamLoader:
             msg = f"`{key}` not found in State Units YAML file. Check that key exists in file."
             raise Exception(msg)
 
-    def get_range(self, key: str):
+    def get_range(self, key: str) -> np.ndarray:
         """
         Get the range of a specific key
         """
@@ -1121,7 +1123,7 @@ class ParamLoader:
             msg = f"`{key}` not found in State Range YAML file. Check that key exists in file."
             raise Exception(msg)
 
-    def normalize(self, key: str, obs: float):
+    def normalize(self, key: str, obs: float) -> float:
         """
         Get the range of a specific key and normalize
         """

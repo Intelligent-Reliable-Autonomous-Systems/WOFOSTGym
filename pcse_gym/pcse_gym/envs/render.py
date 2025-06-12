@@ -7,9 +7,11 @@ Written by Will Solow, 2025
 import pygame
 import matplotlib.cm as cm
 from datetime import timedelta
+import gymnasium as gym
+import numpy as np
 
 
-def render(env):
+def render(env: gym.Env) -> None | np.ndarray:
     """
     Render the environment
     """

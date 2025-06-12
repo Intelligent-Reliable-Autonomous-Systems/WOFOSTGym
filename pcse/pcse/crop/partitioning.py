@@ -1,16 +1,19 @@
-# -*- coding: utf-8 -*-
-# Copyright (c) 2004-2014 Alterra, Wageningen-UR
-# Allard de Wit (allard.dewit@wur.nl), April 2014
+"""Handles Partitioning of biomass
+
+Written by: Allard de Wit (allard.dewit@wur.nl), April 2014
+Modified by Will Solow, 2024
+"""
+
 from collections import namedtuple
 from math import exp
 from datetime import date
 
-from ..utils.traitlets import Float, Instance, Bool
-from ..utils.decorators import prepare_states
-from ..base import ParamTemplate, StatesTemplate, SimulationObject, VariableKiosk
-from ..utils import exceptions as exc
-from ..util import AfgenTrait, MultiAfgenTrait, limit
-from ..nasapower import WeatherDataProvider
+from pcse.utils.traitlets import Float, Instance, Bool
+from pcse.utils.decorators import prepare_states
+from pcse.base import ParamTemplate, StatesTemplate, SimulationObject, VariableKiosk
+from pcse.utils import exceptions as exc
+from pcse.util import AfgenTrait, MultiAfgenTrait, limit
+from pcse.nasapower import WeatherDataContainer
 
 
 class PartioningFactors(namedtuple("partitioning_factors", "FR FL FS FO")):
@@ -115,7 +118,7 @@ class Base_Partitioning_NPK(SimulationObject):
         FO = Float(-99.0)
         PF = Instance(PartioningFactors)
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parameters: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parameters: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -124,7 +127,7 @@ class Base_Partitioning_NPK(SimulationObject):
         msg = "Initialize Partitioning in subclass"
         raise NotImplementedError(msg)
 
-    def _check_partitioning(self):
+    def _check_partitioning(self) -> None:
         """Check for partitioning errors."""
         FR = self.states.FR
         FL = self.states.FL
@@ -134,11 +137,9 @@ class Base_Partitioning_NPK(SimulationObject):
         if abs(checksum) >= 0.0001:
             msg = "Error in partitioning!\n"
             msg += "Checksum: %f, FR: %5.3f, FL: %5.3f, FS: %5.3f, FO: %5.3f\n" % (checksum, FR, FL, FS, FO)
-            # self.logger.error(msg)
-            # raise exc.PartitioningError(msg)
 
     @prepare_states
-    def integrate(self, day: date, delt: float = 1.0):
+    def integrate(self, day: date, delt: float = 1.0) -> None:
         """
         Update partitioning factors based on development stage (DVS)
         and the Nitrogen nutrition Index (NNI)
@@ -179,7 +180,7 @@ class Base_Partitioning_NPK(SimulationObject):
 
         self._check_partitioning()
 
-    def calc_rates(self, day: date, drv: WeatherDataProvider):
+    def calc_rates(self, day: date, drv: WeatherDataContainer) -> None:
         """Return partitioning factors based on current DVS."""
         # Set the threshold flag
         if self.kiosk.SURFACE_N > self.params.NTHRESH:
@@ -192,7 +193,7 @@ class Base_Partitioning_NPK(SimulationObject):
         # rate calculation does nothing for partitioning as it is a derived state
         return self.states.PF
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset states adn rates"""
 
         # initial partioning factors (pf)
@@ -219,7 +220,7 @@ class Annual_Partitioning_NPK(Base_Partitioning_NPK):
 
     """
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parameters: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parameters: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -260,7 +261,7 @@ class Perennial_Partitioning_NPK(Base_Partitioning_NPK):
         PTHRESH = Float(-99.0)  # Threshold above which excess P stress occurs
         KTHRESH = Float(-99.0)  # Threshold above which excess K stress occurs
 
-    def initialize(self, day: date, kiosk: VariableKiosk, parameters: dict):
+    def initialize(self, day: date, kiosk: VariableKiosk, parameters: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -285,7 +286,7 @@ class Perennial_Partitioning_NPK(Base_Partitioning_NPK):
         self._check_partitioning()
 
     @prepare_states
-    def integrate(self, day: date, delt: float = 1.0):
+    def integrate(self, day: date, delt: float = 1.0) -> None:
         """
         Update partitioning factors based on development stage (DVS)
         and the Nitrogen nutrition Index (NNI)
@@ -326,7 +327,7 @@ class Perennial_Partitioning_NPK(Base_Partitioning_NPK):
 
         self._check_partitioning()
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset states adn rates"""
 
         # initial partioning factors (pf)

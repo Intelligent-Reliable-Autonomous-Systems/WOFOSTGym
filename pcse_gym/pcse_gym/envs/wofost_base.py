@@ -53,7 +53,7 @@ class NPK_Env(gym.Env):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`NPK_Env`.
 
         Args:
@@ -159,11 +159,11 @@ class NPK_Env(gym.Env):
         self.isopen = True
         self.assets = args.assets_fpath
 
-    def get_output_vars(self):
+    def get_output_vars(self) -> list[str]:
         """Return a list of the output vars"""
         return self.output_vars + self.weather_vars + ["DAYS"]
 
-    def seed(self, seed: int = None):
+    def seed(self, seed: int = None) -> list[int]:
         """Set the seed for the environment using Gym seeding.
         Minimal impact - generally will only effect Gaussian noise for
         weather predictions
@@ -175,13 +175,13 @@ class NPK_Env(gym.Env):
         np.random.seed(seed)
         return [seed]
 
-    def render(self):
+    def render(self) -> None:
         """
         Render the environment into something a human can understand
         """
         render_env(self)
 
-    def close(self):
+    def close(self) -> None:
         """
         Close the window
         """
@@ -190,7 +190,7 @@ class NPK_Env(gym.Env):
             pygame.quit()
             self.isopen = False
 
-    def reset(self, **kwargs):
+    def reset(self, **kwargs: dict) -> tuple[np.ndarray, dict]:
         """Reset the environment to the initial state specified by the
         agromanagement, crop, and soil files.
 
@@ -261,9 +261,9 @@ class NPK_Env(gym.Env):
 
         return observation, self.log
 
-    def domain_randomization_uniform(self, scale=0.1):
+    def domain_randomization_uniform(self, scale: float = 0.1) -> None:
         """
-        Apply a small randomization to the site and crop parameters
+        Apply a small uniform randomization to the site and crop parameters
         """
         crop_kv = {k: v for k, v in self.parameterprovider._cropdata.items() if isinstance(v, float)}
         site_kv = {k: v for k, v in self.parameterprovider._sitedata.items() if isinstance(v, float)}
@@ -275,9 +275,9 @@ class NPK_Env(gym.Env):
             x = 1 if v == 0 else v
             self.parameterprovider.set_override(k, v + np.random.uniform(low=-x * scale, high=x * scale), check=False)
 
-    def domain_randomization_normal(self, scale=0.1):
+    def domain_randomization_normal(self, scale: float = 0.1) -> None:
         """
-        Apply a small randomization to the site and crop parameters
+        Apply a small normal randomization to the site and crop parameters
         """
         crop_kv = {k: v for k, v in self.parameterprovider._cropdata.items() if isinstance(v, float)}
         site_kv = {k: v for k, v in self.parameterprovider._sitedata.items() if isinstance(v, float)}
@@ -289,7 +289,7 @@ class NPK_Env(gym.Env):
             x = 1 if v == 0 else v
             self.parameterprovider.set_override(k, v + x * np.random.normal(scale=scale), check=False)
 
-    def step(self, action: int):
+    def step(self, action: int) -> tuple[np.ndarray, float, bool, bool, dict]:
         """Run one timestep of the environment's dynamics.
 
         Sends action to the WOFOST model and recieves the resulting observation
@@ -323,7 +323,7 @@ class NPK_Env(gym.Env):
             self.render()
         return observation, reward, termination, truncation, self.log
 
-    def _validate(self):
+    def _validate(self) -> None:
         """Validate that the configuration is correct"""
         if self.config is None:
             msg = "Configuration Not Specified. Please use model"
@@ -362,7 +362,7 @@ class NPK_Env(gym.Env):
                     msg = f"Incorrectly specified perennial environment {self} with grape variety {self.agromanagement['CropCalendar']['crop_variety']}. Change environment with --env-id [env] or crop_name in agro_config.yaml"
                     raise exc.ConfigFileException(msg)
 
-    def _load_agromanagement_data(self, path: str):
+    def _load_agromanagement_data(self, path: str) -> dict:
         """Load the Agromanagement .yaml file
 
         Args:
@@ -375,7 +375,7 @@ class NPK_Env(gym.Env):
 
         return utils.set_agro_params(agromanagement, self.agro_params)
 
-    def _load_site_parameters(self, agromanagement: dict):
+    def _load_site_parameters(self, agromanagement: dict) -> tuple[tuple[float, float], int]:
         """Load the site parameters from the agromanagement file. This is the
             SiteCalendar portion of the .yaml file
 
@@ -393,7 +393,9 @@ class NPK_Env(gym.Env):
 
         return fixed_location, fixed_year
 
-    def _get_train_weather_data(self, year_range: list = WEATHER_YEARS, missing_years: list = MISSING_YEARS):
+    def _get_train_weather_data(
+        self, year_range: list = WEATHER_YEARS, missing_years: list = MISSING_YEARS
+    ) -> list[int]:
         """Return the valid years of historical weather data for use in the
         NASA Weather Provider. Helpful for providing a cyclical list of data for
         multi-year simulations.
@@ -422,7 +424,7 @@ class NPK_Env(gym.Env):
 
         return valid_years
 
-    def _get_weather(self, date: date):
+    def _get_weather(self, date: date) -> np.ndarray:
         """Get the weather for a range of days from the NASA Weather Provider.
 
         Handles weather forecasting by adding some amount of pre-specified Gaussian
@@ -443,7 +445,7 @@ class NPK_Env(gym.Env):
 
         return np.array(weather_vars)
 
-    def _get_weather_day(self, date: date):
+    def _get_weather_day(self, date: date) -> list[float]:
         """Get the weather for a specific date based on the desired weather
         variables. Tracks and replaces year to ensure cyclic functionality of weather
 
@@ -460,7 +462,7 @@ class NPK_Env(gym.Env):
             weatherdatacontainer = self.weatherdataprovider(date)
         return [getattr(weatherdatacontainer, attr) for attr in self.weather_vars]
 
-    def _process_output(self, output: dict):
+    def _process_output(self, output: dict) -> np.ndarray:
         """Process the output from the model into the observation required by
         the current environment
 
@@ -488,13 +490,13 @@ class NPK_Env(gym.Env):
                 observation[i] = 0
         return observation.astype("float64")
 
-    def _run_simulation(self):
+    def _run_simulation(self) -> dict:
         """Run the WOFOST model for the specified number of days"""
         self.model.run(days=self.intervention_interval)
 
         return self.model.get_output()
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
 
         Converts the integer action to a signal and amount of NPK/Water to be applied.
@@ -505,7 +507,7 @@ class NPK_Env(gym.Env):
         msg = "'Take Action' method not yet implemented on %s" % self.__class__.__name__
         raise NotImplementedError(msg)
 
-    def _get_reward(self, output: dict, act_tuple: tuple):
+    def _get_reward(self, output: dict, act_tuple: tuple) -> float:
         """Convert the reward by applying a high penalty if a fertilization
         threshold is crossed
 
@@ -515,7 +517,7 @@ class NPK_Env(gym.Env):
         """
         return output[-1]["WSO"] if output[-1]["WSO"] is not None else 0
 
-    def _init_log(self):
+    def _init_log(self) -> dict:
         """Initialize the log."""
 
         return {
@@ -528,7 +530,7 @@ class NPK_Env(gym.Env):
             "day": dict(),
         }
 
-    def _log(self, growth: float, action: int, reward: float):
+    def _log(self, growth: float, action: int, reward: float) -> None:
         """Log the outputs into the log dictionary
 
         Args:
@@ -545,7 +547,7 @@ class NPK_Env(gym.Env):
         self.log["reward"][self.date] = reward
         self.log["day"][self.date] = self.date
 
-    def _get_site_data(self):
+    def _get_site_data(self) -> dict:
         """
         Get the site data for a specific site and variation
         """
@@ -556,7 +558,7 @@ class NPK_Env(gym.Env):
                 site_data[k] = v
         return site_data
 
-    def _get_crop_data(self):
+    def _get_crop_data(self) -> dict:
         """
         Get the crop data for a specific site and variation set by the agromanagment file
         """
@@ -600,7 +602,7 @@ class Multi_NPK_Env(gym.Env):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`NPK_Env`.
 
         Args:
@@ -720,11 +722,11 @@ class Multi_NPK_Env(gym.Env):
         self.isopen = True
         self.assets = args.assets_fpath
 
-    def get_output_vars(self):
+    def get_output_vars(self) -> list[str]:
         """Return a list of the output vars"""
         return self.crop_vars + self.weather_vars + ["DAYS"]
 
-    def seed(self, seed: int = None):
+    def seed(self, seed: int = None) -> list[int]:
         """Set the seed for the environment using Gym seeding.
         Minimal impact - generally will only effect Gaussian noise for
         weather predictions
@@ -736,13 +738,13 @@ class Multi_NPK_Env(gym.Env):
         np.random.seed(seed)
         return [seed]
 
-    def render(self):
+    def render(self) -> None:
         """
         Render the environment into something a human can understand
         """
         render_env(self)
 
-    def close(self):
+    def close(self) -> None:
         """
         Close the window
         """
@@ -751,7 +753,7 @@ class Multi_NPK_Env(gym.Env):
             pygame.quit()
             self.isopen = False
 
-    def reset(self, **kwargs):
+    def reset(self, **kwargs: dict) -> tuple[np.ndarray, dict]:
         """Reset the environment to the initial state specified by the
         agromanagement, crop, and soil files.
 
@@ -822,7 +824,7 @@ class Multi_NPK_Env(gym.Env):
 
         return observation, self.log
 
-    def crop_randomization(self, scale=0.1):
+    def crop_randomization(self, scale: float = 0.1) -> None:
         """
         Apply a small randomization to the site and crop parameters
         """
@@ -850,7 +852,7 @@ class Multi_NPK_Env(gym.Env):
                 self.sitedata[i][k] = v + np.random.uniform(low=-x * scale, high=x * scale)
                 self.parameterproviders[i].set_override(k, self.sitedata[i][k], check=False)
 
-    def domain_randomization(self, scale=0.1):
+    def domain_randomization(self, scale: float = 0.1) -> None:
         """
         Apply a small randomization to the site and crop parameters
         """
@@ -863,7 +865,7 @@ class Multi_NPK_Env(gym.Env):
                 x = 1 if v == 0 else v
                 self.parameterproviders[i].set_override(k, v + x * np.random.normal(scale=scale), check=False)
 
-    def step(self, action: int):
+    def step(self, action: int) -> tuple[np.ndarray, float, bool, bool, dict]:
         """Run one timestep of the environment's dynamics.
 
         Sends action to the WOFOST model and recieves the resulting observation
@@ -899,7 +901,7 @@ class Multi_NPK_Env(gym.Env):
             self.render()
         return observation, reward, termination, truncation, self.log
 
-    def _validate(self):
+    def _validate(self) -> None:
         """
         Validate that the configuration is correct
         """
@@ -940,7 +942,7 @@ class Multi_NPK_Env(gym.Env):
                     msg = f"Incorrectly specified perennial environment {self} with grape variety {self.agromanagement['CropCalendar']['crop_variety']}. Change environment with --env-id [env] or crop_name in agro_config.yaml"
                     raise exc.ConfigFileException(msg)
 
-    def _load_agromanagement_data(self, path: str):
+    def _load_agromanagement_data(self, path: str) -> dict:
         """Load the Agromanagement .yaml file
 
         Args:
@@ -953,7 +955,7 @@ class Multi_NPK_Env(gym.Env):
 
         return utils.set_agro_params(agromanagement, self.agro_params)
 
-    def _load_site_parameters(self, agromanagement: dict):
+    def _load_site_parameters(self, agromanagement: dict) -> tuple[tuple[float, float], int]:
         """Load the site parameters from the agromanagement file. This is the
             SiteCalendar portion of the .yaml file
 
@@ -971,7 +973,9 @@ class Multi_NPK_Env(gym.Env):
 
         return fixed_location, fixed_year
 
-    def _get_train_weather_data(self, year_range: list = WEATHER_YEARS, missing_years: list = MISSING_YEARS):
+    def _get_train_weather_data(
+        self, year_range: list = WEATHER_YEARS, missing_years: list = MISSING_YEARS
+    ) -> np.ndarray:
         """Return the valid years of historical weather data for use in the
         NASA Weather Provider. Helpful for providing a cyclical list of data for
         multi-year simulations.
@@ -1000,7 +1004,7 @@ class Multi_NPK_Env(gym.Env):
 
         return valid_years
 
-    def _get_weather(self, date: date):
+    def _get_weather(self, date: date) -> np.ndarray:
         """Get the weather for a range of days from the NASA Weather Provider.
 
         Handles weather forecasting by adding some amount of pre-specified Gaussian
@@ -1021,7 +1025,7 @@ class Multi_NPK_Env(gym.Env):
 
         return np.array(weather_vars)
 
-    def _get_weather_day(self, date: date):
+    def _get_weather_day(self, date: date) -> list[float]:
         """Get the weather for a specific date based on the desired weather
         variables. Tracks and replaces year to ensure cyclic functionality of weather
 
@@ -1035,7 +1039,7 @@ class Multi_NPK_Env(gym.Env):
 
         return [getattr(weatherdatacontainer, attr) for attr in self.weather_vars]
 
-    def _process_output(self, output: dict):
+    def _process_output(self, output: dict) -> np.ndarray:
         """Process the output from the model into the observation required by
         the current environment
 
@@ -1065,13 +1069,13 @@ class Multi_NPK_Env(gym.Env):
                 observation[i] = 0
         return observation.astype("float64")
 
-    def _run_simulation(self):
+    def _run_simulation(self) -> list[dict]:
         """Run the WOFOST model for the specified number of days"""
         [self.models[i].run(days=self.intervention_interval) for i in range(self.num_farms)]
 
         return [self.models[i].get_output() for i in range(self.num_farms)]
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Controls sending fertilization and irrigation signals to the model.
 
         Converts the integer action to a signal and amount of NPK/Water to be applied.
@@ -1082,7 +1086,7 @@ class Multi_NPK_Env(gym.Env):
         msg = "'Take Action' method not yet implemented on %s" % self.__class__.__name__
         raise NotImplementedError(msg)
 
-    def _get_reward(self, output: dict, act_tuple: tuple):
+    def _get_reward(self, output: dict, act_tuple: tuple) -> float:
         """Convert the reward by applying a high penalty if a fertilization
         threshold is crossed
 
@@ -1095,7 +1099,7 @@ class Multi_NPK_Env(gym.Env):
             reward += output[i][-1]["WSO"] if output[i][-1]["WSO"] is not None else 0
         return reward
 
-    def _init_log(self):
+    def _init_log(self) -> dict:
         """Initialize the log."""
 
         return {
@@ -1108,7 +1112,7 @@ class Multi_NPK_Env(gym.Env):
             "day": dict(),
         }
 
-    def _log(self, growth: float, action: int, reward: float):
+    def _log(self, growth: float, action: int, reward: float) -> None:
         """Log the outputs into the log dictionary
 
         Args:
@@ -1125,7 +1129,7 @@ class Multi_NPK_Env(gym.Env):
         self.log["reward"][self.date] = reward
         self.log["day"][self.date] = self.date
 
-    def _get_site_data(self, i):
+    def _get_site_data(self, i: int) -> dict:
         """
         Get the site data for a specific site and variation
         """
@@ -1136,7 +1140,7 @@ class Multi_NPK_Env(gym.Env):
                 site_data[k] = v
         return site_data
 
-    def _get_crop_data(self, i):
+    def _get_crop_data(self, i: int) -> dict:
         """
         Get the crop data for a specific site and variation set by the agromanagment file
         """
@@ -1175,7 +1179,7 @@ class Plant_NPK_Env(NPK_Env):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`Plant_NPK_Env`.
 
         Args:
@@ -1201,12 +1205,12 @@ class Plant_NPK_Env(NPK_Env):
         self.crop_end_type = self.agromanagement["CropCalendar"]["crop_end_type"]
         self.active_crop_flag = False
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Sends action to the model"""
         msg = "'Take Action' method not yet implemented on %s" % self.__class__.__name__
         raise NotImplementedError(msg)
 
-    def _init_log(self):
+    def _init_log(self) -> None:
         """Initialize the log."""
         return {
             "growth": dict(),
@@ -1220,7 +1224,7 @@ class Plant_NPK_Env(NPK_Env):
             "day": dict(),
         }
 
-    def _log(self, growth: float, action: int, reward: float):
+    def _log(self, growth: float, action: int, reward: float) -> None:
         """Log the outputs into the log dictionary
 
         Args:
@@ -1267,7 +1271,7 @@ class Harvest_NPK_Env(NPK_Env):
         range_fpath: str,
         render_mode: str = None,
         config: dict = None,
-    ):
+    ) -> None:
         """Initialize the :class:`Plant_NPK_Env`.
 
         Args:
@@ -1293,12 +1297,12 @@ class Harvest_NPK_Env(NPK_Env):
         self.crop_end_type = self.agromanagement["CropCalendar"]["crop_end_type"]
         self.active_crop_flag = False
 
-    def _take_action(self, action: int):
+    def _take_action(self, action: int) -> tuple[float, float, float, float]:
         """Sends action to the model"""
         msg = "'Take Action' method not yet implemented on %s" % self.__class__.__name__
         raise NotImplementedError(msg)
 
-    def _init_log(self):
+    def _init_log(self) -> None:
         """Initialize the log."""
         return {
             "growth": dict(),
@@ -1311,7 +1315,7 @@ class Harvest_NPK_Env(NPK_Env):
             "day": dict(),
         }
 
-    def _log(self, growth: float, action: int, reward: float):
+    def _log(self, growth: float, action: int, reward: float) -> None:
         """Log the outputs into the log dictionary
 
         Args:

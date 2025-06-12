@@ -5,7 +5,7 @@ Written by: Allard de Wit (allard.dewit@wur.nl), April 2014
 Modified by Will Solow, 2024
 """
 
-from ..utils import exceptions as exc
+from pcse.utils import exceptions as exc
 
 
 class VariableKiosk(dict):
@@ -86,7 +86,7 @@ class VariableKiosk(dict):
           - variable VAR3, value: undefined
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the class `VariableKiosk`"""
         dict.__init__(self)
         self.registered_states = {}
@@ -94,19 +94,19 @@ class VariableKiosk(dict):
         self.published_states = {}
         self.published_rates = {}
 
-    def __setitem__(self, item, value):
+    def __setitem__(self, item: str, value: object) -> None:
         msg = "See set_variable() for setting a variable."
         raise RuntimeError(msg)
 
-    def __contains__(self, item):
+    def __contains__(self, item: str) -> bool:
         """Checks if item is in self.registered_states or self.registered_rates."""
         return dict.__contains__(self, item)
 
-    def __getattr__(self, item):
+    def __getattr__(self, item: str) -> object:
         """Allow use of attribute notation (eg "kiosk.LAI") on published rates or states."""
         return dict.__getitem__(self, item)
 
-    def __str__(self):
+    def __str__(self) -> str:
         msg = "Contents of VariableKiosk:\n"
         msg += " * Registered state variables: %i\n" % len(self.registered_states)
         msg += " * Published state variables: %i with values:\n" % len(self.published_states)
@@ -126,7 +126,7 @@ class VariableKiosk(dict):
             msg += "  - variable %s, value: %s\n" % (varname, value)
         return msg
 
-    def register_variable(self, oid, varname, type, publish=False):
+    def register_variable(self, oid: int, varname: str, type: str, publish: bool = False) -> None:
         """Register a varname from object with id, with given type
 
         :param oid: Object id (from python builtin id() function) of the
@@ -151,7 +151,7 @@ class VariableKiosk(dict):
             msg = "Variable type should be 'S'|'R'"
             raise exc.VariableKioskError(msg)
 
-    def deregister_variable(self, oid, varname):
+    def deregister_variable(self, oid: int, varname: str) -> None:
         """Object with id(object) asks to deregister varname from kiosk
 
         :param oid: Object id (from python builtin id() function) of the
@@ -184,13 +184,13 @@ class VariableKiosk(dict):
         if varname in self:
             self.pop(varname)
 
-    def _check_duplicate_variable(self, varname):
+    def _check_duplicate_variable(self, varname: str) -> None:
         """Checks if variables are not registered twice."""
         if varname in self.registered_rates or varname in self.registered_states:
             msg = "Duplicate state/rate variable '%s' encountered!"
             raise exc.VariableKioskError(msg % varname)
 
-    def set_variable(self, id, varname, value):
+    def set_variable(self, id: int, varname: str, value: object) -> None:
         """Let object with id, set the value of variable varname
 
         :param id: Object id (from python builtin id() function) of the
@@ -215,7 +215,7 @@ class VariableKiosk(dict):
             msg = "Variable '%s' not published in VariableKiosk."
             raise exc.VariableKioskError(msg % varname)
 
-    def variable_exists(self, varname):
+    def variable_exists(self, varname: str) -> bool:
         """Returns True if the state/rate variable is registered in the kiosk.
 
         :param varname: Name of the variable to be checked for registration.
@@ -226,12 +226,12 @@ class VariableKiosk(dict):
         else:
             return False
 
-    def flush_rates(self):
+    def flush_rates(self) -> None:
         """flush the values of all published rate variable from the kiosk."""
         for key in self.published_rates.keys():
             self.pop(key, None)
 
-    def flush_states(self):
+    def flush_states(self) -> None:
         """flush the values of all state variable from the kiosk."""
         for key in self.published_states.keys():
             self.pop(key, None)

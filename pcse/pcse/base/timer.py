@@ -8,9 +8,10 @@ Modified by Will Solow, 2024
 from __future__ import print_function
 from datetime import date, timedelta
 
-from ..base import AncillaryObject, VariableKiosk
-from ..utils.traitlets import Instance, Bool, Int, Enum
-from ..utils import signals
+from pcse.base import AncillaryObject, VariableKiosk
+from pcse.utils.traitlets import Instance, Bool, Int, Enum
+from pcse.utils import signals
+from pcse.util import ConfigurationLoader
 
 
 class Timer(AncillaryObject):
@@ -44,7 +45,7 @@ class Timer(AncillaryObject):
     first_call = Bool(True)
     _in_crop_cycle = Bool()
 
-    def initialize(self, kiosk: VariableKiosk, start_date: date, end_date: date, mconf):
+    def initialize(self, kiosk: VariableKiosk, start_date: date, end_date: date, mconf: ConfigurationLoader) -> None:
         """
         :param day: Start date of the simulation
         :param kiosk: Variable kiosk of the PCSE instance
@@ -69,13 +70,13 @@ class Timer(AncillaryObject):
         self.interval_days = mconf.OUTPUT_INTERVAL_DAYS
         self.time_step = timedelta(days=1)
 
-    def reset(self):
+    def reset(self) -> None:
         """
         Reset the timer
         """
         self.current_data = self.start_date
 
-    def __call__(self):
+    def __call__(self) -> tuple[date, float]:
         """Calls the Timer class. Handles signals for termination or output"""
         # On first call only return the current date, do not increase time
         if self.first_call is True:
@@ -115,7 +116,7 @@ class Timer(AncillaryObject):
         return self.current_date, float(self.time_step.days)
 
     @staticmethod
-    def is_a_month(day):
+    def is_a_month(day: date) -> bool:
         """Returns True if the date is on the last day of a month."""
 
         if day.month == 12:
@@ -127,7 +128,7 @@ class Timer(AncillaryObject):
         return False
 
     @staticmethod
-    def is_a_week(day, weekday=0):
+    def is_a_week(day: date, weekday: int = 0) -> bool:
         """Default weekday is Monday. Monday is 0 and Sunday is 6"""
         if day.weekday() == weekday:
             return True
@@ -135,7 +136,7 @@ class Timer(AncillaryObject):
             return False
 
     @staticmethod
-    def is_a_dekad(day):
+    def is_a_dekad(day: date) -> bool:
         """Returns True if the date is on a dekad boundary, i.e. the 10th,
         the 20th or the last day of each month"""
 

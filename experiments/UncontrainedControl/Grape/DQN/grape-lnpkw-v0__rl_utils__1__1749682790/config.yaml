@@ -1,0 +1,593 @@
+npk:
+  wf:
+    NSOILBASE: 10.0
+    NSOILBASE_FR: 0.025
+    PSOILBASE: 10.0
+    PSOILBASE_FR: 0.025
+    KSOILBASE: 10.0
+    KSOILBASE_FR: 0.025
+    NAVAILI: 0.0
+    PAVAILI: 0.0
+    KAVAILI: 0.0
+    NMAX: 20.0
+    PMAX: 20.0
+    KMAX: 20.0
+    BG_N_SUPPLY: 0.013
+    BG_P_SUPPLY: 0.013
+    BG_K_SUPPLY: 0.013
+    RNSOILMAX: 2.0
+    RPSOILMAX: 2.0
+    RKSOILMAX: 2.0
+    RNABSORPTION: 0.1
+    RPABSORPTION: 0.1
+    RKABSORPTION: 0.1
+    RNPKRUNOFF:
+    - 0.0
+    - 0.0
+    - 0.01
+    - 0.0
+    - 0.5
+    - 0.05
+    - 1.0
+    - 0.1
+    - 5.0
+    - 0.4
+    SMFCF: 0.43
+    SM0: 0.55
+    SMW: 0.3
+    CRAIRC: 0.09
+    SOPE: 0.55
+    KSUB: 0.37
+    RDMSOL: 130.0
+    IFUNRN: 0.0
+    SSMAX: 0.0
+    SSI: 0.0
+    WAV: 1.0
+    NOTINF: 0.0
+    SMLIM: 0.3
+    CO2: 360.0
+    REFCO2L: 360.0
+    MNOTINF: null
+    MIFUNRN: null
+    MSSI: null
+    MSSMAX: null
+    MSMLIM: null
+    MWAV: null
+    SoilProfileDescription: null
+    CVL:
+    - 0.0
+    - 0.73
+    - 1.0
+    - 0.73
+    - 5.0
+    - 0.73
+    CVO:
+    - 0.0
+    - 0.72
+    - 1.0
+    - 0.72
+    - 5.0
+    - 0.72
+    CVR:
+    - 0.0
+    - 0.69
+    - 1.0
+    - 0.69
+    - 5.0
+    - 0.69
+    CVS:
+    - 0.0
+    - 0.65
+    - 1.0
+    - 0.65
+    - 5.0
+    - 0.65
+    AMAXTB:
+    - 0.0
+    - 39.0
+    - 1.6
+    - 43.0
+    - 2.0
+    - 24.0
+    EFFTB:
+    - 19.5
+    - 0.53
+    - 36.0
+    - 0.53
+    KDIFTB:
+    - 0.0
+    - 0.46
+    - 1.26
+    - 0.83
+    - 1.261
+    - 0.69
+    - 2.0
+    - 0.79
+    TMPFTB:
+    - 10.0
+    - 0.0
+    - 19.5
+    - 1.0
+    - 35.5
+    - 1.0
+    - 40.0
+    - 0.0
+    TMNFTB:
+    - 0.0
+    - 0.0
+    - 3.0
+    - 1.0
+    CO2AMAXTB:
+    - 40.0
+    - 0.0
+    - 360.0
+    - 1.0
+    - 720.0
+    - 1.6
+    - 1000.0
+    - 1.9
+    - 2000.0
+    - 1.9
+    CO2EFFTB:
+    - 40.0
+    - 0.0
+    - 360.0
+    - 1.0
+    - 720.0
+    - 1.11
+    - 1000.0
+    - 1.11
+    - 2000.0
+    - 1.11
+    CFET: 1.02
+    DEPNR: 1.5
+    IOX: 1.0
+    IAIRDU: 0.0
+    CO2TRATB:
+    - 40.0
+    - 0.0
+    - 360.0
+    - 1.0
+    - 720.0
+    - 0.9
+    - 1000.0
+    - 0.9
+    - 2000.0
+    - 0.9
+    RGRLAI: 0.06
+    SPAN: 85.0
+    TBASE: 10.0
+    PERDL: 0.03
+    SLATB:
+    - 0.0
+    - 0.002
+    - 0.55
+    - 0.0018
+    - 1.0
+    - 0.0016
+    - 2.0
+    - 0.0016
+    RDRNS: null
+    NLAI: null
+    NSLA: null
+    RDRN: null
+    NMAXLV_TB:
+    - 0.0
+    - 0.06
+    - 0.4
+    - 0.04
+    - 0.7
+    - 0.03
+    - 1.0
+    - 0.02
+    - 2.0
+    - 0.0167
+    - 2.1
+    - 0.0167
+    PMAXLV_TB:
+    - 0.0
+    - 0.0144
+    - 0.4
+    - 0.0096
+    - 0.7
+    - 0.0072
+    - 1.0
+    - 0.0048
+    - 2.0
+    - 0.004
+    - 2.1
+    - 0.004
+    KMAXLV_TB:
+    - 0.0
+    - 0.096
+    - 0.4
+    - 0.064
+    - 0.7
+    - 0.048
+    - 1.0
+    - 0.032
+    - 2.0
+    - 0.027
+    - 2.1
+    - 0.027
+    NMAXRT_FR: 0.5
+    PMAXRT_FR: 0.5
+    KMAXRT_FR: 0.5
+    NMAXST_FR: 0.5
+    PMAXST_FR: 0.5
+    KMAXST_FR: 0.5
+    NRESIDLV: 0.0053
+    PRESIDLV: 0.0005
+    KRESIDLV: 0.0067
+    NRESIDST: 0.0027
+    PRESIDST: 0.0003
+    KRESIDST: 0.0033
+    NRESIDRT: 0.0027
+    PRESIDRT: 0.0003
+    KRESIDRT: 0.0033
+    NSLA_NPK: 0.5
+    NLAI_NPK: 1.0
+    RDRLV_NPK: 0.05
+    FRTB:
+    - 0
+    - - 0.0
+      - 0.3
+      - 1.57
+      - 0.0
+      - 2.0
+      - 0.0
+    FSTB:
+    - 0
+    - - 0.0
+      - 0.05
+      - 0.34
+      - 0.1
+      - 0.51
+      - 0.15
+      - 0.97
+      - 0.4
+      - 1.0
+      - 0.7
+      - 1.5
+      - 0.75
+      - 1.8
+      - 0.1
+      - 2.0
+      - 0.0
+    FLTB:
+    - 0
+    - - 0.0
+      - 0.95
+      - 0.34
+      - 0.9
+      - 0.51
+      - 0.85
+      - 0.97
+      - 0.6
+      - 1.0
+      - 0.2
+      - 1.5
+      - 0.0
+      - 1.8
+      - 0.0
+      - 2.0
+      - 0.0
+    FOTB:
+    - 0
+    - - 0.0
+      - 0.0
+      - 0.34
+      - 0.0
+      - 0.51
+      - 0.0
+      - 0.97
+      - 0.0
+      - 1.0
+      - 0.1
+      - 1.5
+      - 0.25
+      - 1.8
+      - 0.9
+      - 2.0
+      - 0.1
+    NPART: 1.0
+    NTHRESH: 10.0
+    PTHRESH: 10.0
+    KTHRESH: 10.0
+    VERNSAT: 70.0
+    VERNBASE: 14.0
+    VERNRTB:
+    - -8.0
+    - 0.0
+    - -4.0
+    - 0.0
+    - 3.0
+    - 1.0
+    - 10.0
+    - 1.0
+    - 17.0
+    - 0.0
+    - 20.0
+    - 0.0
+    VERNDVS: 0.3
+    DTBEM: 5
+    TSUMEM: 47.2
+    TBASEM: 10.79
+    TEFFMX: 25.6
+    TSUM1: 230.2
+    TSUM2: 605.14
+    TSUM3: 422.14
+    TSUM4: 1000.0
+    IDSL: 0.0
+    DLO: 14.0
+    DLC: 8.0
+    DVSI: 0.0
+    DVSM: 2.0
+    DVSEND: 3.0
+    DTSMTB:
+    - 0.0
+    - 0.0
+    - 10.0
+    - 0.0
+    - 35.5
+    - 25.5
+    DORM: 15
+    DORMCD: 70
+    AGEI: 0
+    MLDORM: 13.25
+    DCYCLEMAX: 320
+    Q10C: 2.17
+    CSUMDB: 119.0
+    HCINIT: -11.8
+    HCMIN: -1.2
+    HCMAX: -25.7
+    TENDO: 14.0
+    TECO: 3.0
+    ECOBOUND: -600.0
+    ENACCLIM: 0.1
+    ECACCLIM: 0.02
+    ENDEACCLIM: 0.1
+    ECDEACCLIM: 0.08
+    THETA: 7.0
+    Q10: 2.0
+    RMR:
+    - 0.0
+    - 0.012
+    - 1.0
+    - 0.012
+    - 5.0
+    - 0.012
+    RMS:
+    - 0.0
+    - 0.01
+    - 1.0
+    - 0.01
+    - 5.0
+    - 0.01
+    RML:
+    - 0.0
+    - 0.035
+    - 1.0
+    - 0.035
+    - 5.0
+    - 0.035
+    RMO:
+    - 0.0
+    - 0.013
+    - 1.0
+    - 0.013
+    - 5.0
+    - 0.013
+    RFSETB:
+    - 0.0
+    - 1.0
+    - 2.0
+    - 1.0
+    RDI: 10.0
+    RRI: 1.2
+    RDMCR: 120.0
+    RDRRTB:
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 1.5
+    - 0.02
+    - 2.0
+    - 0.02
+    - 2.5
+    - 0.04
+    - 2.75
+    - 0.1
+    - 3.0
+    - 0.5
+    RDRROS:
+    - 0.0
+    - 0.02
+    - 0.25
+    - 0.1
+    - 0.999
+    - 0.001
+    - 1.0
+    - 0.0
+    RDRRNPK:
+    - 1.0
+    - 0.0
+    - 1.01
+    - 0.0
+    - 1.1
+    - 0.05
+    - 1.5
+    - 0.1
+    - 2.0
+    - 0.3
+    RDRSTB:
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 1.5
+    - 0.02
+    - 2.0
+    - 0.02
+    - 2.5
+    - 0.04
+    - 2.75
+    - 0.1
+    - 3.0
+    - 0.5
+    SSATB:
+    - 0.0
+    - 0.0
+    - 2.0
+    - 0.0
+    TDWI:
+    - 0.0
+    - 41.1
+    - 2.0
+    - 41.1
+    - 3.0
+    - 41.1
+    RDRSOB:
+    - 0.0
+    - 0.0
+    - 2.0
+    - 0.0
+    - 2.01
+    - 0.01
+    - 2.5
+    - 0.02
+    - 2.75
+    - 0.05
+    - 3.0
+    - 0.5
+    SPA:
+    - 0.0
+    - 0.0
+    - 1.0
+    - 0.0
+    - 1.5
+    - 0.001
+    - 2.0
+    - 0.002
+    RDRSOF:
+    - 0.0
+    - 0.2
+    - 5.0
+    - 0.05
+    - 7.0
+    - 0.001
+    - 8.0
+    - 0.0
+    NMAXSO: 0.022
+    PMAXSO: 0.0075
+    KMAXSO: 0.006
+    NCRIT_FR: 1.0
+    PCRIT_FR: 1.0
+    KCRIT_FR: 1.0
+    DVS_NPK_STOP: 1.3
+    TCNT: 10.0
+    TCPT: 10.0
+    TCKT: 10.0
+    NFIX_FR: 0.0
+    RNUPTAKEMAX: 7.2
+    RPUPTAKEMAX: 0.8
+    RKUPTAKEMAX: 7.4
+    NLUE_NPK: 1.1
+    NPK_TRANSLRT_FR: 0.5
+    DVS_NPK_TRANSL: 0.8
+  ag:
+    latitude: 52.0
+    longitude: 5.0
+    year: 1987
+    site_name: washington
+    site_variation: washington_1
+    site_start_date: '1987-01-01'
+    site_end_date: '1987-12-01'
+    crop_name: grape
+    crop_variety: Chardonnay
+    crop_start_date: '1987-01-01'
+    crop_start_type: endodorm
+    crop_end_date: '1987-10-01'
+    crop_end_type: max_duration
+    max_duration: 365
+  seed: 0
+  scale: 0.03
+  output_vars:
+  - FIN
+  - DVS
+  - WSO
+  - NAVAIL
+  - PAVAIL
+  - KAVAIL
+  - SM
+  - TOTN
+  - TOTP
+  - TOTK
+  - TOTIRRIG
+  weather_vars:
+  - IRRAD
+  - TEMP
+  - RAIN
+  intvn_interval: 1
+  forecast_length: 1
+  forecast_noise:
+  - 0
+  - 0.2
+  num_fert: 4
+  num_irrig: 4
+  random_reset: true
+  train_reset: false
+  domain_rand: true
+  crop_rand: false
+  harvest_effec: 1.0
+  irrig_effec: 0.7
+  n_recovery: 0.7
+  p_recovery: 0.7
+  k_recovery: 0.7
+  fert_amount: 2.0
+  irrig_amount: 0.5
+  assets_fpath: /home/will/Projects/wofost/iras-wofost-gym/pcse_gym/pcse_gym/assets/
+env_id: grape-lnpkw-v0
+env_reward: null
+render_mode: null
+save_folder: experiments/UncontrainedControl/Grape/
+config_fpath: null
+data_file: null
+agro_file: grape_agro.yaml
+max_n: null
+max_p: null
+max_k: null
+max_w: null
+cost: null
+base_fpath: /home/will/Projects/wofost/iras-wofost-gym/
+agro_fpath: env_config/agro/
+crop_fpath: env_config/crop/
+site_fpath: env_config/site/
+unit_fpath: env_config/state_units.yaml
+name_fpath: env_config/state_names.yaml
+range_fpath: env_config/state_ranges.yaml
+DQN:
+  exp_name: rl_utils
+  seed: 1
+  torch_deterministic: true
+  cuda: true
+  wandb_project_name: npk
+  wandb_entity: null
+  capture_video: false
+  total_timesteps: 5000000
+  learning_rate: 0.00025
+  num_envs: 1
+  buffer_size: 10000
+  gamma: 0.99
+  tau: 1.0
+  target_network_frequency: 650
+  batch_size: 128
+  start_e: 1.0
+  end_e: 0.05
+  exploration_fraction: 0.5
+  learning_starts: 10000
+  train_frequency: 10
+  checkpoint_frequency: 500
+agent_type: DQN
+track: false

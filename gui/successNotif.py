@@ -1,3 +1,9 @@
+"""
+successNotif.py
+
+Written by Mason Schuster, 2025
+"""
+
 import subprocess
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QPushButton
@@ -81,7 +87,7 @@ class SuccessNotif(QWidget):
             print("-WOFOST- Opening plot display")
             print(f"-WOFOST- Command: python3 gui/plotDisplay.py -f {self.file_selections["save_folder"]}/",)
             self.results_proc = subprocess.Popen([
-                "python3", "gui/plotDisplay.py",
+                "python3", "-m", "gui.plotDisplay",
                 "-f", f"{self.file_selections["save_folder"]}/",
             ])
         except subprocess.CalledProcessError as e:

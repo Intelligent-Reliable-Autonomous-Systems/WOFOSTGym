@@ -64,4 +64,4 @@ if __name__ == "__main__":
     dones_arr = np.array(dones_arr)
 
     utils.save_file_npz(args, obs_arr, action_arr, reward_arr, next_obs_arr, dones_arr, env.unwrapped.get_output_vars())
-    vis_data.plot_output(args, output_vars=env.unwrapped.get_output_vars(), obs=obs_arr, rewards=reward_arr, save=True)
+    #vis_data.plot_output(args, output_vars=env.unwrapped.get_output_vars(), obs=obs_arr, rewards=reward_arr, save=True)

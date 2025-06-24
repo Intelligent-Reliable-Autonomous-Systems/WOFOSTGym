@@ -1,11 +1,17 @@
+"""
+agroPage.py
+
+Written by Mason Schuster, 2025
+"""
+
 import os
 import fnmatch
 import yaml
 import subprocess
-from notif import Notif
-from successNotif import SuccessNotif
-from customConfigPage import CustomConfigurationPage
-from trainAgentPage import TrainAgentPage
+from gui.notif import Notif
+from gui.successNotif import SuccessNotif
+from gui.customConfigPage import CustomConfigurationPage
+from gui.trainAgentPage import TrainAgentPage
 
 from PySide6.QtWidgets import (
     QWidget, QPushButton, QComboBox, QFrame,

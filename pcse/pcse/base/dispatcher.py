@@ -5,7 +5,7 @@ Modified by Will Solow, 2024
 """
 
 from pcse.pydispatch import dispatcher
-from pcse.base.simulationobject import SimulationObject
+from pcse.utils.traitlets import HasTraits
 
 
 class DispatcherObject(object):
@@ -25,7 +25,7 @@ class DispatcherObject(object):
         self.logger.debug("Sent signal: %s" % signal)
         dispatcher.send(signal=signal, sender=self.kiosk, *args, **kwargs)
 
-    def _connect_signal(self, handler: SimulationObject, signal: str) -> None:
+    def _connect_signal(self, handler: HasTraits, signal: str) -> None:
         """Connect the handler to the signal using the dispatcher module.
 
         The handler will only react on signals that have the SimulationObjects

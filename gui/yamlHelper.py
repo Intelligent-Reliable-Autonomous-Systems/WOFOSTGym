@@ -1,3 +1,8 @@
+"""
+yamlHelper.py
+
+Written by Mason Schuster, 2025
+"""
 import yaml
 from datetime import date
 

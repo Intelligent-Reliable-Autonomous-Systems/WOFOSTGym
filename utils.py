@@ -14,6 +14,7 @@ import pandas as pd
 import torch
 from dataclasses import dataclass, is_dataclass, fields, is_dataclass
 from typing import Optional
+from types import FunctionType
 from omegaconf import OmegaConf
 from omegaconf.dictconfig import DictConfig
 from omegaconf.listconfig import ListConfig
@@ -116,7 +117,7 @@ COLORS = [
 ]
 
 
-def wrap_env_reward(env: gym.Env, args: Namespace) -> function:
+def wrap_env_reward(env: gym.Env, args: Namespace) -> FunctionType:
     """
     Function to wrap the environment with a given reward function
     Based on the reward functions created in the pcse_gym/wrappers/
@@ -377,7 +378,7 @@ def save_file_npz(
     rewards: np.ndarray,
     next_obs: np.ndarray,
     dones: np.ndarray,
-    output_vars: np.darray,
+    output_vars: np.ndarray,
 ) -> None:
     """
     Save observations and rewards as .npz file
@@ -483,7 +484,7 @@ def get_valid_trainers() -> dict[str, object]:
     return trainer
 
 
-def get_functions(file: str) -> dict[str, function]:
+def get_functions(file: str) -> dict[str, FunctionType]:
     """
     Get the functions that correspond only to a specific file
     """

@@ -1,8 +1,14 @@
+"""
+genDataPage.py
+
+Written by Mason Schuster, 2025
+"""
+
 import os
 import webbrowser
 import subprocess
-from notif import Notif
-from viewLogsPage import ViewLogsPage
+from gui.notif import Notif
+from gui.viewLogsPage import ViewLogsPage
 
 from PySide6.QtWidgets import (
     QWidget, QPushButton,

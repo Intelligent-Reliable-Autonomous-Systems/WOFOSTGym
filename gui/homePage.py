@@ -1,7 +1,13 @@
+"""
+homePage.py
+
+Written by Mason Schuster, 2025
+"""
+
 import sys
-from envPage import EnvironmentPage
-from notif import Notif
-from genDataPage import ViewDataPage
+from gui.envPage import EnvironmentPage
+from gui.notif import Notif
+from gui.genDataPage import ViewDataPage
 
 from PySide6.QtWidgets import (
     QApplication, QWidget, QPushButton, QLineEdit,

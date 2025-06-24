@@ -9,6 +9,7 @@ Modified by Will Solow, 2024
 
 from __future__ import print_function
 from functools import wraps
+from types import FunctionType
 
 
 class descript(object):
@@ -16,13 +17,13 @@ class descript(object):
         self.f = f
         self.lockattr = lockattr
 
-    def __get__(self, instance: object, klass: function):
+    def __get__(self, instance: object, klass: FunctionType):
         if instance is None:
             # Class method was requested
             return self.make_unbound(klass)
         return self.make_bound(instance)
 
-    def make_unbound(self, klass) -> function:
+    def make_unbound(self, klass) -> FunctionType:
         @wraps(self.f)
         def wrapper(*args, **kwargs):
             """This documentation will vanish :)"""
@@ -33,7 +34,7 @@ class descript(object):
 
         return wrapper
 
-    def make_bound(self, instance: object) -> function:
+    def make_bound(self, instance: object) -> FunctionType:
         @wraps(self.f)
         def wrapper(*args, **kwargs):
             """This documentation will disapear :)"""
@@ -54,7 +55,7 @@ class descript(object):
         return wrapper
 
 
-def prepare_states(f: function) -> descript:
+def prepare_states(f: FunctionType) -> descript:
     """
     Class method decorator unlocking and locking the states object.
 
@@ -66,7 +67,7 @@ def prepare_states(f: function) -> descript:
     return descript(f, "states")
 
 
-def prepare_rates(f: function) -> descript:
+def prepare_rates(f: FunctionType) -> descript:
     """
     Class method decorator unlocking and locking the rates object.
 

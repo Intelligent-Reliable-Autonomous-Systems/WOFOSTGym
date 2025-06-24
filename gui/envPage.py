@@ -1,5 +1,11 @@
-from agroPage import AgromanagementPage
-from notif import Notif
+"""
+envPage.py
+
+Written by Mason Schuster, 2025
+"""
+
+from gui.agroPage import AgromanagementPage
+from gui.notif import Notif
 
 from PySide6.QtWidgets import (
     QWidget, QPushButton, QComboBox, QCheckBox,

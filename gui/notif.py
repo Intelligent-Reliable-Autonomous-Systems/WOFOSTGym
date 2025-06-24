@@ -1,3 +1,9 @@
+"""
+notif.py
+
+Written by Mason Schuster, 2025
+"""
+
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel
 )

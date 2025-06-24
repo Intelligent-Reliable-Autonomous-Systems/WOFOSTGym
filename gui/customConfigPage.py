@@ -1,10 +1,16 @@
+"""
+customConfigPage.py
+
+Written by Mason Schuster, 2025
+"""
+
 import os
 import yaml
 import subprocess
-from notif import Notif
-from successNotif import SuccessNotif
-from trainAgentPage import TrainAgentPage
-import yamlHelper as ah
+from gui.notif import Notif
+from gui.successNotif import SuccessNotif
+from gui.trainAgentPage import TrainAgentPage
+import gui.yamlHelper as ah
 
 from PySide6.QtWidgets import (
     QWidget, QPushButton, QComboBox, QLineEdit, QCheckBox, QDateEdit,

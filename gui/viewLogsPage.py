@@ -1,8 +1,14 @@
+"""
+viewLogsPage.py
+
+Written by Mason Schuster, 2025
+"""
+
 import os
 import webbrowser
 import subprocess
 import time
-from notif import Notif
+from gui.notif import Notif
 
 from PySide6.QtWidgets import (
     QWidget, QPushButton,

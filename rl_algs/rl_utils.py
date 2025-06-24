@@ -13,6 +13,7 @@ from pcse_gym.envs.wofost_base import Plant_NPK_Env, Harvest_NPK_Env
 from dataclasses import dataclass
 import os
 from typing import Optional
+from types import FunctionType
 from abc import ABC, abstractmethod
 from torch.utils.tensorboard import SummaryWriter
 import torch, random
@@ -53,7 +54,7 @@ class Agent(ABC):
         raise NotImplementedError
 
 
-def make_env(kwargs: Namespace, idx: int = 1, capture_video: bool = False, run_name: str = None) -> function:
+def make_env(kwargs: Namespace, idx: int = 1, capture_video: bool = False, run_name: str = None) -> FunctionType:
     """
     Environment constructor for SyncVectorEnv
     """
@@ -72,7 +73,7 @@ def make_env(kwargs: Namespace, idx: int = 1, capture_video: bool = False, run_n
     return thunk
 
 
-def make_env_pass(env: gym.Env) -> function:
+def make_env_pass(env: gym.Env) -> FunctionType:
     """
     Environment construction for SyncVectorEnv when we already have the environment
     """

@@ -1,7 +1,13 @@
+"""
+trainAgentPage.py
+
+Written by Mason Schuster, 2025
+"""
+
 import os
 import webbrowser
 import subprocess
-from notif import Notif
+from gui.notif import Notif
 
 from PySide6.QtWidgets import (
     QWidget, QPushButton, QProgressBar,
@@ -70,7 +76,7 @@ class TrainingPage(QWidget):
         #       INITIALIZATION
         # *************************
         self.train_proc = subprocess.Popen(
-            ["python", "train_agent.py", 
+            ["python3", "train_agent.py", 
              "--agent_type", self.agent_type,
              "--save-folder", self.file_selections["save_folder"] + "/",
              "--env-id", self.env_selections["env_id"],

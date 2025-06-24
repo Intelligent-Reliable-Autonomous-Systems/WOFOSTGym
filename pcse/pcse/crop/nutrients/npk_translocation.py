@@ -282,7 +282,7 @@ class NPK_Translocation(SimulationObject):
         else:
             s.NTRANSLOCATABLE = s.PTRANSLOCATABLE = s.KTRANSLOCATABLE = 0
 
-    def reset(self) -> NOne:
+    def reset(self) -> None:
         """Reset states and rates"""
         s = self.states
         r = self.rates

@@ -6,7 +6,8 @@ Modified by Will Solow, 2024
 
 import os
 import yaml
-from ..utils import exceptions as exc
+from pcse.utils import exceptions as exc
+
 
 class YAMLAgroManagementReader(list):
     """Reads PCSE agromanagement files in the YAML format.
@@ -15,9 +16,8 @@ class YAMLAgroManagementReader(list):
         relative path the file is assumed to be in the current working directory.
     """
 
-    def __init__(self, fname):
-        """Initialize class `YAMLAgroManagementReader
-        """
+    def __init__(self, fname: str) -> None:
+        """Initialize class `YAMLAgroManagementReader"""
         fname_fp = os.path.normpath(os.path.abspath(fname))
         if not os.path.exists(fname_fp):
             msg = "Cannot find agromanagement file: %s" % fname_fp
@@ -30,7 +30,7 @@ class YAMLAgroManagementReader(list):
                 msg = "Failed parsing agromanagement file %s: %s" % (fname_fp, e)
                 raise exc.PCSEError(msg)
 
-        list.__init__(self, r['AgroManagement'])
+        list.__init__(self, r["AgroManagement"])
 
-    def __str__(self):
+    def __str__(self) -> None:
         return yaml.dump(self, default_flow_style=False)

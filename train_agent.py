@@ -12,6 +12,7 @@ Written by: Will Solow, 2024
 
 To run: python3 train_agent.py --agent-type <Agent Type> --save-folder <logs>
 """
+
 import tyro
 from dataclasses import dataclass, field
 
@@ -25,6 +26,7 @@ from rl_algs.GAIL import Args as GAIL_Args
 from rl_algs.AIRL import Args as AIRL_Args
 import utils
 from typing import Optional
+
 
 @dataclass
 class AgentArgs(utils.Args):
@@ -56,7 +58,7 @@ class AgentArgs(utils.Args):
 
 
 if __name__ == "__main__":
-    
+
     args = tyro.cli(AgentArgs)
 
     try:
@@ -64,5 +66,5 @@ if __name__ == "__main__":
     except:
         msg = "Error in getting agent trainer. Check that `--args.agent-type` is a valid agent in rl_algs/ and that <agent-type.py> contains valid train() function."
         raise Exception(msg)
-    
+
     ag_trainer(args)

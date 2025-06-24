@@ -8,13 +8,16 @@ import wandb
 import time
 from dataclasses import dataclass
 
+from argparse import Namespace
+import gymnasium as gym
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.distributions.categorical import Categorical
 from typing import Optional
-from .rl_utils import RL_Args, Agent, setup, eval_policy
+from rl_algs.rl_utils import RL_Args, Agent, setup, eval_policy
+
 
 @dataclass
 class Args(RL_Args):
@@ -60,13 +63,15 @@ class Args(RL_Args):
     num_iterations: int = 0
     """the number of iterations (computed in runtime)"""
 
-def layer_init(layer, std=np.sqrt(2), bias_const=0.0):
+
+def layer_init(layer: nn.Module, std: np.ndarray = np.sqrt(2), bias_const: float = 0.0) -> nn.Module:
     torch.nn.init.orthogonal_(layer.weight, std)
     torch.nn.init.constant_(layer.bias, bias_const)
     return layer
 
+
 class PPO(nn.Module, Agent):
-    def __init__(self, envs, state_fpath:str=None, **kwargs):
+    def __init__(self, envs: gym.Env, state_fpath: str = None, **kwargs: dict) -> None:
         super().__init__()
         self.env = envs
         self.critic = nn.Sequential(
@@ -85,14 +90,16 @@ class PPO(nn.Module, Agent):
         )
 
         if state_fpath is not None:
-            assert isinstance(state_fpath, str), f"`state_fpath` must be of type `str` but is of type `{type(state_fpath)}`"
+            assert isinstance(
+                state_fpath, str
+            ), f"`state_fpath` must be of type `str` but is of type `{type(state_fpath)}`"
             try:
                 self.load_state_dict(torch.load(state_fpath, weights_only=True))
             except:
                 msg = f"Error loading state dictionary from {state_fpath}"
                 raise Exception(msg)
 
-    def get_action(self, x):
+    def get_action(self, x: np.ndarray | torch.Tensor) -> torch.Tensor:
         """
         Helper function to get action for compatibility with generating data
         """
@@ -100,23 +107,26 @@ class PPO(nn.Module, Agent):
         probs = Categorical(logits=logits)
         return probs.sample()
 
-    def get_value(self, x):
+    def get_value(self, x: torch.Tensor) -> torch.Tensor:
         return self.critic(x)
-    
-    def forward(self, x):
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = torch.from_numpy(x)
         logits = self.actor(x)
         probs = Categorical(logits=logits)
         return probs.sample()
 
-    def get_action_and_value(self, x, action=None):
+    def get_action_and_value(
+        self, x: torch.Tensor, action: torch.Tensor = None
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         logits = self.actor(x)
         probs = Categorical(logits=logits)
         if action is None:
             action = probs.sample()
         return action, probs.log_prob(action), probs.entropy(), self.critic(x)
 
-def train(kwargs):
+
+def train(kwargs: Namespace) -> None:
     """
     PPO Training Function
     """
@@ -126,7 +136,7 @@ def train(kwargs):
     args.batch_size = int(args.num_envs * args.num_steps)
     args.minibatch_size = int(args.batch_size // args.num_minibatches)
     args.num_iterations = args.total_timesteps // args.batch_size
-    
+
     writer, device, envs = setup(kwargs, args, run_name)
 
     agent = PPO(envs).to(device)

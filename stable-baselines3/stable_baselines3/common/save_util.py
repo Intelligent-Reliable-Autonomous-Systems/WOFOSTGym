@@ -241,7 +241,9 @@ def open_path_str(path: str, mode: str, verbose: int = 0, suffix: Optional[str] 
 
 
 @open_path.register(pathlib.Path)
-def open_path_pathlib(path: pathlib.Path, mode: str, verbose: int = 0, suffix: Optional[str] = None) -> io.BufferedIOBase:
+def open_path_pathlib(
+    path: pathlib.Path, mode: str, verbose: int = 0, suffix: Optional[str] = None
+) -> io.BufferedIOBase:
     """
     Open a path given by a string. If writing to the path, the function ensures
     that the path exists.

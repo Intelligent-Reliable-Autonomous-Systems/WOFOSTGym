@@ -1,4 +1,6 @@
 *.DS_Store
 *__pycache__/
-*sim_runs/
-*training_logs/
+*output/
+data_plotting/vis_data_paper.py
+bash_scripts/
+experiments/

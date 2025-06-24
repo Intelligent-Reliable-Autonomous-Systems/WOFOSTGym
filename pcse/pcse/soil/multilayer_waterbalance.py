@@ -7,24 +7,26 @@ Modified by: Will Solow, 2025
 
 from math import sqrt
 import numpy as np
+import datetime
 
-from ..utils.traitlets import Float, Int, Instance, Bool
-from ..utils.decorators import prepare_rates, prepare_states
-from ..util import limit
-from ..base import ParamTemplate, StatesTemplate, RatesTemplate, \
-     SimulationObject
-from ..utils import exceptions as exc
-from ..utils import signals
+from pcse.utils.traitlets import Float, Int, Instance, Bool
+from pcse.utils.decorators import prepare_rates, prepare_states
+from pcse.util import limit
+from pcse.base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject, VariableKiosk
+from pcse.utils import exceptions as exc
+from pcse.utils import signals
+from pcse.nasapower import WeatherDataContainer
 
 from .soil_profile import SoilProfile
 
+
 class WaterBalanceLayered_PP(SimulationObject):
-    _default_RD = Float(10.)
+    _default_RD = Float(10.0)
     _RDold = _default_RD
     _RDM = Float(None)
-    
+
     DSLR = Float(1)
-    
+
     RAINold = Float(0)
 
     soil_profile = None
@@ -36,14 +38,14 @@ class WaterBalanceLayered_PP(SimulationObject):
     class StateVariables(StatesTemplate):
         MSM = Instance(np.ndarray)
         MWC = Instance(np.ndarray)
-        MWTRAT = Float(-99.)
-        MEVST = Float(-99.)
+        MWTRAT = Float(-99.0)
+        MEVST = Float(-99.0)
 
     class RateVariables(RatesTemplate):
-        MEVS = Float(-99.)
-        MWTRA = Float(-99.)
+        MEVS = Float(-99.0)
+        MWTRA = Float(-99.0)
 
-    def initialize(self, day, kiosk, parvalues):
+    def initialize(self, day: datetime.date, kiosk: VariableKiosk, parvalues: dict) -> None:
         self.soil_profile = SoilProfile(parvalues)
         parvalues._soildata["soil_profile"] = self.soil_profile
 
@@ -56,16 +58,16 @@ class WaterBalanceLayered_PP(SimulationObject):
         for il, layer in enumerate(self.soil_profile):
             SM[il] = layer.SMFCF
             WC[il] = SM[il] * layer.Thickness
-        
-        WTRAT = 0.
-        EVST = 0.
 
-        states = { "MWC": WC, "MSM":SM, "MEVST": EVST, "MWTRAT": WTRAT}
-        self.rates = self.RateVariables(kiosk, publish=["MEVS", "MWTRA"])      
+        WTRAT = 0.0
+        EVST = 0.0
+
+        states = {"MWC": WC, "MSM": SM, "MEVST": EVST, "MWTRAT": WTRAT}
+        self.rates = self.RateVariables(kiosk, publish=["MEVS", "MWTRA"])
         self.states = self.StateVariables(kiosk, publish=["MWC", "MSM", "MEVST", "MWTRAT"], **states)
 
     @prepare_rates
-    def calc_rates(self, day, drv):
+    def calc_rates(self, day: datetime.date, drv: WeatherDataContainer) -> None:
         r = self.rates
         # Transpiration and maximum soil and surface water evaporation rates
         # are calculated by the crop Evapotranspiration module.
@@ -73,7 +75,7 @@ class WaterBalanceLayered_PP(SimulationObject):
         # the potential soil/water evaporation rates directly because there is
         # no shading by the canopy.
         if "TRA" not in self.kiosk:
-            r.MWTRA = 0.
+            r.MWTRA = 0.0
             EVSMX = drv.ES0
         else:
             r.MWTRA = self.kiosk["TRA"]
@@ -84,7 +86,7 @@ class WaterBalanceLayered_PP(SimulationObject):
             # If rainfall amount >= 1cm on previous day assume maximum soil
             # evaporation
             r.MEVS = EVSMX
-            self.DSLR = 1.
+            self.DSLR = 1.0
         else:
             # Else soil evaporation is a function days-since-last-rain (DSLR)
             self.DSLR += 1
@@ -93,16 +95,17 @@ class WaterBalanceLayered_PP(SimulationObject):
 
         # Hold rainfall amount to keep track of soil surface wetness and reset self.DSLR if needed
         self.RAINold = drv.RAIN
-        
+
     @prepare_states
-    def integrate(self, day, delt=1.0):
+    def integrate(self, day: datetime.date, delt: float = 1.0) -> None:
         self.states.MSM = self.states.MSM
         self.states.MWC = self.states.MWC
 
         # Accumulated transpiration and soil evaporation amounts
         self.states.MEVST += self.rates.MEVS * delt
         self.states.MWTRAT += self.rates.MWTRA * delt
-        
+
+
 class WaterBalanceLayered(SimulationObject):
     """This implements a layered water balance to estimate soil water availability for crop growth and water stress.
 
@@ -243,10 +246,11 @@ class WaterBalanceLayered(SimulationObject):
     MBOTTOMFLOW  Flow of the bottom of the profile                    cm/day
     ========== ==================================================  ====================
     """
-    _default_RD = Float(10.) 
+
+    _default_RD = Float(10.0)
     _RDold = _default_RD
-    _RINold = Float(0.)
-    _RIRR = Float(0.)
+    _RINold = Float(0.0)
+    _RIRR = Float(0.0)
     _DSLR = Int(None)
     _RDM = Float(None)
     _RAIN = Float(None)
@@ -265,55 +269,57 @@ class WaterBalanceLayered(SimulationObject):
     crop_start = Bool(False)
 
     class Parameters(ParamTemplate):
-        MIFUNRN   = Float(-99.)
-        MNOTINF   = Float(-99.)
-        MSSI      = Float(-99.)
-        MSSMAX    = Float(-99.)
-        MSMLIM    = Float(-99.)
-        MWAV      = Float(-99.)
+        MIFUNRN = Float(-99.0)
+        MNOTINF = Float(-99.0)
+        MSSI = Float(-99.0)
+        MSSMAX = Float(-99.0)
+        MSMLIM = Float(-99.0)
+        MWAV = Float(-99.0)
 
     class StateVariables(StatesTemplate):
-        MWTRAT        = Float(-99.)
-        MEVST         = Float(-99.)
-        MEVWT         = Float(-99.)
-        MTSR          = Float(-99.)
-        MRAINT        = Float(-99.)
-        MWDRT         = Float(-99.)
-        MTOTINF       = Float(-99.)
-        MTOTIRR       = Float(-99.)
-        MCRT          = Float(-99.)
-        MSM           = Instance(np.ndarray)
-        MSM_MEAN      = Float(-99.)
-        MWC           = Instance(np.ndarray)
-        MW            = Float(-99.)
-        MWLOW         = Float(-99.)
-        MWWLOW        = Float(-99.)
-        MWBOT         = Float(-99.)
-        MWAVUPP       = Float(-99.)
-        MWAVLOW       = Float(-99.)
-        MWAVBOT       = Float(-99.)
-        MSS           = Float(-99.)
-        MBOTTOMFLOWT  = Float(-99.)
-        MPERCT        = Float(-99.)
+        MWTRAT = Float(-99.0)
+        MEVST = Float(-99.0)
+        MEVWT = Float(-99.0)
+        MTSR = Float(-99.0)
+        MRAINT = Float(-99.0)
+        MWDRT = Float(-99.0)
+        MTOTINF = Float(-99.0)
+        MTOTIRR = Float(-99.0)
+        MCRT = Float(-99.0)
+        MSM = Instance(np.ndarray)
+        MSM_MEAN = Float(-99.0)
+        MWC = Instance(np.ndarray)
+        MW = Float(-99.0)
+        MWLOW = Float(-99.0)
+        MWWLOW = Float(-99.0)
+        MWBOT = Float(-99.0)
+        MWAVUPP = Float(-99.0)
+        MWAVLOW = Float(-99.0)
+        MWAVBOT = Float(-99.0)
+        MSS = Float(-99.0)
+        MBOTTOMFLOWT = Float(-99.0)
+        MPERCT = Float(-99.0)
 
     class RateVariables(RatesTemplate):
-        MFlow       =    Instance(np.ndarray)
-        MRIN        =    Float(-99.)
-        MWTRALY     =    Instance(np.ndarray)
-        MWTRA       =    Float(-99.)
-        MEVS        =    Float(-99.)
-        MEVW        =    Float(-99.)
-        MRIRR       =    Float(-99.)
-        MDWC        =    Instance(np.ndarray)
-        MDRAINT     =    Float(-99.)
-        MDSS        =    Float(-99.)
-        MDTSR       =    Float(-99.)
-        MBOTTOMFLOW =    Float(-99.)
-        MPERC       =    Float(-99.)
+        MFlow = Instance(np.ndarray)
+        MRIN = Float(-99.0)
+        MWTRALY = Instance(np.ndarray)
+        MWTRA = Float(-99.0)
+        MEVS = Float(-99.0)
+        MEVW = Float(-99.0)
+        MRIRR = Float(-99.0)
+        MDWC = Instance(np.ndarray)
+        MDRAINT = Float(-99.0)
+        MDSS = Float(-99.0)
+        MDTSR = Float(-99.0)
+        MBOTTOMFLOW = Float(-99.0)
+        MPERC = Float(-99.0)
 
-    def initialize(self, day, kiosk, parvalues):
-        
-        assert "SoilProfileDescription" in parvalues, "`SoilProfileDescription` is not in parvalues, ensure that you are using a site configuration with multilayer water balance parameters"
+    def initialize(self, day: datetime.date, kiosk: VariableKiosk, parvalues: dict) -> None:
+
+        assert (
+            "SoilProfileDescription" in parvalues
+        ), "`SoilProfileDescription` is not in parvalues, ensure that you are using a site configuration with multilayer water balance parameters"
         self.soil_profile = SoilProfile(parvalues)
         parvalues._soildata["soil_profile"] = self.soil_profile
 
@@ -341,14 +347,14 @@ class WaterBalanceLayered(SimulationObject):
                 if layer.rooting_status in ["rooted", "partially rooted"]:
                     # Check whether SMLIM is within boundaries
                     SML = limit(layer.SMW, layer.SM0, p.MSMLIM)
-                    AVMAX.append((SML - layer.SMW) * layer.Thickness)   
+                    AVMAX.append((SML - layer.SMW) * layer.Thickness)
                     TOPLIM += AVMAX[il]
                 elif layer.rooting_status == "potentially rooted":
                     # below the rooted zone the maximum is saturation
                     SML = layer.SM0
-                    AVMAX.append((SML - layer.SMW) * layer.Thickness)  
+                    AVMAX.append((SML - layer.SMW) * layer.Thickness)
                     LOWLIM += AVMAX[il]
-                else:  
+                else:
                     break
 
         if p.MWAV <= 0.0:
@@ -356,7 +362,7 @@ class WaterBalanceLayered(SimulationObject):
             TOPRED = 0.0
             LOWRED = 0.0
         elif p.MWAV <= TOPLIM:
-            # available water fits in layer(s) 1..ILR, these layers are rooted or almost rooted
+            # available water fits in layer(s) 1pcse.ILR, these layers are rooted or almost rooted
             # reduce amounts with ratio WAV / TOPLIM
             TOPRED = p.MWAV / TOPLIM
             LOWRED = 0.0
@@ -364,14 +370,16 @@ class WaterBalanceLayered(SimulationObject):
             # available water fits in potentially rooted layer
             # rooted zone is filled at capacity ; the rest reduced
             TOPRED = 1.0
-            LOWRED = (p.WAV-TOPLIM) / LOWLIM
+            LOWRED = (p.WAV - TOPLIM) / LOWLIM
         else:
             # water does not fit ; all layers "full"
             TOPRED = 1.0
             LOWRED = 1.0
 
-        W = 0.0    ; WAVUPP = 0.0
-        WLOW = 0.0 ; WAVLOW = 0.0
+        W = 0.0
+        WAVUPP = 0.0
+        WLOW = 0.0
+        WAVLOW = 0.0
         SM = np.zeros(len(self.soil_profile))
         WC = np.zeros_like(SM)
         Flow = np.zeros(len(self.soil_profile) + 1)
@@ -406,22 +414,81 @@ class WaterBalanceLayered(SimulationObject):
         self._DSLR = 5 if SM[0] <= top_layer_half_wet else 1
 
         # all summation variables of the water balance are set at zero.
-        states = {"MWTRAT": 0., "MEVST": 0., "MEVWT": 0., "MTSR": 0., "MWDRT": 0.,
-                  "MTOTINF": 0., "MTOTIRR": 0., "MBOTTOMFLOWT": 0.,
-                  "MCRT": 0., "MRAINT": 0., "MWLOW": WLOW, "MW": W, "MWC": WC, "MSM":SM,
-                  "MSS": p.MSSI, "MWWLOW": W+WLOW, "MWBOT":0., "MSM_MEAN": W/self._default_RD,
-                  "MWAVUPP": WAVUPP, "MWAVLOW": WAVLOW, "MWAVBOT":0., "MPERCT": 0
-                  }
-        self.states = self.StateVariables(kiosk, publish=["MWTRAT", "MEVST", "MEVWT", "MTSR", "MWDRT", "MTOTINF", "MPERCT",
-                                                          "MTOTIRR", "MBOTTOMFLOWT", "MCRT", "MRAINT", "MWLOW", "MW", "MWC", "MSM",
-                                                          "MSS", "MWWLOW", "MWBOT", "MSM_MEAN", "MWAVUPP", "MWAVLOW", "MWAVBOT"], **states)
+        states = {
+            "MWTRAT": 0.0,
+            "MEVST": 0.0,
+            "MEVWT": 0.0,
+            "MTSR": 0.0,
+            "MWDRT": 0.0,
+            "MTOTINF": 0.0,
+            "MTOTIRR": 0.0,
+            "MBOTTOMFLOWT": 0.0,
+            "MCRT": 0.0,
+            "MRAINT": 0.0,
+            "MWLOW": WLOW,
+            "MW": W,
+            "MWC": WC,
+            "MSM": SM,
+            "MSS": p.MSSI,
+            "MWWLOW": W + WLOW,
+            "MWBOT": 0.0,
+            "MSM_MEAN": W / self._default_RD,
+            "MWAVUPP": WAVUPP,
+            "MWAVLOW": WAVLOW,
+            "MWAVBOT": 0.0,
+            "MPERCT": 0,
+        }
+        self.states = self.StateVariables(
+            kiosk,
+            publish=[
+                "MWTRAT",
+                "MEVST",
+                "MEVWT",
+                "MTSR",
+                "MWDRT",
+                "MTOTINF",
+                "MPERCT",
+                "MTOTIRR",
+                "MBOTTOMFLOWT",
+                "MCRT",
+                "MRAINT",
+                "MWLOW",
+                "MW",
+                "MWC",
+                "MSM",
+                "MSS",
+                "MWWLOW",
+                "MWBOT",
+                "MSM_MEAN",
+                "MWAVUPP",
+                "MWAVLOW",
+                "MWAVBOT",
+            ],
+            **states,
+        )
 
         # Initial values for profile water content
         self._WCI = WC.sum()
 
         # rate variables
-        self.rates = self.RateVariables(kiosk, publish=["MRIN", "MFlow", "MWTRALY", "MWTRA", "MEVS", "MEVW", "MRIRR", 
-                                                        "MDWC", "MDRAINT", "MDSS", "MDTSR", "MBOTTOMFLOW", "MPERC"])
+        self.rates = self.RateVariables(
+            kiosk,
+            publish=[
+                "MRIN",
+                "MFlow",
+                "MWTRALY",
+                "MWTRA",
+                "MEVS",
+                "MEVW",
+                "MRIRR",
+                "MDWC",
+                "MDRAINT",
+                "MDSS",
+                "MDTSR",
+                "MBOTTOMFLOW",
+                "MPERC",
+            ],
+        )
         self.rates.MFlow = Flow
 
         # Connect to CROP_START/CROP_FINISH/IRRIGATE signals
@@ -430,7 +497,7 @@ class WaterBalanceLayered(SimulationObject):
         self._connect_signal(self._on_IRRIGATE, signals.irrigate)
 
     @prepare_rates
-    def calc_rates(self, day, drv):
+    def calc_rates(self, day: datetime.date, drv: WeatherDataContainer) -> None:
         p = self.params
         s = self.states
         k = self.kiosk
@@ -445,7 +512,7 @@ class WaterBalanceLayered(SimulationObject):
 
         # Rate of irrigation (RIRR)
         r.MRIRR = self._RIRR
-        self._RIRR = 0.
+        self._RIRR = 0.0
 
         # copy rainfall rate for totalling in RAINT
         self._RAIN = drv.RAIN
@@ -460,14 +527,14 @@ class WaterBalanceLayered(SimulationObject):
         else:
             # However, if the crop is not yet emerged then set WTRALY/TRA=0
             WTRALY = np.zeros_like(s.MSM)
-            r.MWTRA = 0.
+            r.MWTRA = 0.0
             EVWMX = drv.E0
             EVSMX = drv.ES0
 
         # Actual evaporation rates
-        r.MEVW = 0.
-        r.MEVS = 0.
-        if s.MSS > 1.:
+        r.MEVW = 0.0
+        r.MEVS = 0.0
+        if s.MSS > 1.0:
             # If surface storage > 1cm then evaporate from water layer on soil surface
             r.MEVW = EVWMX
         else:
@@ -487,18 +554,17 @@ class WaterBalanceLayered(SimulationObject):
         matricfluxpot = np.zeros_like(s.MSM)
         for i, layer in enumerate(self.soil_profile):
             pF[i] = layer.PFfromSM(s.MSM[i])
-            conductivity[i] = 10**layer.CONDfromPF(pF[i])
+            conductivity[i] = 10 ** layer.CONDfromPF(pF[i])
             matricfluxpot[i] = layer.MFPfromPF(pF[i])
             if self.soil_profile.GroundWater:
                 raise NotImplementedError("Groundwater influence not yet implemented.")
 
         # Potentially infiltrating rainfall
         if p.MIFUNRN == 0:
-            RINPRE = (1. - p.MNOTINF) * drv.RAIN
+            RINPRE = (1.0 - p.MNOTINF) * drv.RAIN
         else:
             # infiltration is function of storm size (NINFTB)
-            RINPRE = (1. - p.MNOTINF * self.NINFTB(drv.RAIN)) * drv.RAIN
-
+            RINPRE = (1.0 - p.MNOTINF * self.NINFTB(drv.RAIN)) * drv.RAIN
 
         # Second stage preliminary infiltration rate (RINPRE)
         # including surface storage and irrigation
@@ -587,27 +653,30 @@ class WaterBalanceLayered(SimulationObject):
                 LIMDRY[il] = 0.0
             else:
                 # the limit under wet conditions is a unit gradient
-                LIMWET[il] = (TSL[il-1]+TSL[il]) / (TSL[il-1]/conductivity[il-1] + TSL[il]/conductivity[il])
+                LIMWET[il] = (TSL[il - 1] + TSL[il]) / (TSL[il - 1] / conductivity[il - 1] + TSL[il] / conductivity[il])
 
                 # compute dry flow given gradients in matric flux potential
-                if self.soil_profile[il-1] == self.soil_profile[il]:
+                if self.soil_profile[il - 1] == self.soil_profile[il]:
                     # Layers il-1 and il have same properties: flow rates are estimated from
                     # the gradient in Matric Flux Potential
-                    LIMDRY[il] = 2.0 * (matricfluxpot[il-1]-matricfluxpot[il]) / (TSL[il-1]+TSL[il])
+                    LIMDRY[il] = 2.0 * (matricfluxpot[il - 1] - matricfluxpot[il]) / (TSL[il - 1] + TSL[il])
                     if LIMDRY[il] < 0.0:
                         # upward flow rate ; amount required for equal water content is required below
-                        MeanSM = (s.MWC[il-1] + s.MWC[il]) / (TSL[il-1]+TSL[il])
-                        EqualPotAmount = s.MWC[il-1] - TSL[il-1] * MeanSM  # should be negative like the flow
+                        MeanSM = (s.MWC[il - 1] + s.MWC[il]) / (TSL[il - 1] + TSL[il])
+                        EqualPotAmount = s.MWC[il - 1] - TSL[il - 1] * MeanSM  # should be negative like the flow
                 else:
                     # iterative search to PF at layer boundary (by bisection)
-                    il1  = il-1; il2 = il
-                    PF1  = pF[il1]; PF2 = pF[il2]
-                    MFP1 = matricfluxpot[il1]; MFP2 = matricfluxpot[il2]
+                    il1 = il - 1
+                    il2 = il
+                    PF1 = pF[il1]
+                    PF2 = pF[il2]
+                    MFP1 = matricfluxpot[il1]
+                    MFP2 = matricfluxpot[il2]
                     for z in range(self.MaxFlowIter):  # Loop counter not used here
                         PFx = (PF1 + PF2) / 2.0
-                        Flow1 = 2.0 * (+ MFP1 - self.soil_profile[il1].MFPfromPF(PFx)) / TSL[il1]
-                        Flow2 = 2.0 * (- MFP2 + self.soil_profile[il2].MFPfromPF(PFx)) / TSL[il2]
-                        if abs(Flow1-Flow2) < self.TinyFlow:
+                        Flow1 = 2.0 * (+MFP1 - self.soil_profile[il1].MFPfromPF(PFx)) / TSL[il1]
+                        Flow2 = 2.0 * (-MFP2 + self.soil_profile[il2].MFPfromPF(PFx)) / TSL[il2]
+                        if abs(Flow1 - Flow2) < self.TinyFlow:
                             # sufficient accuracy
                             break
                         elif abs(Flow1) > abs(Flow2):
@@ -617,21 +686,24 @@ class WaterBalanceLayered(SimulationObject):
                             # flow in layer 2 is larger ; PFx must shift in the direction of PF2
                             PF1 = PFx
                     else:  # No break
-                        msg = 'WATFDGW: LIMDRY flow iteration failed. Are your soil moisture and ' + \
-                              'conductivity curves decreasing with increasing pF?'
+                        msg = (
+                            "WATFDGW: LIMDRY flow iteration failed. Are your soil moisture and "
+                            + "conductivity curves decreasing with increasing pF?"
+                        )
                         raise exc.PCSEError(msg)
                     LIMDRY[il] = (Flow1 + Flow2) / 2.0
 
                     if LIMDRY[il] < 0.0:
                         # upward flow rate ; amount required for equal potential is required below
-                        Eq1 = -s.MWC[il2]; Eq2 = 0.0
+                        Eq1 = -s.MWC[il2]
+                        Eq2 = 0.0
                         for z in range(self.MaxFlowIter):
                             EqualPotAmount = (Eq1 + Eq2) / 2.0
                             SM1 = (s.MWC[il1] - EqualPotAmount) / TSL[il1]
                             SM2 = (s.MWC[il2] + EqualPotAmount) / TSL[il2]
                             PF1 = self.soil_profile[il1].SMfromPF(SM1)
                             PF2 = self.soil_profile[il2].SMfromPF(SM2)
-                            if abs(Eq1-Eq2) < self.TinyFlow:
+                            if abs(Eq1 - Eq2) < self.TinyFlow:
                                 # sufficient accuracy
                                 break
                             elif PF1 > PF2:
@@ -641,8 +713,10 @@ class WaterBalanceLayered(SimulationObject):
                                 # suction in bottom layer 1 is larger ; absolute amount should be reduced
                                 Eq1 = EqualPotAmount
                         else:
-                            msg = "WATFDGW: Limiting amount iteration in dry flow failed. Are your soil moisture " \
-                                  "and conductivity curves decreasing with increase pF?"
+                            msg = (
+                                "WATFDGW: Limiting amount iteration in dry flow failed. Are your soil moisture "
+                                "and conductivity curves decreasing with increase pF?"
+                            )
                             raise exc.PCSEError(msg)
 
             FlowDown = True  # default
@@ -658,15 +732,15 @@ class WaterBalanceLayered(SimulationObject):
                         raise NotImplementedError("Groundwater influence not implemented yet.")
                     else:
                         # free drainage
-                        FCequil = self.soil_profile[il-1].WCFC
+                        FCequil = self.soil_profile[il - 1].WCFC
 
-                    TargetLimit = WTRALY[il-1] + FCequil - s.MWC[il-1]/delt
+                    TargetLimit = WTRALY[il - 1] + FCequil - s.MWC[il - 1] / delt
                     if TargetLimit > 0.0:
                         # target layer is "dry": below field capacity ; limit upward flow
                         FlowMax = max(FlowMax, -1.0 * TargetLimit)
                         # there is no saturation prevention since upward flow leads to a decrease of WC[il]
                         # instead flow is limited in order to prevent a negative water content
-                        FlowMX[il] = max(FlowMax, FlowMX[il+1] + WTRALY[il] - s.MWC[il]/delt)
+                        FlowMX[il] = max(FlowMax, FlowMX[il + 1] + WTRALY[il] - s.MWC[il] / delt)
                         FlowDown = False
                     elif self.soil_profile.GroundWater:
                         # target layer is "wet", above field capacity. Since gravity is neglected
@@ -684,7 +758,7 @@ class WaterBalanceLayered(SimulationObject):
                 FlowMax = max(LIMDRY[il], LIMWET[il])
                 # this prevents saturation of layer il
                 # maximum top boundary flow is bottom boundary flow plus saturation deficit plus sink
-                FlowMX[il] = min(FlowMax, FlowMX[il+1] + (self.soil_profile[il].WC0 - s.MWC[il])/delt + WTRALY[il])
+                FlowMX[il] = min(FlowMax, FlowMX[il + 1] + (self.soil_profile[il].WC0 - s.MWC[il]) / delt + WTRALY[il])
         # end for
 
         r.MRIN = min(RINPRE, FlowMX[0])
@@ -696,14 +770,14 @@ class WaterBalanceLayered(SimulationObject):
                 EVSL[il] = min(r.MEVS, (s.MWC[il] - layer.WCW) / delt + r.MRIN - WTRALY[il])
                 EVrest = r.MEVS - EVSL[il]
             else:
-                Available = max(0.0, (s.MWC[il] - layer.WCW)/delt - WTRALY[il])
+                Available = max(0.0, (s.MWC[il] - layer.WCW) / delt - WTRALY[il])
                 if Available >= EVrest:
                     EVSL[il] = EVrest
-                    EVrest   = 0.0
+                    EVrest = 0.0
                     break
                 else:
                     EVSL[il] = Available
-                    EVrest   = EVrest - Available
+                    EVrest = EVrest - Available
         # reduce evaporation if entire profile becomes airdry
         # there is no evaporative flow through lower boundary of layer NSL
         r.MEVS = r.MEVS - EVrest
@@ -714,7 +788,7 @@ class WaterBalanceLayered(SimulationObject):
         EVflow = np.zeros_like(FlowMX)
         EVflow[0] = r.MEVS
         for il in range(1, NSL):
-            EVflow[il] = EVflow[il-1] - EVSL[il-1]
+            EVflow[il] = EVflow[il - 1] - EVSL[il - 1]
         EVflow[NSL] = 0.0  # see comment above
 
         # limit downward flows as to not get below field capacity / equilibrium content
@@ -724,16 +798,18 @@ class WaterBalanceLayered(SimulationObject):
         for il, layer in enumerate(self.soil_profile):
             if self.soil_profile.GroundWater:
                 # soil does not drain below equilibrium with groundwater
-                #WaterLeft = max(self.WCFC[il], EquilWater[il])
+                # WaterLeft = max(self.WCFC[il], EquilWater[il])
                 raise NotImplementedError("Groundwater influence not implemented yet.")
             else:
                 # free drainage
                 WaterLeft = layer.WCFC
-            MXLOSS = (s.MWC[il] - WaterLeft)/delt               # maximum loss
+            MXLOSS = (s.MWC[il] - WaterLeft) / delt  # maximum loss
             Excess = max(0.0, MXLOSS + Flow[il] - WTRALY[il])  # excess of water (positive)
-            Flow[il+1] = min(FlowMX[il+1], Excess - EVflow[il+1])  # note that a negative (upward) flow is not affected
+            Flow[il + 1] = min(
+                FlowMX[il + 1], Excess - EVflow[il + 1]
+            )  # note that a negative (upward) flow is not affected
             # rate of change
-            r.MDWC[il] = Flow[il] - Flow[il+1] - WTRALY[il]
+            r.MDWC[il] = Flow[il] - Flow[il + 1] - WTRALY[il]
 
         # Flow at the bottom of the profile
         r.MBOTTOMFLOW = Flow[-1]
@@ -760,7 +836,7 @@ class WaterBalanceLayered(SimulationObject):
         r.MFlow = Flow
 
     @prepare_states
-    def integrate(self, day, delt):
+    def integrate(self, day: datetime.date, delt: float = 1.0) -> None:
         p = self.params
         s = self.states
         k = self.kiosk
@@ -812,9 +888,12 @@ class WaterBalanceLayered(SimulationObject):
             self.soil_profile.determine_rooting_status(RD, self._RDM)
 
         # compute summary values for rooted, potentially rooted and unrooted soil compartments
-        W = 0.0 ; WAVUPP = 0.0
-        WLOW = 0.0 ; WAVLOW = 0.0
-        WBOT = 0.0 ; WAVBOT = 0.0
+        W = 0.0
+        WAVUPP = 0.0
+        WLOW = 0.0
+        WAVLOW = 0.0
+        WBOT = 0.0
+        WAVBOT = 0.0
 
         # get W and WLOW and available water amounts
         for il, layer in enumerate(self.soil_profile):
@@ -835,26 +914,34 @@ class WaterBalanceLayered(SimulationObject):
         s.MWAVBOT = WAVBOT
 
         self._RDold = RD
-        s.MSM_MEAN = s.MW/RD
+        s.MSM_MEAN = s.MW / RD
 
     @prepare_states
-    def finalize(self, day):
+    def finalize(self, day: datetime.date) -> None:
         s = self.states
         p = self.params
         if self.soil_profile.GroundWater:
             pass
         else:
             # checksums waterbalance for system Free Drainage version
-            checksum = (p.MSSI - s.MSS  
-                        + self._WCI - s.MWC.sum()  
-                        + s.MRAINT + s.MTOTIRR  
-                        - s.MWTRAT - s.MEVWT - s.MEVST - s.MTSR - s.MBOTTOMFLOWT
-                        )
+            checksum = (
+                p.MSSI
+                - s.MSS
+                + self._WCI
+                - s.MWC.sum()
+                + s.MRAINT
+                + s.MTOTIRR
+                - s.MWTRAT
+                - s.MEVWT
+                - s.MEVST
+                - s.MTSR
+                - s.MBOTTOMFLOWT
+            )
             if abs(checksum) > 0.0001:
                 msg = "Waterbalance not closing on %s with checksum: %f" % (day, checksum)
                 raise exc.WaterBalanceError(msg)
 
-    def _determine_rooting_depth(self):
+    def _determine_rooting_depth(self) -> float:
         """Determines appropriate use of the rooting depth (RD)
 
         This function includes the logic to determine the depth of the upper (rooted)
@@ -866,18 +953,18 @@ class WaterBalanceLayered(SimulationObject):
             # Hold RD at default value
             return self._default_RD
 
-    def _on_CROP_START(self):
+    def _on_CROP_START(self) -> None:
         self.crop_start = True
 
-    def _on_CROP_FINISH(self):
+    def _on_CROP_FINISH(self) -> None:
         pass
         # self.in_crop_cycle = False
         # self.rooted_layer_needs_reset = True
 
-    def _on_IRRIGATE(self, amount, efficiency):
+    def _on_IRRIGATE(self, amount: float, efficiency: float) -> None:
         self._RIRR = amount * efficiency
 
-    def _setup_new_crop(self):
+    def _setup_new_crop(self) -> None:
         """Retrieves the crop maximum rootable depth, validates it and updates the rooting status
         in order to have a correct calculation of the summary waterbalance states.
 

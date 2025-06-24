@@ -14,7 +14,8 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.distributions.categorical import Categorical
 from typing import Optional
-from .rl_utils import RL_Args, Agent, setup, eval_policy_lstm
+from rl_algs.rl_utils import RL_Args, Agent, setup, eval_policy_lstm
+
 
 @dataclass
 class Args(RL_Args):
@@ -60,6 +61,7 @@ class Args(RL_Args):
     num_iterations: int = 0
     """the number of iterations (computed in runtime)"""
 
+
 def layer_init(layer, std=np.sqrt(2), bias_const=0.0):
     torch.nn.init.orthogonal_(layer.weight, std)
     torch.nn.init.constant_(layer.bias, bias_const)
@@ -67,7 +69,7 @@ def layer_init(layer, std=np.sqrt(2), bias_const=0.0):
 
 
 class RPPO(nn.Module, Agent):
-    def __init__(self, envs, state_fpath:str=None, **kwargs):
+    def __init__(self, envs, state_fpath: str = None, **kwargs: dict) -> None:
         super().__init__()
         self.env = envs
         self.network = nn.Sequential(
@@ -76,7 +78,7 @@ class RPPO(nn.Module, Agent):
             self.layer_init(nn.Linear(64, 128)),
             nn.ReLU(),
             self.layer_init(nn.Linear(128, 512)),
-            nn.ReLU()
+            nn.ReLU(),
         )
         self.lstm = nn.LSTM(512, 128)
         for name, param in self.lstm.named_parameters():
@@ -88,7 +90,9 @@ class RPPO(nn.Module, Agent):
         self.critic = layer_init(nn.Linear(128, 1), std=1)
 
         if state_fpath is not None:
-            assert isinstance(state_fpath, str), f"`state_fpath` must be of type `str` but is of type `{type(state_fpath)}`"
+            assert isinstance(
+                state_fpath, str
+            ), f"`state_fpath` must be of type `str` but is of type `{type(state_fpath)}`"
             try:
                 self.load_state_dict(torch.load(state_fpath, weights_only=True))
             except:
@@ -112,7 +116,7 @@ class RPPO(nn.Module, Agent):
                 ),
             )
             new_hidden += [h]
-        
+
         new_hidden = torch.flatten(torch.cat(new_hidden), 0, 1)
         return new_hidden, lstm_state
 
@@ -123,7 +127,6 @@ class RPPO(nn.Module, Agent):
         if action is None:
             action = probs.sample()
         return action, lstm_state
-
 
     def get_value(self, x, lstm_state, done):
         hidden, _ = self.get_states(x, lstm_state, done)
@@ -136,13 +139,14 @@ class RPPO(nn.Module, Agent):
         if action is None:
             action = probs.sample()
         return action, probs.log_prob(action), probs.entropy(), self.critic(hidden), lstm_state
-    
+
     def layer_init(self, layer, std=np.sqrt(2), bias_const=0.0):
         torch.nn.init.orthogonal_(layer.weight, std)
         torch.nn.init.constant_(layer.bias, bias_const)
         return layer
 
-def train(kwargs):
+
+def train(kwargs: Namespace) -> None:
     """
     RPPO Training Function
     """
@@ -152,7 +156,7 @@ def train(kwargs):
     args.batch_size = int(args.num_envs * args.num_steps)
     args.minibatch_size = int(args.batch_size // args.num_minibatches)
     args.num_iterations = args.total_timesteps // args.batch_size
-    
+
     writer, device, envs = setup(kwargs, args, run_name)
 
     agent = RPPO(envs).to(device)
@@ -195,7 +199,9 @@ def train(kwargs):
             obs[step] = next_obs
             dones[step] = next_done
             with torch.no_grad():
-                action, logprob, _, value, next_lstm_state = agent.get_action_and_value(next_obs, next_lstm_state, next_done)
+                action, logprob, _, value, next_lstm_state = agent.get_action_and_value(
+                    next_obs, next_lstm_state, next_done
+                )
                 values[step] = value.flatten()
             actions[step] = action
             logprobs[step] = logprob

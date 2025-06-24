@@ -17,7 +17,9 @@ class VecCheckNan(VecEnvWrapper):
     :param check_inf: Whether to check for +inf or -inf as well
     """
 
-    def __init__(self, venv: VecEnv, raise_exception: bool = False, warn_once: bool = True, check_inf: bool = True) -> None:
+    def __init__(
+        self, venv: VecEnv, raise_exception: bool = False, warn_once: bool = True, check_inf: bool = True
+    ) -> None:
         super().__init__(venv)
         self.raise_exception = raise_exception
         self.warn_once = warn_once

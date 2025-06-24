@@ -1,4 +1,5 @@
 """Core code for adversarial imitation learning, shared between GAIL and AIRL."""
+
 import abc
 import dataclasses
 import logging
@@ -190,7 +191,9 @@ class AdversarialTrainer(base.DemonstrationAlgorithm[types.Transitions]):
         """
         self.demo_batch_size = demo_batch_size if not isinstance(demo_batch_size, tuple) else demo_batch_size[0]
         self.demo_minibatch_size = demo_minibatch_size or demo_batch_size
-        self.demo_minibatch_size = self.demo_minibatch_size if not isinstance(self.demo_minibatch_size, tuple) else self.demo_minibatch_size[0]
+        self.demo_minibatch_size = (
+            self.demo_minibatch_size if not isinstance(self.demo_minibatch_size, tuple) else self.demo_minibatch_size[0]
+        )
         if self.demo_batch_size % self.demo_minibatch_size != 0:
             raise ValueError("Batch size must be a multiple of minibatch size.")
         self._demo_data_loader = None
@@ -462,12 +465,10 @@ class AdversarialTrainer(base.DemonstrationAlgorithm[types.Transitions]):
             self.logger.dump(self._global_step)
 
     @overload
-    def _torchify_array(self, ndarray: np.ndarray) -> th.Tensor:
-        ...
+    def _torchify_array(self, ndarray: np.ndarray) -> th.Tensor: ...
 
     @overload
-    def _torchify_array(self, ndarray: None) -> None:
-        ...
+    def _torchify_array(self, ndarray: None) -> None: ...
 
     def _torchify_array(self, ndarray: Optional[np.ndarray]) -> Optional[th.Tensor]:
         if ndarray is not None:

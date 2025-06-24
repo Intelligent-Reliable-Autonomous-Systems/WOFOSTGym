@@ -4,8 +4,10 @@ data for the past ~40 years
 Written by: Allard de Wit (allard.dewit@wur.nl), April 2014
 Modified by Will Solow, 2024
 """
+
 import os
 import datetime as dt
+from math import exp
 import pathlib
 
 import numpy as np
@@ -14,18 +16,17 @@ import requests
 import logging
 import pickle
 
-from .util import reference_ET, check_angstromAB
-from .utils import exceptions as exc
-from math import exp
+from pcse.util import reference_ET, check_angstromAB
+from pcse.utils import exceptions as exc
 
 # Define some lambdas to take care of unit conversions.
 MJ_to_J = lambda x: x * 1e6
-mm_to_cm = lambda x: x / 10.
-tdew_to_hpa = lambda x: ea_from_tdew(x) * 10.
+mm_to_cm = lambda x: x / 10.0
+tdew_to_hpa = lambda x: ea_from_tdew(x) * 10.0
 to_date = lambda d: d.date()
 
 
-def ea_from_tdew(tdew):
+def ea_from_tdew(tdew: float) -> float:
     """
     Calculates actual vapour pressure, ea [kPa] from the dewpoint temperature
     using equation (14) in the FAO paper. As the dewpoint temperature is the
@@ -47,13 +48,14 @@ def ea_from_tdew(tdew):
     # Raise exception:
     if tdew < -95.0 or tdew > 65.0:
         # Are these reasonable bounds?
-        msg = 'tdew=%g is not in range -95 to +60 deg C' % tdew
+        msg = "tdew=%g is not in range -95 to +60 deg C" % tdew
         raise ValueError(msg)
 
     tmp = (17.27 * tdew) / (tdew + 237.3)
     ea = 0.6108 * exp(tmp)
     return ea
- 
+
+
 class SlotPickleMixin(object):
     """This mixin makes it possible to pickle/unpickle objects with __slots__ defined.
 
@@ -68,14 +70,10 @@ class SlotPickleMixin(object):
     http://code.activestate.com/recipes/578433-mixin-for-pickling-objects-with-__slots__/
     """
 
-    def __getstate__(self):
-        return dict(
-            (slot, getattr(self, slot))
-            for slot in self.__slots__
-            if hasattr(self, slot)
-        )
+    def __getstate__(self) -> dict:
+        return dict((slot, getattr(self, slot)) for slot in self.__slots__ if hasattr(self, slot))
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: dict) -> None:
         for slot, value in state.items():
             setattr(self, slot, value)
 
@@ -110,6 +108,7 @@ class WeatherDataContainer(SlotPickleMixin):
                    derived from (TMAX+TMIN)/2.
     :keyword SNOWDEPTH: Depth of snow cover (cm)
     """
+
     sitevar = ["LAT", "LON", "ELEV"]
     required = ["IRRAD", "TMIN", "TMAX", "VAP", "RAIN", "E0", "ES0", "ET0", "WIND"]
     optional = ["SNOWDEPTH", "TEMP", "TMINRA"]
@@ -117,34 +116,51 @@ class WeatherDataContainer(SlotPickleMixin):
     # by add '__dict__' to __slots__.
     __slots__ = sitevar + required + optional + ["DAY"]
 
-    units = {"IRRAD": "J/m2/day", "TMIN": "Celsius", "TMAX": "Celsius", "VAP": "hPa",
-             "RAIN": "cm/day", "E0": "cm/day", "ES0": "cm/day", "ET0": "cm/day",
-             "LAT": "Degrees", "LON": "Degrees", "ELEV": "m", "SNOWDEPTH": "cm",
-             "TEMP": "Celsius", "TMINRA": "Celsius", "WIND": "m/sec"}
+    units = {
+        "IRRAD": "J/m2/day",
+        "TMIN": "Celsius",
+        "TMAX": "Celsius",
+        "VAP": "hPa",
+        "RAIN": "cm/day",
+        "E0": "cm/day",
+        "ES0": "cm/day",
+        "ET0": "cm/day",
+        "LAT": "Degrees",
+        "LON": "Degrees",
+        "ELEV": "m",
+        "SNOWDEPTH": "cm",
+        "TEMP": "Celsius",
+        "TMINRA": "Celsius",
+        "WIND": "m/sec",
+    }
 
     # ranges for meteorological variables
-    ranges = {"LAT": (-90., 90.),
-              "LON": (-180., 180.),
-              "ELEV": (-300, 6000),
-              "IRRAD": (0., 40e6),
-              "TMIN": (-50., 60.),
-              "TMAX": (-50., 60.),
-              "VAP": (0.06, 199.3),  # hPa, computed as sat. vapour pressure at -50, 60 Celsius
-              "RAIN": (0, 35.0),
-              "E0": (0., 2.5),
-              "ES0": (0., 2.5),
-              "ET0": (0., 2.5),
-              "WIND": (0., 100.),
-              "SNOWDEPTH": (0., 250.),
-              "TEMP": (-50., 60.),
-              "TMINRA": (-50., 60.)}
+    ranges = {
+        "LAT": (-90.0, 90.0),
+        "LON": (-180.0, 180.0),
+        "ELEV": (-300, 6000),
+        "IRRAD": (0.0, 40e6),
+        "TMIN": (-50.0, 60.0),
+        "TMAX": (-50.0, 60.0),
+        "VAP": (0.06, 199.3),  # hPa, computed as sat. vapour pressure at -50, 60 Celsius
+        "RAIN": (0, 35.0),
+        "E0": (0.0, 2.5),
+        "ES0": (0.0, 2.5),
+        "ET0": (0.0, 2.5),
+        "WIND": (0.0, 100.0),
+        "SNOWDEPTH": (0.0, 250.0),
+        "TEMP": (-50.0, 60.0),
+        "TMINRA": (-50.0, 60.0),
+    }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: list, **kwargs: dict) -> None:
 
         # only keyword parameters should be used for weather data container
         if len(args) > 0:
-            msg = ("WeatherDataContainer should be initialized by providing weather " +
-                   "variables through keywords only. Got '%s' instead.")
+            msg = (
+                "WeatherDataContainer should be initialized by providing weather "
+                + "variables through keywords only. Got '%s' instead."
+            )
             raise exc.PCSEError(msg % args)
 
         # First assign site variables
@@ -187,18 +203,17 @@ class WeatherDataContainer(SlotPickleMixin):
             msg = "WeatherDataContainer: unknown keywords '%s' are ignored!"
             logging.warning(msg, kwargs.keys())
 
-    def __setattr__(self, key, value):
+    def __setattr__(self, key: str, value: float) -> None:
 
         # Range checking on known meteo variables.
         if key in self.ranges:
             vmin, vmax = self.ranges[key]
             if not vmin <= value <= vmax:
-                msg = "Value (%s) for meteo variable '%s' outside allowed range (%s, %s)." % (
-                value, key, vmin, vmax)
+                msg = "Value (%s) for meteo variable '%s' outside allowed range (%s, %s)." % (value, key, vmin, vmax)
                 raise exc.PCSEError(msg)
         SlotPickleMixin.__setattr__(self, key, value)
 
-    def __str__(self):
+    def __str__(self) -> str:
         msg = "Weather data for %s (DAY)\n" % self.DAY
         for v in self.required:
             value = getattr(self, v, None)
@@ -214,12 +229,12 @@ class WeatherDataContainer(SlotPickleMixin):
             else:
                 unit = self.units[v]
                 msg += "%5s: %12.2f %9s\n" % (v, value, unit)
-        msg += ("Latitude  (LAT): %8.2f degr.\n" % self.LAT)
-        msg += ("Longitude (LON): %8.2f degr.\n" % self.LON)
-        msg += ("Elevation (ELEV): %6.1f m.\n" % self.ELEV)
+        msg += "Latitude  (LAT): %8.2f degr.\n" % self.LAT
+        msg += "Longitude (LON): %8.2f degr.\n" % self.LON
+        msg += "Elevation (ELEV): %6.1f m.\n" % self.ELEV
         return msg
 
-    def add_variable(self, varname, value, unit):
+    def add_variable(self, varname: str, value: float, unit: str) -> None:
         """Adds an attribute <varname> with <value> and given <unit>
 
         :param varname: Name of variable to be set as attribute name (string)
@@ -248,6 +263,7 @@ class WeatherDataProvider(object):
 
                 # remaining initialization stuff goes here.
     """
+
     supports_ensembles = False
 
     # Descriptive items for a WeatherDataProvider
@@ -266,12 +282,11 @@ class WeatherDataProvider(object):
         self.store = {}
 
     @property
-    def logger(self):
-        loggername = "%s.%s" % (self.__class__.__module__,
-                                self.__class__.__name__)
+    def logger(self) -> logging.Logger:
+        loggername = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         return logging.getLogger(loggername)
 
-    def _dump(self, cache_fname):
+    def _dump(self, cache_fname: str) -> None:
         """Dumps the contents into cache_fname using pickle.
 
         Dumps the values of self.store, longitude, latitude, elevation and description
@@ -280,7 +295,7 @@ class WeatherDataProvider(object):
             dmp = (self.store, self.elevation, self.longitude, self.latitude, self.description, self.ETmodel)
             pickle.dump(dmp, fp, pickle.HIGHEST_PROTOCOL)
 
-    def _load(self, cache_fname):
+    def _load(self, cache_fname: str) -> None:
         """Loads the contents from cache_fname using pickle.
 
         Loads the values of self.store, longitude, latitude, elevation and description
@@ -298,7 +313,7 @@ class WeatherDataProvider(object):
 
         self.store.update(store)
 
-    def export(self):
+    def export(self) -> list[dict]:
         """Exports the contents of the WeatherDataProvider as a list of dictionaries.
 
         The results from export can be directly converted to a Pandas dataframe
@@ -317,7 +332,7 @@ class WeatherDataProvider(object):
         return weather_data
 
     @property
-    def first_date(self):
+    def first_date(self) -> dt.date:
         try:
             self._first_date = min(self.store)[0]
         except ValueError:
@@ -325,7 +340,7 @@ class WeatherDataProvider(object):
         return self._first_date
 
     @property
-    def last_date(self):
+    def last_date(self) -> dt.date:
         try:
             self._last_date = max(self.store)[0]
         except ValueError:
@@ -333,18 +348,18 @@ class WeatherDataProvider(object):
         return self._last_date
 
     @property
-    def missing(self):
+    def missing(self) -> int:
         missing = (self.last_date - self.first_date).days - len(self.store) + 1
         return missing
 
     @property
-    def missing_days(self):
+    def missing_days(self) -> list[dt.date]:
         numdays = (self.last_date - self.first_date).days
         all_days = {self.first_date + dt.timedelta(days=i) for i in range(numdays)}
         avail_days = {t[0] for t in self.store.keys()}
         return sorted(all_days - avail_days)
 
-    def check_keydate(self, key):
+    def check_keydate(self, key: str) -> dt.date:
         """Check representations of date for storage/retrieval of weather data.
 
         The following formats are supported:
@@ -358,6 +373,7 @@ class WeatherDataProvider(object):
         """
 
         import datetime as dt
+
         if isinstance(key, dt.datetime):
             return key.date()
         elif isinstance(key, dt.date):
@@ -376,9 +392,8 @@ class WeatherDataProvider(object):
             msg = "Key for WeatherDataProvider not recognized as date: %s"
             raise KeyError(msg % key)
 
-    def _store_WeatherDataContainer(self, wdc, keydate, member_id=0):
-        """Stores the WDC under given keydate and member_id.
-        """
+    def _store_WeatherDataContainer(self, wdc: WeatherDataContainer, keydate: dt.date, member_id: int = 0) -> None:
+        """Stores the WDC under given keydate and member_id."""
 
         if member_id != 0 and self.supports_ensembles is False:
             msg = "Storing ensemble weather is not supported."
@@ -391,7 +406,7 @@ class WeatherDataProvider(object):
 
         self.store[(kd, member_id)] = wdc
 
-    def __call__(self, day, member_id=0):
+    def __call__(self, day: dt.date, member_id: int = 0) -> WeatherDataContainer:
 
         if self.supports_ensembles is False and member_id != 0:
             msg = "Retrieving ensemble weather is not supported by %s" % self.__class__.__name__
@@ -407,8 +422,7 @@ class WeatherDataProvider(object):
                 msg = "No weather data for %s." % keydate
                 raise exc.WeatherDataProviderError(msg)
         else:
-            msg = "Retrieving ensemble weather data for day %s member %i" % \
-                  (keydate, member_id)
+            msg = "Retrieving ensemble weather data for day %s member %i" % (keydate, member_id)
             self.logger.debug(msg)
             try:
                 return self.store[(keydate, member_id)]
@@ -416,15 +430,15 @@ class WeatherDataProvider(object):
                 msg = "No weather data for (%s, %i)." % (keydate, member_id)
                 raise exc.WeatherDataProviderError(msg)
 
-    def __str__(self):
+    def __str__(self) -> str:
 
         msg = "Weather data provided by: %s\n" % self.__class__.__name__
         msg += "--------Description---------\n"
         if isinstance(self.description, str):
-            msg += ("%s\n" % self.description)
+            msg += "%s\n" % self.description
         else:
             for l in self.description:
-                msg += ("%s\n" % str(l))
+                msg += "%s\n" % str(l)
         msg += "----Site characteristics----\n"
         msg += "Elevation: %6.1f\n" % self.elevation
         msg += "Latitude:  %6.3f\n" % self.latitude
@@ -432,7 +446,6 @@ class WeatherDataProvider(object):
         msg += "Data available for %s - %s\n" % (self.first_date, self.last_date)
         msg += "Number of missing days: %i\n" % self.missing
         return msg
-
 
 
 class NASAPowerWeatherDataProvider(WeatherDataProvider):
@@ -479,17 +492,25 @@ class NASAPowerWeatherDataProvider(WeatherDataProvider):
     in PCSE simulations may occur due to small differences in day length.
 
     """
+
     # Variable names in POWER data
-    power_variables_old = ["ALLSKY_TOA_SW_DWN", "ALLSKY_SFC_SW_DWN", "T2M", "T2M_MIN",
-                       "T2M_MAX", "T2MDEW", "WS2M", "PRECTOT"]
-    power_variables = ["TOA_SW_DWN", "ALLSKY_SFC_SW_DWN", "T2M", "T2M_MIN",
-                       "T2M_MAX", "T2MDEW", "WS2M", "PRECTOTCORR"]
+    power_variables_old = [
+        "ALLSKY_TOA_SW_DWN",
+        "ALLSKY_SFC_SW_DWN",
+        "T2M",
+        "T2M_MIN",
+        "T2M_MAX",
+        "T2MDEW",
+        "WS2M",
+        "PRECTOT",
+    ]
+    power_variables = ["TOA_SW_DWN", "ALLSKY_SFC_SW_DWN", "T2M", "T2M_MIN", "T2M_MAX", "T2MDEW", "WS2M", "PRECTOTCORR"]
     # other constants
     HTTP_OK = 200
     angstA = 0.29
     angstB = 0.49
 
-    def __init__(self, latitude, longitude, force_update=False, ETmodel="PM"):
+    def __init__(self, latitude: float, longitude: float, force_update: bool = False, ETmodel: str = "PM") -> None:
 
         WeatherDataProvider.__init__(self)
 
@@ -512,9 +533,9 @@ class NASAPowerWeatherDataProvider(WeatherDataProvider):
             msg = "No cache file or forced update, getting data from NASA Power."
             self.logger.debug(msg)
             # No cache file, we really have to get the data from the NASA server
-            print('Retrieving NASA Weather. This may take a few seconds...')
+            print("Retrieving NASA Weather. This may take a few seconds...")
             self._get_and_process_NASAPower(self.latitude, self.longitude)
-            print('Successfully retrieved NASA Weather.')
+            print("Successfully retrieved NASA Weather.")
             return
 
         # get age of cache file, if age < 90 days then try to load it. If loading fails retrieve data
@@ -539,21 +560,21 @@ class NASAPowerWeatherDataProvider(WeatherDataProvider):
                 self.logger.debug(msg)
                 self._get_and_process_NASAPower(self.latitude, self.longitude)
             except Exception as e:
-                msg = ("Reloading data from NASA failed, reverting to (outdated) " +
-                       "cache file")
+                msg = "Reloading data from NASA failed, reverting to (outdated) " + "cache file"
                 self.logger.debug(msg)
                 status = self._load_cache_file()
                 if status is not True:
                     msg = "Outdated cache file failed loading."
                     raise exc.PCSEError(msg)
 
-    def _get_and_process_NASAPower(self, latitude, longitude):
-        """Handles the retrieval and processing of the NASA Power data
-        """
+    def _get_and_process_NASAPower(self, latitude: float, longitude: float) -> None:
+        """Handles the retrieval and processing of the NASA Power data"""
         powerdata = self._query_NASAPower_server(latitude, longitude)
         if not powerdata:
-            msg = "Failure retrieving POWER data from server. This can be a connection problem with " \
-                  "the NASA POWER server, retry again later."
+            msg = (
+                "Failure retrieving POWER data from server. This can be a connection problem with "
+                "the NASA POWER server, retry again later."
+            )
             raise RuntimeError(msg)
 
         # Store the informational header then parse variables
@@ -575,7 +596,7 @@ class NASAPowerWeatherDataProvider(WeatherDataProvider):
         print(cache_filename)
         self._dump(cache_filename)
 
-    def _estimate_AngstAB(self, df_power):
+    def _estimate_AngstAB(self, df_power: pd.DataFrame) -> tuple[float, float]:
         """Determine Angstrom A/B parameters from Top-of-Atmosphere (ALLSKY_TOA_SW_DWN) and
         top-of-Canopy (ALLSKY_SFC_SW_DWN) radiation values.
 
@@ -595,13 +616,12 @@ class NASAPowerWeatherDataProvider(WeatherDataProvider):
         # check if sufficient data is available to make a reasonable estimate:
         # As a rule of thumb we want to have at least 200 days available
         if len(df_power) < 200:
-            msg = ("Less then 200 days of data available. Reverting to " +
-                   "default Angstrom A/B coefficients (%f, %f)")
+            msg = "Less then 200 days of data available. Reverting to " + "default Angstrom A/B coefficients (%f, %f)"
             self.logger.warn(msg % (self.angstA, self.angstB))
             return self.angstA, self.angstB
 
         # calculate relative radiation (swv_dwn/toa_dwn) and percentiles
-        relative_radiation = df_power.ALLSKY_SFC_SW_DWN/df_power.TOA_SW_DWN
+        relative_radiation = df_power.ALLSKY_SFC_SW_DWN / df_power.TOA_SW_DWN
         ix = relative_radiation.notnull()
         angstrom_a = float(np.percentile(relative_radiation[ix].values, 5))
         angstrom_ab = float(np.percentile(relative_radiation[ix].values, 98))
@@ -610,8 +630,7 @@ class NASAPowerWeatherDataProvider(WeatherDataProvider):
         try:
             check_angstromAB(angstrom_a, angstrom_b)
         except exc.PCSEError as e:
-            msg = ("Angstrom A/B values (%f, %f) outside valid range: %s. " +
-                   "Reverting to default values.")
+            msg = "Angstrom A/B values (%f, %f) outside valid range: %s. " + "Reverting to default values."
             msg = msg % (angstrom_a, angstrom_b, e)
             self.logger.warn(msg)
             return self.angstA, self.angstB
@@ -621,39 +640,41 @@ class NASAPowerWeatherDataProvider(WeatherDataProvider):
 
         return angstrom_a, angstrom_b
 
-    def _query_NASAPower_server(self, latitude, longitude):
-        """Query the NASA Power server for data on given latitude/longitude
-        """
+    def _query_NASAPower_server(self, latitude: float, longitude: float) -> str:
+        """Query the NASA Power server for data on given latitude/longitude"""
 
-        start_date = dt.date(1983,7,1)
+        start_date = dt.date(1983, 7, 1)
         end_date = dt.date.today()
 
         # build URL for retrieving data, using new NASA POWER api
         server = "https://power.larc.nasa.gov/api/temporal/daily/point"
-        payload = {"request": "execute",
-                   "parameters": ",".join(self.power_variables),
-                   "latitude": latitude,
-                   "longitude": longitude,
-                   "start": start_date.strftime("%Y%m%d"),
-                   "end": end_date.strftime("%Y%m%d"),
-                   "community": "AG",
-                   "format": "JSON",
-                   "user": "anonymous"
-                   }
+        payload = {
+            "request": "execute",
+            "parameters": ",".join(self.power_variables),
+            "latitude": latitude,
+            "longitude": longitude,
+            "start": start_date.strftime("%Y%m%d"),
+            "end": end_date.strftime("%Y%m%d"),
+            "community": "AG",
+            "format": "JSON",
+            "user": "anonymous",
+        }
         msg = "Starting retrieval from NASA Power"
         self.logger.debug(msg)
         req = requests.get(server, params=payload)
 
         if req.status_code != self.HTTP_OK:
-            msg = ("Failed retrieving POWER data, server returned HTTP " +
-                   "code: %i on following URL %s") % (req.status_code, req.url)
+            msg = ("Failed retrieving POWER data, server returned HTTP " + "code: %i on following URL %s") % (
+                req.status_code,
+                req.url,
+            )
             raise exc.PCSEError(msg)
 
         msg = "Successfully retrieved data from NASA Power"
         self.logger.debug(msg)
         return req.json()
 
-    def _find_cache_file(self, latitude, longitude):
+    def _find_cache_file(self, latitude: float, longitude: float) -> str:
         """Try to find a cache file for given latitude/longitude.
 
         Returns None if the cache file does not exist, else it returns the full path
@@ -665,7 +686,7 @@ class NASAPowerWeatherDataProvider(WeatherDataProvider):
         else:
             return None
 
-    def _get_cache_filename(self, latitude, longitude):
+    def _get_cache_filename(self, latitude: float, longitude: float) -> str:
         """Constructs the filename used for cache files given latitude and longitude
 
         The latitude and longitude is coded into the filename by truncating on
@@ -677,14 +698,12 @@ class NASAPowerWeatherDataProvider(WeatherDataProvider):
         PCSE_USER_HOME = os.path.join(user_path, ".pcse")
         METEO_CACHE_DIR = os.path.join(PCSE_USER_HOME, "meteo_cache")
 
-        fname = "%s_LAT%05i_LON%05i.cache" % (self.__class__.__name__,
-                                              int(latitude*10), int(longitude*10))
+        fname = "%s_LAT%05i_LON%05i.cache" % (self.__class__.__name__, int(latitude * 10), int(longitude * 10))
         cache_filename = os.path.join(METEO_CACHE_DIR, fname)
         return cache_filename
 
-    def _write_cache_file(self):
-        """Writes the meteo data from NASA Power to a cache file.
-        """
+    def _write_cache_file(self) -> None:
+        """Writes the meteo data from NASA Power to a cache file."""
         cache_filename = self._get_cache_filename(self.latitude, self.longitude)
         try:
             self._dump(cache_filename)
@@ -692,9 +711,8 @@ class NASAPowerWeatherDataProvider(WeatherDataProvider):
             msg = "Failed to write cache to file '%s' due to: %s" % (cache_filename, e)
             self.logger.warning(msg)
 
-    def _load_cache_file(self):
-        """Loads the data from the cache file. Return True if successful.
-        """
+    def _load_cache_file(self) -> bool:
+        """Loads the data from the cache file. Return True if successful."""
         cache_filename = self._get_cache_filename(self.latitude, self.longitude)
         try:
             self._load(cache_filename)
@@ -706,23 +724,35 @@ class NASAPowerWeatherDataProvider(WeatherDataProvider):
             self.logger.warning(msg)
             return False
 
-    def _make_WeatherDataContainers(self, recs):
-        """Create a WeatherDataContainers from recs, compute ET and store the WDC's.
-        """
+    def _make_WeatherDataContainers(self, recs: pd.DataFrame) -> None:
+        """Create a WeatherDataContainers from recs, compute ET and store the WDC's."""
 
         for rec in recs:
             # Reference evapotranspiration in mm/day
             try:
-                E0, ES0, ET0 = reference_ET(rec["DAY"], rec["LAT"], rec["ELEV"], rec["TMIN"], rec["TMAX"], rec["IRRAD"],
-                                            rec["VAP"], rec["WIND"], self.angstA, self.angstB, self.ETmodel)
+                E0, ES0, ET0 = reference_ET(
+                    rec["DAY"],
+                    rec["LAT"],
+                    rec["ELEV"],
+                    rec["TMIN"],
+                    rec["TMAX"],
+                    rec["IRRAD"],
+                    rec["VAP"],
+                    rec["WIND"],
+                    self.angstA,
+                    self.angstB,
+                    self.ETmodel,
+                )
             except ValueError as e:
-                msg = (("Failed to calculate reference ET values on %s. " % rec["DAY"]) +
-                       ("With input values:\n %s.\n" % str(rec)) +
-                       ("Due to error: %s" % e))
+                msg = (
+                    ("Failed to calculate reference ET values on %s. " % rec["DAY"])
+                    + ("With input values:\n %s.\n" % str(rec))
+                    + ("Due to error: %s" % e)
+                )
                 raise exc.PCSEError(msg)
 
             # update record with ET values value convert to cm/day
-            rec.update({"E0": E0/10., "ES0": ES0/10., "ET0": ET0/10.})
+            rec.update({"E0": E0 / 10.0, "ES0": ES0 / 10.0, "ET0": ET0 / 10.0})
 
             # Build weather data container from dict 't'
             wdc = WeatherDataContainer(**rec)
@@ -730,9 +760,8 @@ class NASAPowerWeatherDataProvider(WeatherDataProvider):
             # add wdc to dictionary for thisdate
             self._store_WeatherDataContainer(wdc, wdc.DAY)
 
-    def _process_POWER_records(self, powerdata):
-        """Process the meteorological records returned by NASA POWER
-        """
+    def _process_POWER_records(self, powerdata: pd.DataFrame) -> pd.DataFrame:
+        """Process the meteorological records returned by NASA POWER"""
         msg = "Start parsing of POWER records from URL retrieval."
         self.logger.debug(msg)
 
@@ -753,18 +782,22 @@ class NASAPowerWeatherDataProvider(WeatherDataProvider):
 
         return df_power
 
-    def _POWER_to_PCSE(self, df_power):
+    def _POWER_to_PCSE(self, df_power: pd.DataFrame) -> None:
         # Convert POWER data to a dataframe with PCSE compatible inputs
-        df_pcse = pd.DataFrame({"TMAX": df_power.T2M_MAX,
-                                "TMIN": df_power.T2M_MIN,
-                                "TEMP": df_power.T2M,
-                                "IRRAD": df_power.ALLSKY_SFC_SW_DWN.apply(MJ_to_J),
-                                "RAIN": df_power.PRECTOTCORR.apply(mm_to_cm),
-                                "WIND": df_power.WS2M,
-                                "VAP": df_power.T2MDEW.apply(tdew_to_hpa),
-                                "DAY": df_power.DAY.apply(to_date),
-                                "LAT": self.latitude,
-                                "LON": self.longitude,
-                                "ELEV": self.elevation})
+        df_pcse = pd.DataFrame(
+            {
+                "TMAX": df_power.T2M_MAX,
+                "TMIN": df_power.T2M_MIN,
+                "TEMP": df_power.T2M,
+                "IRRAD": df_power.ALLSKY_SFC_SW_DWN.apply(MJ_to_J),
+                "RAIN": df_power.PRECTOTCORR.apply(mm_to_cm),
+                "WIND": df_power.WS2M,
+                "VAP": df_power.T2MDEW.apply(tdew_to_hpa),
+                "DAY": df_power.DAY.apply(to_date),
+                "LAT": self.latitude,
+                "LON": self.longitude,
+                "ELEV": self.elevation,
+            }
+        )
 
         return df_pcse

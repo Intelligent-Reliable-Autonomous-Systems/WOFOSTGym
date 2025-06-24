@@ -6,32 +6,30 @@ when creating PCSE simulation units.
 Written by: Allard de Wit (allard.dewit@wur.nl), April 2014
 Modified by Will Solow, 2024
 """
+
 import types
 import logging
 
-from ..utils.traitlets import HasTraits
-from .dispatcher import DispatcherObject
-from .simulationobject import SimulationObject
+from pcse.utils.traitlets import HasTraits
+from pcse.base.dispatcher import DispatcherObject
+from pcse.base.simulationobject import SimulationObject
 
 
 class BaseEngine(HasTraits, DispatcherObject):
-    """Base Class for Engine to inherit from
-    """
+    """Base Class for Engine to inherit from"""
+
     def __init__(self):
-        """Initialize class `BaseEngine`
-        """
+        """Initialize class `BaseEngine`"""
         HasTraits.__init__(self)
         DispatcherObject.__init__(self)
 
     @property
-    def logger(self):
-        """Initialize logger object
-        """
-        loggername = "%s.%s" % (self.__class__.__module__,
-                                self.__class__.__name__)
+    def logger(self) -> logging.Logger:
+        """Initialize logger object"""
+        loggername = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         return logging.getLogger(loggername)
 
-    def __setattr__(self, attr, value):
+    def __setattr__(self, attr, value) -> None:
         """Sets the attribute with the value to a specific sublcass object
         __setattr__ has been modified  to enforce that class attributes
         must be defined before they can be assigned. There are a few
@@ -56,9 +54,8 @@ class BaseEngine(HasTraits, DispatcherObject):
             raise AttributeError(msg)
 
     @property
-    def subSimObjects(self):
-        """ Find SimulationObjects embedded within self.
-        """
+    def subSimObjects(self) -> list[SimulationObject]:
+        """Find SimulationObjects embedded within self."""
 
         subSimObjects = []
         defined_traits = self.__dict__["_trait_values"]
@@ -67,8 +64,8 @@ class BaseEngine(HasTraits, DispatcherObject):
                 subSimObjects.append(attr)
         return subSimObjects
 
-    def get_variable(self, varname):
-        """ Return the value of the specified state or rate variable.
+    def get_variable(self, varname: str) -> object:
+        """Return the value of the specified state or rate variable.
 
         :param varname: Name of the variable.
 
@@ -97,9 +94,8 @@ class BaseEngine(HasTraits, DispatcherObject):
                 break
         return value
 
-    def zerofy(self):
-        """Zerofy the value of all rate variables of any sub-SimulationObjects.
-        """
+    def zerofy(self) -> None:
+        """Zerofy the value of all rate variables of any sub-SimulationObjects."""
         # Walk over possible sub-simulation objects.
         if self.subSimObjects is not None:
             for simobj in self.subSimObjects:

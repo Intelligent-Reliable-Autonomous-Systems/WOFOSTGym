@@ -166,7 +166,8 @@ class VectorizedActionNoise(ActionNoise):
 
         if len(different_types):
             raise ValueError(
-                f"Noise instances at indices {different_types} don't match the type of base_noise", type(self.base_noise)
+                f"Noise instances at indices {different_types} don't match the type of base_noise",
+                type(self.base_noise),
             )
 
         self._noises = noises

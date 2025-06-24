@@ -33,6 +33,7 @@ from rl_algs.GAIL import GAIL
 @dataclass
 class DataArgs(utils.Args):
     """File extension (.npz or .csv)"""
+
     """.npz files will have (obs, action, reward, next_obs, done, info) tuples"""
     """while .csv files will have daily observations"""
     file_type: Optional[str] = None
@@ -63,7 +64,8 @@ class DataArgs(utils.Args):
     lon_low: float = 5
     lon_high: float = 5
 
-def npz_multiple(envs, args, pols, pols_kwargs):
+
+def npz_multiple(envs: gym.Env, args: DataArgs, pols: list[Agent], pols_kwargs: dict[str, str]) -> None:
     """
     Generate data and save in .npz format from environments
     """
@@ -72,11 +74,11 @@ def npz_multiple(envs, args, pols, pols_kwargs):
     assert isinstance(args.data_file, str), f"File args.data_file `{args.data_file}` must be of type `str`"
     assert len(pols) == len(pols_kwargs), f"Length of Policies and Policy kwargs do not match."
 
-    years = np.arange(start=args.year_low,stop=args.year_high+1,step=1)
-    latitudes = np.arange(start=args.lat_low,stop=args.lat_high+.5,step=.5)
-    longitudes = np.arange(start=args.lon_low,stop=args.lon_high+.5,step=.5)
+    years = np.arange(start=args.year_low, stop=args.year_high + 1, step=1)
+    latitudes = np.arange(start=args.lat_low, stop=args.lat_high + 0.5, step=0.5)
+    longitudes = np.arange(start=args.lon_low, stop=args.lon_high + 0.5, step=0.5)
 
-    lat_long = [(i,j) for i in latitudes for j in longitudes]
+    lat_long = [(i, j) for i in latitudes for j in longitudes]
     loc_yr = [[loc, yr] for yr in years for loc in lat_long]
 
     obs_arr = [[[] for _ in range(len(pols))] for _ in range(len(envs))]
@@ -93,8 +95,10 @@ def npz_multiple(envs, args, pols, pols_kwargs):
                 env = pcse_gym.wrappers.NPKDictObservationWrapper(env)
                 env = pcse_gym.wrappers.NPKDictActionWrapper(env)
             elif issubclass(pol_constr, Agent):
-                base_env = env 
-                env = gym.vector.SyncVectorEnv([make_env_pass(env) for _ in range(1)],)
+                base_env = env
+                env = gym.vector.SyncVectorEnv(
+                    [make_env_pass(env) for _ in range(1)],
+                )
 
             pol = pol_constr(env, **pols_kwargs[j])
 
@@ -106,7 +110,7 @@ def npz_multiple(envs, args, pols, pols_kwargs):
                         ob_tens.append(ob)
                     obs = torch.Tensor(ob_tens)
                 else:
-                    obs, _ = env.reset(**{'year':pair[1], 'location':pair[0]})
+                    obs, _ = env.reset(**{"year": pair[1], "location": pair[0]})
 
                 done = False
                 while not done:
@@ -122,19 +126,25 @@ def npz_multiple(envs, args, pols, pols_kwargs):
                     dones_arr[i][j].append(np.squeeze(done))
                     rewards_arr[i][j].append(np.squeeze(reward))
                     obs = next_obs
-                    
+
                     if done:
                         obs, _ = env.reset()
-                        break   
-           
+                        break
+
             if isinstance(pol, pcse_gym.policies.Policy):
                 env = base_env
             elif isinstance(pol, Agent):
                 env = base_env
-    
-    np.savez(f"{args.save_folder}{args.data_file}.npz", obs=np.array(obs_arr), next_obs=np.array(next_obs_arr), \
-             actions=np.array(action_arr), rewards=np.array(rewards_arr), dones=np.array(dones_arr), 
-             output_vars=np.array(env.unwrapped.get_output_vars()))
+
+    np.savez(
+        f"{args.save_folder}{args.data_file}.npz",
+        obs=np.array(obs_arr),
+        next_obs=np.array(next_obs_arr),
+        actions=np.array(action_arr),
+        rewards=np.array(rewards_arr),
+        dones=np.array(dones_arr),
+        output_vars=np.array(env.unwrapped.get_output_vars()),
+    )
 
 
 if __name__ == "__main__":
@@ -146,7 +156,7 @@ if __name__ == "__main__":
     # Create environment
     args = tyro.cli(DataArgs)
 
-    # Set the file paths to the configuration files that are to be loaded 
+    # Set the file paths to the configuration files that are to be loaded
     # Corresponds to the different farms
     config_fpaths = ["data/Jujube_Threshold_WK_Rand/config.yaml"]
     envs = utils.make_gym_envs(args, config_fpaths=config_fpaths)
@@ -160,17 +170,16 @@ if __name__ == "__main__":
 
     # Pass the constructor for the policy, either a pcse_gym.policies or rl_utils.Agent class
     pols = [PPO]
-    
+
     # Specify the kwargs for the policies. If using a PyTorch policy from rl_algs, use
     # the kwargs: `{"state_fpath": <path-to-agent>}
-    pols_kwargs = [{"state_fpath": "data/Jujube_Threshold_WK_Rand/PPO/perennial-lnpkw-v0__rl_utils__1__1738184893/agent.pt" }]
-    '''pols_kwargs = [{"state_fpath":"data/Potato_Limited_WK_Rand/PPO/lnpkw-v0__rl_utils__1__1738213380/agent.pt"}, # All
+    pols_kwargs = [
+        {"state_fpath": "data/Jujube_Threshold_WK_Rand/PPO/perennial-lnpkw-v0__rl_utils__1__1738184893/agent.pt"}
+    ]
+    """pols_kwargs = [{"state_fpath":"data/Potato_Limited_WK_Rand/PPO/lnpkw-v0__rl_utils__1__1738213380/agent.pt"}, # All
                 {"state_fpath":"data/Potato_Limited_WK_Rand/PPO/lnpkw-v0__rl_utils__1__1738213406/agent.pt"}, # No Rain
                 {"state_fpath":"data/Potato_Limited_WK_Rand/PPO/lnpkw-v0__rl_utils__1__1738213411/agent.pt"}, # No total N/NAvail
                 {"state_fpath":"data/Potato_Limited_WK_Rand/PPO/lnpkw-v0__rl_utils__1__1738213417/agent.pt"}, #No total N/Rain 
-                ]'''
-
+                ]"""
 
     npz_multiple(envs, args, pols, pols_kwargs)
-
-

@@ -19,7 +19,9 @@ SelfSquashedDiagGaussianDistribution = TypeVar(
 SelfCategoricalDistribution = TypeVar("SelfCategoricalDistribution", bound="CategoricalDistribution")
 SelfMultiCategoricalDistribution = TypeVar("SelfMultiCategoricalDistribution", bound="MultiCategoricalDistribution")
 SelfBernoulliDistribution = TypeVar("SelfBernoulliDistribution", bound="BernoulliDistribution")
-SelfStateDependentNoiseDistribution = TypeVar("SelfStateDependentNoiseDistribution", bound="StateDependentNoiseDistribution")
+SelfStateDependentNoiseDistribution = TypeVar(
+    "SelfStateDependentNoiseDistribution", bound="StateDependentNoiseDistribution"
+)
 
 
 class Distribution(ABC):
@@ -185,7 +187,9 @@ class DiagGaussianDistribution(Distribution):
     def mode(self) -> th.Tensor:
         return self.distribution.mean
 
-    def actions_from_params(self, mean_actions: th.Tensor, log_std: th.Tensor, deterministic: bool = False) -> th.Tensor:
+    def actions_from_params(
+        self, mean_actions: th.Tensor, log_std: th.Tensor, deterministic: bool = False
+    ) -> th.Tensor:
         # Update the proba distribution
         self.proba_distribution(mean_actions, log_std)
         return self.get_actions(deterministic=deterministic)
@@ -339,7 +343,9 @@ class MultiCategoricalDistribution(Distribution):
     def proba_distribution(
         self: SelfMultiCategoricalDistribution, action_logits: th.Tensor
     ) -> SelfMultiCategoricalDistribution:
-        self.distribution = [Categorical(logits=split) for split in th.split(action_logits, list(self.action_dims), dim=1)]
+        self.distribution = [
+            Categorical(logits=split) for split in th.split(action_logits, list(self.action_dims), dim=1)
+        ]
         return self
 
     def log_prob(self, actions: th.Tensor) -> th.Tensor:

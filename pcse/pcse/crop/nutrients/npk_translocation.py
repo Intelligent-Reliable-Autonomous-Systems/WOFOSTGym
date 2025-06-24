@@ -8,11 +8,11 @@ Modified by Will Solow, 2024
 
 from datetime import date
 
-from ...utils.traitlets import Float
-from ...utils.decorators import prepare_rates, prepare_states
-from ...base import ParamTemplate, StatesTemplate, RatesTemplate, \
-    SimulationObject, VariableKiosk
-from ...nasapower import WeatherDataProvider
+from pcse.utils.traitlets import Float
+from pcse.utils.decorators import prepare_rates, prepare_states
+from pcse.base import ParamTemplate, StatesTemplate, RatesTemplate, SimulationObject, VariableKiosk
+from pcse.nasapower import WeatherDataContainer
+
 
 class NPK_Translocation(SimulationObject):
     """Does the bookkeeping for translocation of N/P/K from the roots, leaves
@@ -120,55 +120,54 @@ class NPK_Translocation(SimulationObject):
     """
 
     class Parameters(ParamTemplate):
-        NRESIDLV = Float(-99.)  # residual N fraction in leaves [kg N kg-1 dry biomass]
-        NRESIDST = Float(-99.)  # residual N fraction in stems [kg N kg-1 dry biomass]
-        NRESIDRT = Float(-99.)  # residual N fraction in roots [kg N kg-1 dry biomass]
+        NRESIDLV = Float(-99.0)  # residual N fraction in leaves [kg N kg-1 dry biomass]
+        NRESIDST = Float(-99.0)  # residual N fraction in stems [kg N kg-1 dry biomass]
+        NRESIDRT = Float(-99.0)  # residual N fraction in roots [kg N kg-1 dry biomass]
 
-        PRESIDLV = Float(-99.)  # residual P fraction in leaves [kg P kg-1 dry biomass]
-        PRESIDST = Float(-99.)  # residual P fraction in stems [kg P kg-1 dry biomass]
-        PRESIDRT = Float(-99.)  # residual P fraction in roots [kg P kg-1 dry biomass]
+        PRESIDLV = Float(-99.0)  # residual P fraction in leaves [kg P kg-1 dry biomass]
+        PRESIDST = Float(-99.0)  # residual P fraction in stems [kg P kg-1 dry biomass]
+        PRESIDRT = Float(-99.0)  # residual P fraction in roots [kg P kg-1 dry biomass]
 
-        KRESIDLV = Float(-99.)  # residual K fraction in leaves [kg P kg-1 dry biomass]
-        KRESIDST = Float(-99.)  # residual K fraction in stems [kg P kg-1 dry biomass]
-        KRESIDRT = Float(-99.)  # residual K fraction in roots [kg P kg-1 dry biomass]
+        KRESIDLV = Float(-99.0)  # residual K fraction in leaves [kg P kg-1 dry biomass]
+        KRESIDST = Float(-99.0)  # residual K fraction in stems [kg P kg-1 dry biomass]
+        KRESIDRT = Float(-99.0)  # residual K fraction in roots [kg P kg-1 dry biomass]
 
-        NPK_TRANSLRT_FR = Float(-99.)  # NPK translocation from roots as a fraction of
-                                       # resp. total NPK amounts translocated from leaves
-                                       # and stems
-        DVS_NPK_TRANSL = Float(-99.) # Rate at which translocation to storage organs begins
-        
+        NPK_TRANSLRT_FR = Float(-99.0)  # NPK translocation from roots as a fraction of
+        # resp. total NPK amounts translocated from leaves
+        # and stems
+        DVS_NPK_TRANSL = Float(-99.0)  # Rate at which translocation to storage organs begins
 
     class RateVariables(RatesTemplate):
-        RNTRANSLOCATIONLV = Float(-99.)  # N translocation rate from leaves [kg ha-1 d-1]
-        RNTRANSLOCATIONST = Float(-99.)  # N translocation rate from stems [kg ha-1 d-1]
-        RNTRANSLOCATIONRT = Float(-99.)  # N translocation rate from roots [kg ha-1 d-1]
+        RNTRANSLOCATIONLV = Float(-99.0)  # N translocation rate from leaves [kg ha-1 d-1]
+        RNTRANSLOCATIONST = Float(-99.0)  # N translocation rate from stems [kg ha-1 d-1]
+        RNTRANSLOCATIONRT = Float(-99.0)  # N translocation rate from roots [kg ha-1 d-1]
 
-        RPTRANSLOCATIONLV = Float(-99.)  # P translocation rate from leaves [kg ha-1 d-1]
-        RPTRANSLOCATIONST = Float(-99.)  # P translocation rate from stems [kg ha-1 d-1]
-        RPTRANSLOCATIONRT = Float(-99.)  # P translocation rate from roots [kg ha-1 d-1]
+        RPTRANSLOCATIONLV = Float(-99.0)  # P translocation rate from leaves [kg ha-1 d-1]
+        RPTRANSLOCATIONST = Float(-99.0)  # P translocation rate from stems [kg ha-1 d-1]
+        RPTRANSLOCATIONRT = Float(-99.0)  # P translocation rate from roots [kg ha-1 d-1]
 
-        RKTRANSLOCATIONLV = Float(-99.)  # K translocation rate from leaves [kg ha-1 d-1]
-        RKTRANSLOCATIONST = Float(-99.)  # K translocation rate from stems [kg ha-1 d-1]
-        RKTRANSLOCATIONRT = Float(-99.)  # K translocation rate from roots [kg ha-1 d-1]
+        RKTRANSLOCATIONLV = Float(-99.0)  # K translocation rate from leaves [kg ha-1 d-1]
+        RKTRANSLOCATIONST = Float(-99.0)  # K translocation rate from stems [kg ha-1 d-1]
+        RKTRANSLOCATIONRT = Float(-99.0)  # K translocation rate from roots [kg ha-1 d-1]
 
     class StateVariables(StatesTemplate):
-        NTRANSLOCATABLELV = Float(-99.)  # translocatable N amount in leaves [kg N ha-1]
-        NTRANSLOCATABLEST = Float(-99.)  # translocatable N amount in stems [kg N ha-1]
-        NTRANSLOCATABLERT = Float(-99.)  # translocatable N amount in roots [kg N ha-1]
-        
-        PTRANSLOCATABLELV = Float(-99.)  # translocatable P amount in leaves [kg N ha-1]
-        PTRANSLOCATABLEST = Float(-99.)  # translocatable P amount in stems [kg N ha-1]
-        PTRANSLOCATABLERT = Float(-99.)  # translocatable P amount in roots [kg N ha-1]
-        
-        KTRANSLOCATABLELV = Float(-99.)  # translocatable K amount in leaves [kg N ha-1
-        KTRANSLOCATABLEST = Float(-99.)  # translocatable K amount in stems [kg N ha-1]
-        KTRANSLOCATABLERT = Float(-99.)  # translocatable K amount in roots [kg N ha-1]
+        NTRANSLOCATABLELV = Float(-99.0)  # translocatable N amount in leaves [kg N ha-1]
+        NTRANSLOCATABLEST = Float(-99.0)  # translocatable N amount in stems [kg N ha-1]
+        NTRANSLOCATABLERT = Float(-99.0)  # translocatable N amount in roots [kg N ha-1]
 
-        NTRANSLOCATABLE = Float(-99.)  # Total N amount that can be translocated to the storage organs [kg N ha-1]
-        PTRANSLOCATABLE = Float(-99.)  # Total P amount that can be translocated to the storage organs [kg P ha-1]
-        KTRANSLOCATABLE = Float(-99.)  # Total K amount that can be translocated to the storage organs [kg K ha-1]
+        PTRANSLOCATABLELV = Float(-99.0)  # translocatable P amount in leaves [kg N ha-1]
+        PTRANSLOCATABLEST = Float(-99.0)  # translocatable P amount in stems [kg N ha-1]
+        PTRANSLOCATABLERT = Float(-99.0)  # translocatable P amount in roots [kg N ha-1]
 
-    def initialize(self, day:date, kiosk:VariableKiosk, parvalues:dict):
+        KTRANSLOCATABLELV = Float(-99.0)  # translocatable K amount in leaves [kg N ha-1
+        KTRANSLOCATABLEST = Float(-99.0)  # translocatable K amount in stems [kg N ha-1]
+        KTRANSLOCATABLERT = Float(-99.0)  # translocatable K amount in roots [kg N ha-1]
+
+        NTRANSLOCATABLE = Float(-99.0)  # Total N amount that can be translocated to the storage organs [kg N ha-1]
+        PTRANSLOCATABLE = Float(-99.0)  # Total P amount that can be translocated to the storage organs [kg P ha-1]
+        KTRANSLOCATABLE = Float(-99.0)  # Total K amount that can be translocated to the storage organs [kg K ha-1]
+
+    def initialize(self, day: date, kiosk: VariableKiosk, parvalues: dict) -> None:
         """
         :param day: start date of the simulation
         :param kiosk: variable kiosk of this PCSE instance
@@ -176,24 +175,55 @@ class NPK_Translocation(SimulationObject):
         """
 
         self.params = self.Parameters(parvalues)
-        self.rates = self.RateVariables(kiosk, publish=["RNTRANSLOCATIONLV", "RNTRANSLOCATIONST", "RNTRANSLOCATIONRT",
-                                                        "RPTRANSLOCATIONLV", "RPTRANSLOCATIONST", "RPTRANSLOCATIONRT",
-                                                        "RKTRANSLOCATIONLV", "RKTRANSLOCATIONST", "RKTRANSLOCATIONRT"])
+        self.rates = self.RateVariables(
+            kiosk,
+            publish=[
+                "RNTRANSLOCATIONLV",
+                "RNTRANSLOCATIONST",
+                "RNTRANSLOCATIONRT",
+                "RPTRANSLOCATIONLV",
+                "RPTRANSLOCATIONST",
+                "RPTRANSLOCATIONRT",
+                "RKTRANSLOCATIONLV",
+                "RKTRANSLOCATIONST",
+                "RKTRANSLOCATIONRT",
+            ],
+        )
 
-        self.states = self.StateVariables(kiosk,
-            NTRANSLOCATABLELV=0., NTRANSLOCATABLEST=0., NTRANSLOCATABLERT=0., PTRANSLOCATABLELV=0., PTRANSLOCATABLEST=0.,
-            PTRANSLOCATABLERT=0., KTRANSLOCATABLELV=0., KTRANSLOCATABLEST=0. ,KTRANSLOCATABLERT=0.,
-            NTRANSLOCATABLE=0., PTRANSLOCATABLE=0., KTRANSLOCATABLE=0.,
-            publish=["NTRANSLOCATABLE", "PTRANSLOCATABLE", "KTRANSLOCATABLE", "NTRANSLOCATABLELV", 
-                     "NTRANSLOCATABLEST", "NTRANSLOCATABLERT", "PTRANSLOCATABLELV", 
-                     "PTRANSLOCATABLEST", "PTRANSLOCATABLERT", "KTRANSLOCATABLELV", 
-                     "KTRANSLOCATABLEST", "KTRANSLOCATABLERT",])
+        self.states = self.StateVariables(
+            kiosk,
+            NTRANSLOCATABLELV=0.0,
+            NTRANSLOCATABLEST=0.0,
+            NTRANSLOCATABLERT=0.0,
+            PTRANSLOCATABLELV=0.0,
+            PTRANSLOCATABLEST=0.0,
+            PTRANSLOCATABLERT=0.0,
+            KTRANSLOCATABLELV=0.0,
+            KTRANSLOCATABLEST=0.0,
+            KTRANSLOCATABLERT=0.0,
+            NTRANSLOCATABLE=0.0,
+            PTRANSLOCATABLE=0.0,
+            KTRANSLOCATABLE=0.0,
+            publish=[
+                "NTRANSLOCATABLE",
+                "PTRANSLOCATABLE",
+                "KTRANSLOCATABLE",
+                "NTRANSLOCATABLELV",
+                "NTRANSLOCATABLEST",
+                "NTRANSLOCATABLERT",
+                "PTRANSLOCATABLELV",
+                "PTRANSLOCATABLEST",
+                "PTRANSLOCATABLERT",
+                "KTRANSLOCATABLELV",
+                "KTRANSLOCATABLEST",
+                "KTRANSLOCATABLERT",
+            ],
+        )
         self.kiosk = kiosk
-        
+
     @prepare_rates
-    def calc_rates(self, day:date, drv:WeatherDataProvider):
-        """Calculate rates for integration
-        """
+    def calc_rates(self, day: date, drv: WeatherDataContainer) -> None:
+        """Calculate rates for integration"""
         r = self.rates
         s = self.states
         k = self.kiosk
@@ -201,49 +231,48 @@ class NPK_Translocation(SimulationObject):
         # partitioning of the uptake for storage organs from the leaves, stems, roots
         # assuming equal distribution of N/P/K from each organ.
         # If amount of translocatable N/P/K = 0 then translocation rate is 0
-        if s.NTRANSLOCATABLE > 0.:
+        if s.NTRANSLOCATABLE > 0.0:
             r.RNTRANSLOCATIONLV = k.RNUPTAKESO * s.NTRANSLOCATABLELV / s.NTRANSLOCATABLE
             r.RNTRANSLOCATIONST = k.RNUPTAKESO * s.NTRANSLOCATABLEST / s.NTRANSLOCATABLE
             r.RNTRANSLOCATIONRT = k.RNUPTAKESO * s.NTRANSLOCATABLERT / s.NTRANSLOCATABLE
         else:
-            r.RNTRANSLOCATIONLV = r.RNTRANSLOCATIONST = r.RNTRANSLOCATIONRT = 0.
+            r.RNTRANSLOCATIONLV = r.RNTRANSLOCATIONST = r.RNTRANSLOCATIONRT = 0.0
 
         if s.PTRANSLOCATABLE > 0:
             r.RPTRANSLOCATIONLV = k.RPUPTAKESO * s.PTRANSLOCATABLELV / s.PTRANSLOCATABLE
             r.RPTRANSLOCATIONST = k.RPUPTAKESO * s.PTRANSLOCATABLEST / s.PTRANSLOCATABLE
             r.RPTRANSLOCATIONRT = k.RPUPTAKESO * s.PTRANSLOCATABLERT / s.PTRANSLOCATABLE
         else:
-            r.RPTRANSLOCATIONLV = r.RPTRANSLOCATIONST = r.RPTRANSLOCATIONRT = 0.
+            r.RPTRANSLOCATIONLV = r.RPTRANSLOCATIONST = r.RPTRANSLOCATIONRT = 0.0
 
         if s.KTRANSLOCATABLE > 0:
             r.RKTRANSLOCATIONLV = k.RKUPTAKESO * s.KTRANSLOCATABLELV / s.KTRANSLOCATABLE
             r.RKTRANSLOCATIONST = k.RKUPTAKESO * s.KTRANSLOCATABLEST / s.KTRANSLOCATABLE
             r.RKTRANSLOCATIONRT = k.RKUPTAKESO * s.KTRANSLOCATABLERT / s.KTRANSLOCATABLE
         else:
-            r.RKTRANSLOCATIONLV = r.RKTRANSLOCATIONST = r.RKTRANSLOCATIONRT = 0.
+            r.RKTRANSLOCATIONLV = r.RKTRANSLOCATIONST = r.RKTRANSLOCATIONRT = 0.0
 
     @prepare_states
-    def integrate(self, day:date, delt:float=1.0):
-        """Integrate state rates
-        """
+    def integrate(self, day: date, delt: float = 1.0) -> None:
+        """Integrate state rates"""
         p = self.params
         s = self.states
         k = self.kiosk
-        
+
         # translocatable N amount in the organs [kg N ha-1]
-        s.NTRANSLOCATABLELV = max(0., k.NAMOUNTLV - k.WLV * p.NRESIDLV)
-        s.NTRANSLOCATABLEST = max(0., k.NAMOUNTST - k.WST * p.NRESIDST)
-        s.NTRANSLOCATABLERT = max(0., k.NAMOUNTRT - k.WRT * p.NRESIDRT)
+        s.NTRANSLOCATABLELV = max(0.0, k.NAMOUNTLV - k.WLV * p.NRESIDLV)
+        s.NTRANSLOCATABLEST = max(0.0, k.NAMOUNTST - k.WST * p.NRESIDST)
+        s.NTRANSLOCATABLERT = max(0.0, k.NAMOUNTRT - k.WRT * p.NRESIDRT)
 
         # translocatable P amount in the organs [kg P ha-1]
-        s.PTRANSLOCATABLELV = max(0., k.PAMOUNTLV - k.WLV * p.PRESIDLV)
-        s.PTRANSLOCATABLEST = max(0., k.PAMOUNTST - k.WST * p.PRESIDST)
-        s.PTRANSLOCATABLERT = max(0., k.PAMOUNTRT - k.WRT * p.PRESIDRT)
+        s.PTRANSLOCATABLELV = max(0.0, k.PAMOUNTLV - k.WLV * p.PRESIDLV)
+        s.PTRANSLOCATABLEST = max(0.0, k.PAMOUNTST - k.WST * p.PRESIDST)
+        s.PTRANSLOCATABLERT = max(0.0, k.PAMOUNTRT - k.WRT * p.PRESIDRT)
 
         # translocatable K amount in the organs [kg K ha-1]
-        s.KTRANSLOCATABLELV = max(0., k.KAMOUNTLV - k.WLV * p.KRESIDLV)
-        s.KTRANSLOCATABLEST = max(0., k.KAMOUNTST - k.WST * p.KRESIDST)
-        s.KTRANSLOCATABLERT = max(0., k.KAMOUNTRT - k.WRT * p.KRESIDRT)
+        s.KTRANSLOCATABLELV = max(0.0, k.KAMOUNTLV - k.WLV * p.KRESIDLV)
+        s.KTRANSLOCATABLEST = max(0.0, k.KAMOUNTST - k.WST * p.KRESIDST)
+        s.KTRANSLOCATABLERT = max(0.0, k.KAMOUNTRT - k.WRT * p.KRESIDRT)
 
         # total translocatable NPK amount in the organs [kg N ha-1]
         if k.DVS > p.DVS_NPK_TRANSL:
@@ -253,17 +282,17 @@ class NPK_Translocation(SimulationObject):
         else:
             s.NTRANSLOCATABLE = s.PTRANSLOCATABLE = s.KTRANSLOCATABLE = 0
 
-    def reset(self):
-        """Reset states and rates
-        """ 
+    def reset(self) -> NOne:
+        """Reset states and rates"""
         s = self.states
         r = self.rates
 
-        r.RNTRANSLOCATIONLV = r.RNTRANSLOCATIONST = r.RNTRANSLOCATIONRT = r.RPTRANSLOCATIONLV \
-            = r.RPTRANSLOCATIONST = r.RPTRANSLOCATIONRT = r.RKTRANSLOCATIONLV \
-            = r.RKTRANSLOCATIONST = r.RKTRANSLOCATIONRT = 0
+        r.RNTRANSLOCATIONLV = r.RNTRANSLOCATIONST = r.RNTRANSLOCATIONRT = r.RPTRANSLOCATIONLV = r.RPTRANSLOCATIONST = (
+            r.RPTRANSLOCATIONRT
+        ) = r.RKTRANSLOCATIONLV = r.RKTRANSLOCATIONST = r.RKTRANSLOCATIONRT = 0
 
-        s.NTRANSLOCATABLELV = s.NTRANSLOCATABLEST = s.NTRANSLOCATABLERT = s.PTRANSLOCATABLELV \
-            = s.PTRANSLOCATABLEST = s.PTRANSLOCATABLERT = s.KTRANSLOCATABLELV \
-            = s.KTRANSLOCATABLEST = s.KTRANSLOCATABLERT = s.NTRANSLOCATABLE \
-            = s.PTRANSLOCATABLE = s.KTRANSLOCATABLE = 0
+        s.NTRANSLOCATABLELV = s.NTRANSLOCATABLEST = s.NTRANSLOCATABLERT = s.PTRANSLOCATABLELV = s.PTRANSLOCATABLEST = (
+            s.PTRANSLOCATABLERT
+        ) = s.KTRANSLOCATABLELV = s.KTRANSLOCATABLEST = s.KTRANSLOCATABLERT = s.NTRANSLOCATABLE = s.PTRANSLOCATABLE = (
+            s.KTRANSLOCATABLE
+        ) = 0

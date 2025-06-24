@@ -1,4 +1,5 @@
 """Serialization utilities for trajectories."""
+
 import logging
 import os
 import warnings
@@ -76,9 +77,7 @@ def load_with_rewards(path: AnyPath) -> Sequence[TrajectoryWithRew]:
     """Loads a sequence of trajectories with rewards from a file."""
     data = load(path)
 
-    mismatched_types = [
-        type(traj) for traj in data if not isinstance(traj, TrajectoryWithRew)
-    ]
+    mismatched_types = [type(traj) for traj in data if not isinstance(traj, TrajectoryWithRew)]
     if mismatched_types:
         raise ValueError(
             f"Expected all trajectories to be of type `TrajectoryWithRew`, "

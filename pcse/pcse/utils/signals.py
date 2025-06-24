@@ -20,42 +20,42 @@ documentation of the PyDispatcher_ package for more information::
     import math
     sys.path.append('/home/wit015/Sources/python/pcse/')
     import datetime as dt
-    
+
     import pcse
     from pcse.base import SimulationObject, VariableKiosk
-    
+
     mysignal = "My first signal"
-    
+
     class MySimObj(SimulationObject):
-        
+
         def initialize(self, day, kiosk):
             self._connect_signal(self.handle_mysignal, mysignal)
-    
+
         def handle_mysignal(self, arg1, arg2):
             print "Value of arg1,2: %s, %s" % (arg1, arg2)
-    
+
         def send_signal_with_exact_arguments(self):
             self._send_signal(signal=mysignal, arg2=math.pi, arg1=None)
-    
+
         def send_signal_with_more_arguments(self):
-            self._send_signal(signal=mysignal, arg2=math.pi, arg1=None, 
+            self._send_signal(signal=mysignal, arg2=math.pi, arg1=None,
                               extra_arg="extra")
-    
+
         def send_signal_with_missing_arguments(self):
             self._send_signal(signal=mysignal, arg2=math.pi, extra_arg="extra")
-    
-            
+
+
     # Create an instance of MySimObj
     day = dt.date(2000,1,1)
     k = VariableKiosk()
     mysimobj = MySimObj(day, k)
-    
+
     # This sends exactly the right amount of keyword arguments
     mysimobj.send_signal_with_exact_arguments()
-    
+
     # this sends an additional keyword argument 'extra_arg' which is ignored.
     mysimobj.send_signal_with_more_arguments()
-    
+
     # this sends the signal with a missing 'arg1' keyword argument which the handler
     # expects and thus causes an error, raising a TypeError
     try:
@@ -77,13 +77,13 @@ keywords.
 **CROP_START**
 
  Indicates that a new crop cycle will start:
- 
+
      self._send_signal(signal=signals.crop_start, day=<date>,
                        crop_name=<string>, crop_variety=<string>,
                        crop_start_type=<string>, crop_end_type=<string>)
 
  keyword arguments with `signals.crop_start`:
-    
+
     * day: Current date
     * crop_name: a string identifying the crop
     * crop_variety: a string identifying the crop variety
@@ -93,7 +93,7 @@ keywords.
 **CROP_FINISH**
 
  Indicates that the current crop cycle is finished::
- 
+
      self._send_signal(signal=signals.crop_finish, day=<date>,
                        finish_type=<string>, crop_delete=<True|False>)
 
@@ -109,7 +109,7 @@ keyword arguments with `signals.crop_finish`:
 **CROP_DORMANT**
 
  Indicates that the current crop is now dormant::
- 
+
      self._send_signal(signal=signals.crop_dormant, day=<date>,)
 
 keyword arguments with `signals.crop_dormant`:
@@ -118,7 +118,7 @@ keyword arguments with `signals.crop_dormant`:
 
 
 **TERMINATE**
- 
+
  Indicates that the entire system should terminate (crop & soil water balance) and
  that terminal output should be collected::
 
@@ -131,7 +131,7 @@ keyword arguments with `signals.crop_dormant`:
  Indicates that the model state should be saved for later use::
 
     self._send_signal(signal=signals.output)
- 
+
  No keyword arguments are defined for this signal
 
 **SUMMARY_OUTPUT**
@@ -177,10 +177,9 @@ crop_emerged = "CROP_EMERGED"
 crop_finish = "CROP_FINISH"
 crop_harvest = "CROP_HARVEST"
 crop_dormant = "CROP_DORMANT"
-crop_death   = "CROP_DEATH"
+crop_death = "CROP_DEATH"
 terminate = "TERMINATE"
 output = "OUTPUT"
 summary_output = "SUMMARY_OUTPUT"
 apply_npk = "APPLY_NPK"
-irrigate = "IRRIGATE" 
-
+irrigate = "IRRIGATE"

@@ -1,4 +1,5 @@
 """Helpers to convert between Trajectories and HuggingFace's datasets library."""
+
 from typing import Any, Dict, Iterable, Optional, Sequence, cast
 
 import datasets
@@ -20,18 +21,13 @@ class TrajectoryDatasetSequence(Sequence[types.Trajectory]):
         def numpy_transform(batch):
             # No need to convert infos to a numpy array.
             # This speeds up the conversion quite a lot
-            return {
-                key: np.asarray(val) if key != "infos" else val
-                for key, val in batch.items()
-            }
+            return {key: np.asarray(val) if key != "infos" else val for key, val in batch.items()}
 
         # TODO: this is just a temporary workaround for
         #  https://github.com/huggingface/datasets/issues/5517
         #  switch to .with_format("numpy") once it's fixed
         self._dataset = dataset.with_transform(numpy_transform)
-        self._trajectory_class = (
-            types.TrajectoryWithRew if "rews" in dataset.features else types.Trajectory
-        )
+        self._trajectory_class = types.TrajectoryWithRew if "rews" in dataset.features else types.Trajectory
 
     def __len__(self) -> int:
         return len(self._dataset)
@@ -123,10 +119,7 @@ def trajectories_to_dict(
         obs=[traj.obs for traj in trajectories],
         acts=[traj.acts for traj in trajectories],
         # Replace 'None' values for `infos`` with array of empty dicts
-        infos=[
-            traj.infos if traj.infos is not None else [{}] * len(traj)
-            for traj in trajectories
-        ],
+        infos=[traj.infos if traj.infos is not None else [{}] * len(traj) for traj in trajectories],
         terminal=[traj.terminal for traj in trajectories],
     )
     if any(isinstance(traj.obs, types.DictObs) for traj in trajectories):
@@ -140,9 +133,7 @@ def trajectories_to_dict(
 
     # Add rewards if applicable
     if all_trajectories_have_reward:
-        trajectory_dict["rews"] = [
-            cast(types.TrajectoryWithRew, traj).rews for traj in trajectories
-        ]
+        trajectory_dict["rews"] = [cast(types.TrajectoryWithRew, traj).rews for traj in trajectories]
     return trajectory_dict
 
 

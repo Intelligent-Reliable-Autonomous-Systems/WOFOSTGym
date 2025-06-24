@@ -42,7 +42,10 @@ class StackedObservations(Generic[TObs]):
                 for key, subspace in observation_space.spaces.items()
             }
             self.stacked_observation_space = spaces.Dict(
-                {key: substack_obs.stacked_observation_space for key, substack_obs in self.sub_stacked_observations.items()}
+                {
+                    key: substack_obs.stacked_observation_space
+                    for key, substack_obs in self.sub_stacked_observations.items()
+                }
             )  # type: Union[spaces.Dict, spaces.Box] # make mypy happy
         elif isinstance(observation_space, spaces.Box):
             if isinstance(channels_order, Mapping):
@@ -135,7 +138,11 @@ class StackedObservations(Generic[TObs]):
             # to {key1: [{}, {terminal_obs: ...}], key2: [{}, {terminal_obs: ...}]}
             sub_infos = {
                 key: [
-                    {"terminal_observation": info["terminal_observation"][key]} if "terminal_observation" in info else {}
+                    (
+                        {"terminal_observation": info["terminal_observation"][key]}
+                        if "terminal_observation" in info
+                        else {}
+                    )
                     for info in infos
                 ]
                 for key in observations.keys()
@@ -144,14 +151,18 @@ class StackedObservations(Generic[TObs]):
             stacked_obs = {}
             stacked_infos = {}
             for key, obs in observations.items():
-                stacked_obs[key], stacked_infos[key] = self.sub_stacked_observations[key].update(obs, dones, sub_infos[key])
+                stacked_obs[key], stacked_infos[key] = self.sub_stacked_observations[key].update(
+                    obs, dones, sub_infos[key]
+                )
 
             # From {key1: [{}, {terminal_obs: ...}], key2: [{}, {terminal_obs: ...}]}
             # to [{}, {terminal_obs: {key1: ..., key2: ...}}]
             for key in stacked_infos.keys():
                 for env_idx in range(len(infos)):
                     if "terminal_observation" in infos[env_idx]:
-                        infos[env_idx]["terminal_observation"][key] = stacked_infos[key][env_idx]["terminal_observation"]
+                        infos[env_idx]["terminal_observation"][key] = stacked_infos[key][env_idx][
+                            "terminal_observation"
+                        ]
             return stacked_obs, infos
 
         shift = -observations.shape[self.stack_dimension]

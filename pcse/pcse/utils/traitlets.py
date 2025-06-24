@@ -9,55 +9,61 @@ the default traitlets package may be used when the `observe()` functionality on 
 Written by: Allard de Wit (allard.dewit@wur.nl), April 2014
 Modified by Will Solow, 2024
 """
+
 from traitlets_pcse import *
 import traitlets_pcse as tr
 
+
 class Instance(tr.Instance):
 
-    def __init__(self, *args, **kwargs):
-        if 'allow_none' not in kwargs:
-            kwargs['allow_none'] = True
+    def __init__(self, *args: list, **kwargs: dict) -> None:
+        if "allow_none" not in kwargs:
+            kwargs["allow_none"] = True
         tr.Instance.__init__(self, *args, **kwargs)
+
 
 class Enum(tr.Enum):
 
-    def __init__(self, *args, **kwargs):
-        if 'allow_none' not in kwargs:
-            kwargs['allow_none'] = True
+    def __init__(self, *args: list, **kwargs: dict) -> None:
+        if "allow_none" not in kwargs:
+            kwargs["allow_none"] = True
         tr.Enum.__init__(self, *args, **kwargs)
+
 
 class Unicode(tr.Unicode):
 
-    def __init__(self, *args, **kwargs):
-        if 'allow_none' not in kwargs:
-            kwargs['allow_none'] = True
+    def __init__(self, *args: list, **kwargs: dict) -> None:
+        if "allow_none" not in kwargs:
+            kwargs["allow_none"] = True
         tr.Unicode.__init__(self, *args, **kwargs)
+
 
 class Bool(tr.Bool):
 
-    def __init__(self, *args, **kwargs):
-        if 'allow_none' not in kwargs:
-            kwargs['allow_none'] = True
+    def __init__(self, *args: list, **kwargs: dict) -> None:
+        if "allow_none" not in kwargs:
+            kwargs["allow_none"] = True
         tr.Bool.__init__(self, *args, **kwargs)
+
 
 class Float(tr.Float):
 
-    def __init__(self, *args, **kwargs):
-        if 'allow_none' not in kwargs:
-            kwargs['allow_none'] = True
+    def __init__(self, *args: list, **kwargs: dict) -> None:
+        if "allow_none" not in kwargs:
+            kwargs["allow_none"] = True
         tr.Float.__init__(self, *args, **kwargs)
 
-    def validate(self, obj, value):
+    def validate(self, obj: object, value: object) -> float:
         try:
             value = float(value)
         except:
             self.error(obj, value)
         return value
 
+
 class Int(tr.Int):
 
-    def __init__(self, *args, **kwargs):
-        if 'allow_none' not in kwargs:
-            kwargs['allow_none'] = True
+    def __init__(self, *args: list, **kwargs: dict) -> None:
+        if "allow_none" not in kwargs:
+            kwargs["allow_none"] = True
         tr.Int.__init__(self, *args, **kwargs)
-

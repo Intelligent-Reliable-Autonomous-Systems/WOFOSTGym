@@ -3,7 +3,10 @@
 Written by: Allard de Wit (allard.dewit@wur.nl), April 2014
 Modified by Will Solow, 2024
 """
-from ..pydispatch import dispatcher
+
+from pcse.pydispatch import dispatcher
+from pcse.base.simulationobject import SimulationObject
+
 
 class DispatcherObject(object):
     """Class only defines the _send_signal() and _connect_signal() methods.
@@ -11,7 +14,7 @@ class DispatcherObject(object):
     This class is only to be inherited from, not to be used directly.
     """
 
-    def _send_signal(self, signal, *args, **kwargs):
+    def _send_signal(self, signal: str, *args: list, **kwargs: dict) -> None:
         """Send <signal> using the dispatcher module.
 
         The VariableKiosk of this SimulationObject is used as the sender of
@@ -22,7 +25,7 @@ class DispatcherObject(object):
         self.logger.debug("Sent signal: %s" % signal)
         dispatcher.send(signal=signal, sender=self.kiosk, *args, **kwargs)
 
-    def _connect_signal(self, handler, signal):
+    def _connect_signal(self, handler: SimulationObject, signal: str) -> None:
         """Connect the handler to the signal using the dispatcher module.
 
         The handler will only react on signals that have the SimulationObjects

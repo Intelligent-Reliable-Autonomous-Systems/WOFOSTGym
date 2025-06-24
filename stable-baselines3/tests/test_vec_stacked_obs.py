@@ -139,7 +139,9 @@ def test_reset_update_multidim_box_channel_first():
     assert stacked_obs.dtype == space.dtype
     assert np.array_equal(
         stacked_obs,
-        np.concatenate((np.zeros_like(observations_1), np.zeros_like(observations_1), observations_1, observations_2), axis=1),
+        np.concatenate(
+            (np.zeros_like(observations_1), np.zeros_like(observations_1), observations_1, observations_2), axis=1
+        ),
     )
 
 
@@ -158,7 +160,9 @@ def test_reset_update_image_channel_first():
     assert stacked_obs.dtype == space.dtype
     assert np.array_equal(
         stacked_obs,
-        np.concatenate((np.zeros_like(observations_1), np.zeros_like(observations_1), observations_1, observations_2), axis=1),
+        np.concatenate(
+            (np.zeros_like(observations_1), np.zeros_like(observations_1), observations_1, observations_2), axis=1
+        ),
     )
 
 
@@ -219,21 +223,29 @@ def test_reset_update_image_channel_last_stack_first():
     assert stacked_obs.dtype == space.dtype
     assert np.array_equal(
         stacked_obs,
-        np.concatenate((np.zeros_like(observations_1), np.zeros_like(observations_1), observations_1, observations_2), axis=1),
+        np.concatenate(
+            (np.zeros_like(observations_1), np.zeros_like(observations_1), observations_1, observations_2), axis=1
+        ),
     )
 
 
 def test_reset_update_dict():
     space = spaces.Dict({"key1": spaces.Box(0, 255, (H, W, C), dtype=np.uint8), "key2": spaces.Box(-1, 1, (4, 5))})
-    stacked_observations = StackedObservations(NUM_ENVS, N_STACK, space, channels_order={"key1": "first", "key2": "last"})
-    observations_1 = {key: np.stack([subspace.sample() for _ in range(NUM_ENVS)]) for key, subspace in space.spaces.items()}
+    stacked_observations = StackedObservations(
+        NUM_ENVS, N_STACK, space, channels_order={"key1": "first", "key2": "last"}
+    )
+    observations_1 = {
+        key: np.stack([subspace.sample() for _ in range(NUM_ENVS)]) for key, subspace in space.spaces.items()
+    }
     stacked_obs = stacked_observations.reset(observations_1)
     assert isinstance(stacked_obs, dict)
     assert stacked_obs["key1"].shape == (NUM_ENVS, N_STACK * H, W, C)
     assert stacked_obs["key2"].shape == (NUM_ENVS, 4, N_STACK * 5)
     assert stacked_obs["key1"].dtype == space["key1"].dtype
     assert stacked_obs["key2"].dtype == space["key2"].dtype
-    observations_2 = {key: np.stack([subspace.sample() for _ in range(NUM_ENVS)]) for key, subspace in space.spaces.items()}
+    observations_2 = {
+        key: np.stack([subspace.sample() for _ in range(NUM_ENVS)]) for key, subspace in space.spaces.items()
+    }
     dones = np.zeros((NUM_ENVS,), dtype=bool)
     infos = [{} for _ in range(NUM_ENVS)]
     stacked_obs, infos = stacked_observations.update(observations_2, dones, infos)
@@ -291,17 +303,25 @@ def test_episode_termination_box():
 
 def test_episode_termination_dict():
     space = spaces.Dict({"key1": spaces.Box(0, 255, (H, W, 3), dtype=np.uint8), "key2": spaces.Box(-1, 1, (4, 5))})
-    stacked_observations = StackedObservations(NUM_ENVS, N_STACK, space, channels_order={"key1": "first", "key2": "last"})
-    observations_1 = {key: np.stack([subspace.sample() for _ in range(NUM_ENVS)]) for key, subspace in space.spaces.items()}
+    stacked_observations = StackedObservations(
+        NUM_ENVS, N_STACK, space, channels_order={"key1": "first", "key2": "last"}
+    )
+    observations_1 = {
+        key: np.stack([subspace.sample() for _ in range(NUM_ENVS)]) for key, subspace in space.spaces.items()
+    }
     stacked_observations.reset(observations_1)
-    observations_2 = {key: np.stack([subspace.sample() for _ in range(NUM_ENVS)]) for key, subspace in space.spaces.items()}
+    observations_2 = {
+        key: np.stack([subspace.sample() for _ in range(NUM_ENVS)]) for key, subspace in space.spaces.items()
+    }
     dones = np.zeros((NUM_ENVS,), dtype=bool)
     infos = [{} for _ in range(NUM_ENVS)]
     stacked_observations.update(observations_2, dones, infos)
     terminal_observation = space.sample()
     infos[1]["terminal_observation"] = terminal_observation  # episode termination in env1
     dones[1] = True
-    observations_3 = {key: np.stack([subspace.sample() for _ in range(NUM_ENVS)]) for key, subspace in space.spaces.items()}
+    observations_3 = {
+        key: np.stack([subspace.sample() for _ in range(NUM_ENVS)]) for key, subspace in space.spaces.items()
+    }
     stacked_obs, infos = stacked_observations.update(observations_3, dones, infos)
 
     for key, axis in zip(observations_1.keys(), [0, -1]):

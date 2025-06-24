@@ -76,13 +76,10 @@ class Buffer:
         if sample_shapes.keys() != dtypes.keys():
             raise KeyError("sample_shape and dtypes keys don't match")
         capacity = capacity if not isinstance(capacity, tuple) else capacity[0]
-        self.capacity = capacity 
+        self.capacity = capacity
 
         self.sample_shapes = {k: tuple(shape) for k, shape in sample_shapes.items()}
-        self._arrays = {
-            k: np.zeros((capacity,) + shape, dtype=dtypes[k])
-            for k, shape in self.sample_shapes.items()
-        }
+        self._arrays = {k: np.zeros((capacity,) + shape, dtype=dtypes[k]) for k, shape in self.sample_shapes.items()}
         self._n_data = 0
         self._idx = 0
 
@@ -180,13 +177,13 @@ class Buffer:
                 data = {k: arr[-self.capacity :] for k, arr in data.items()}
 
         for k, arr in data.items():
-            '''if len(arr.shape) == 2:
+            """if len(arr.shape) == 2:
                 arr = arr[:,np.newaxis,:]
             if len(arr.shape) == 1:
-                arr = arr[:,np.newaxis,:]'''
+                arr = arr[:,np.newaxis,:]"""
 
             if arr.shape[1:] != self.sample_shapes[k]:
-                arr = arr[:,np.newaxis,:]
+                arr = arr[:, np.newaxis, :]
                 data[k] = arr
                 if arr.shape[1:] != self.sample_shapes[k]:
                     raise ValueError(f"Wrong data shape for {k}")

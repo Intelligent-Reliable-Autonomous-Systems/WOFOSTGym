@@ -43,11 +43,7 @@ class BufferingWrapper(VecEnvWrapper):
         self.n_transitions = None
 
     def reset(self, **kwargs):
-        if (
-            self._init_reset
-            and self.error_on_premature_reset
-            and self.n_transitions > 0
-        ):  # noqa: E127
+        if self._init_reset and self.error_on_premature_reset and self.n_transitions > 0:  # noqa: E127
             raise RuntimeError("BufferingWrapper reset() before samples were accessed")
         self._init_reset = True
         self.n_transitions = 0

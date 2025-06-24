@@ -70,7 +70,9 @@ def test_multiprocessing(model_class, image_obs_space):
         return BitFlippingEnv(n_bits=4, continuous=not (model_class == DQN), image_obs_space=image_obs_space)
 
     env = make_vec_env(env_fn, n_envs=2, vec_env_cls=SubprocVecEnv)
-    model = model_class("MultiInputPolicy", env, replay_buffer_class=HerReplayBuffer, buffer_size=int(2e4), train_freq=4)
+    model = model_class(
+        "MultiInputPolicy", env, replay_buffer_class=HerReplayBuffer, buffer_size=int(2e4), train_freq=4
+    )
     model.learn(total_timesteps=150)
 
 
@@ -155,7 +157,7 @@ def test_save_load(tmp_path, model_class, use_sde):
         gradient_steps=n_envs,
         train_freq=4,
         learning_starts=100,
-        **kwargs
+        **kwargs,
     )
 
     model.learn(total_timesteps=150)
@@ -414,7 +416,9 @@ def test_truncate_last_trajectory(n_envs, recwarn, n_steps, handle_timeout_termi
     # new oberservations must differ from old observations
     end_pos = replay_buffer.pos
     for key in ["observation", "desired_goal", "achieved_goal"]:
-        assert not np.allclose(old_replay_buffer.observations[key][pos:end_pos], replay_buffer.observations[key][pos:end_pos])
+        assert not np.allclose(
+            old_replay_buffer.observations[key][pos:end_pos], replay_buffer.observations[key][pos:end_pos]
+        )
         assert not np.allclose(
             old_replay_buffer.next_observations[key][pos:end_pos], replay_buffer.next_observations[key][pos:end_pos]
         )
@@ -425,7 +429,9 @@ def test_truncate_last_trajectory(n_envs, recwarn, n_steps, handle_timeout_termi
     # all entries with index >= replay_buffer.pos must remain unchanged
     for key in ["observation", "desired_goal", "achieved_goal"]:
         assert np.allclose(old_replay_buffer.observations[key][end_pos:], replay_buffer.observations[key][end_pos:])
-        assert np.allclose(old_replay_buffer.next_observations[key][end_pos:], replay_buffer.next_observations[key][end_pos:])
+        assert np.allclose(
+            old_replay_buffer.next_observations[key][end_pos:], replay_buffer.next_observations[key][end_pos:]
+        )
     assert np.allclose(old_replay_buffer.actions[end_pos:], replay_buffer.actions[end_pos:])
     assert np.allclose(old_replay_buffer.rewards[end_pos:], replay_buffer.rewards[end_pos:])
     assert np.allclose(old_replay_buffer.dones[end_pos:], replay_buffer.dones[end_pos:])

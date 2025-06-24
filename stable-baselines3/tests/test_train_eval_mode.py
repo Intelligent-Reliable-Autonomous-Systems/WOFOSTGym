@@ -120,7 +120,14 @@ def clone_sac_batch_norm_stats(
     critic_target_batch_norm = model.critic_target.features_extractor.batch_norm
     critic_target_bias, critic_target_running_mean = clone_batch_norm_stats(critic_target_batch_norm)
 
-    return (actor_bias, actor_running_mean, critic_bias, critic_running_mean, critic_target_bias, critic_target_running_mean)
+    return (
+        actor_bias,
+        actor_running_mean,
+        critic_bias,
+        critic_running_mean,
+        critic_target_bias,
+        critic_target_running_mean,
+    )
 
 
 def clone_on_policy_batch_norm(model: Union[A2C, PPO]) -> (th.Tensor, th.Tensor):

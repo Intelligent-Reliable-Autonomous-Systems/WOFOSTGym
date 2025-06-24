@@ -110,10 +110,7 @@ class TrajectoryAccumulator:
             for k, array in part_dict.items():
                 out_dict_unstacked[k].append(array)
 
-        out_dict_stacked = {
-            k: types.stack_maybe_dictobs(arr_list)
-            for k, arr_list in out_dict_unstacked.items()
-        }
+        out_dict_stacked = {k: types.stack_maybe_dictobs(arr_list) for k, arr_list in out_dict_unstacked.items()}
         traj = types.TrajectoryWithRew(**out_dict_stacked, terminal=terminal)
         assert traj.rews.shape[0] == traj.acts.shape[0] == len(traj.obs) - 1
         return traj
@@ -163,7 +160,7 @@ class TrajectoryAccumulator:
                 # When dones[i] from VecEnv.step() is True, obs[i] is the first
                 # observation following reset() of the ith VecEnv, and
                 # infos[i]["terminal_observation"] is the actual final observation.
-                #real_ob = types.maybe_wrap_in_dictobs(info["terminal_observation"])
+                # real_ob = types.maybe_wrap_in_dictobs(info["terminal_observation"])
                 real_ob = ob
             else:
                 real_ob = ob
@@ -335,10 +332,11 @@ def policy_to_callable(
                 "Cannot set deterministic_policy=True when policy is a callable, "
                 "since deterministic_policy argument is ignored.",
             )
-        #get_actions = policy
+
+        # get_actions = policy
         def get_actions(x, states, dones):
             if isinstance(x, np.ndarray):
-                x = torch.tensor(x).to('cuda')
+                x = torch.tensor(x).to("cuda")
             return policy.get_action(x), states
 
     else:
@@ -421,7 +419,7 @@ def generate_trajectories(
     trajectories = []
     # accumulator for incomplete trajectories
     trajectories_accum = TrajectoryAccumulator()
-    obs,_ = venv.reset()
+    obs, _ = venv.reset()
     assert isinstance(
         obs,
         (np.ndarray, dict),
@@ -450,7 +448,7 @@ def generate_trajectories(
     while np.any(active):
         # policy gets unwrapped observations (eg as dict, not dictobs)
         acts, state = get_actions(obs, state, dones)
-        obs, rews, dones,_, infos = venv.step(acts)
+        obs, rews, dones, _, infos = venv.step(acts)
         assert isinstance(
             obs,
             (np.ndarray, dict),
@@ -502,11 +500,11 @@ def generate_trajectories(
             assert obs_space_shape is not None
             exp_obs = (n_steps + 1,) + obs_space_shape  # type: ignore[assignment]
         real_obs = trajectory.obs.shape
-        #assert real_obs == exp_obs, f"expected shape {exp_obs}, got {real_obs}"
+        # assert real_obs == exp_obs, f"expected shape {exp_obs}, got {real_obs}"
         assert venv.action_space.shape is not None
         exp_act = (n_steps,) + venv.action_space.shape
         real_act = trajectory.acts.shape
-        #assert real_act == exp_act, f"expected shape {exp_act}, got {real_act}"
+        # assert real_act == exp_act, f"expected shape {exp_act}, got {real_act}"
         exp_rew = (n_steps,)
         real_rew = trajectory.rews.shape
         assert real_rew == exp_rew, f"expected shape {exp_rew}, got {real_rew}"
@@ -581,9 +579,7 @@ def flatten_trajectories(
     """
 
     def all_of_type(key, desired_type):
-        return all(
-            isinstance(getattr(traj, key), desired_type) for traj in trajectories
-        )
+        return all(isinstance(getattr(traj, key), desired_type) for traj in trajectories)
 
     assert all_of_type("obs", types.DictObs) or all_of_type("obs", np.ndarray)
     assert all_of_type("acts", np.ndarray)
@@ -609,10 +605,7 @@ def flatten_trajectories(
             infos = traj.infos
         parts["infos"].append(infos)
 
-    cat_parts = {
-        key: types.concatenate_maybe_dictobs(part_list)
-        for key, part_list in parts.items()
-    }
+    cat_parts = {key: types.concatenate_maybe_dictobs(part_list) for key, part_list in parts.items()}
     lengths = set(map(len, cat_parts.values()))
     assert len(lengths) == 1, f"expected one length, got {lengths}"
     return types.Transitions(**cat_parts)

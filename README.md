@@ -78,7 +78,7 @@ needed to run all scripts in the agaid_crop_simulator package
 
 After following the above installation instructions: 
 1. Navigate to the base directory ../WOFOSTGym/
-2. Run the testing domain with: python3 test_wofost.py --save-folder test/ --date-file test. This will generate a sample output using default configurations 
+2. Run the testing domain with: python3 test_wofost.py --save-folder test/ --data-file test. This will generate a sample output using default configurations 
 3. This may take a few seconds initially to configure the weather directory
 
 ### Use Cases:

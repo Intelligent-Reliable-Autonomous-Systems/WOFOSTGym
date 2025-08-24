@@ -15,15 +15,11 @@ https://intelligent-reliable-autonomous-systems.github.io/WOFOSTGym-Site/
 
 ### Citing
 ```bibtex
-@article{solow_wofostgym_2025,
-      title={WOFOSTGym: A Crop Simulator for Learning Annual and Perennial Crop Management Strategies}, 
-      author={William Solow and Sandhya Saisubramanian and Alan Fern},
-      year={2025},
-      eprint={2502.19308},
-      archivePrefix={arXiv},
-      primaryClass={cs.AI},
-      url={https://arxiv.org/abs/2502.19308}, 
-}
+@inproceedings{solow_wofostgym_2025,
+  title={WOFOSTGym: A Crop Simulator for Learning Annual and Perennial Crop Management Strategies},
+  author={Solow, William and Saisubramanian, Sandhya and Fern, Alan},
+  booktitle={Reinforcement Learning Conference (RLC) 2025}, 
+  year={2025}}
 ```
 
 ## Description
@@ -81,7 +77,7 @@ needed to run all scripts in the agaid_crop_simulator package
 ## Executing Programs
 
 After following the above installation instructions: 
-1. Navigate to the base directory ../wofost-gym/
+1. Navigate to the base directory ../WOFOSTGym/
 2. Run the testing domain with: python3 test_wofost.py --save-folder test/ --date-file test. This will generate a sample output using default configurations 
 3. This may take a few seconds initially to configure the weather directory
 
@@ -163,7 +159,7 @@ While we made substantial modifications to the PCSE codebase to suit our needs,
 a large portion of the working code in the PCSE directory is the property of
 Dr. Allard de Wit and Wageningen-UR Group. Please see the following paper for an
 overview of WOFOST:
-* [WOFOST](https://www-sciencedirect-com.oregonstate.idm.oclc.org/science/article/pii/S0308521X17310107)
+* [WOFOST](https://bsssjournals.onlinelibrary.wiley.com/doi/10.1111/j.1475-2743.1989.tb00755.x)
 
 The original inspiration for a crop simulator gym environment came from the paper:
 * [CropGym](https://arxiv.org/pdf/2104.04326)

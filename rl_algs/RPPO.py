@@ -8,6 +8,7 @@ import wandb
 import time
 from dataclasses import dataclass
 
+from argparse import Namespace
 import numpy as np
 import torch
 import torch.nn as nn

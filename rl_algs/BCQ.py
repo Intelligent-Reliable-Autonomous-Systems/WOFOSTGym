@@ -6,7 +6,7 @@ Modified to fit CleanRL format, Will Solow, 2024
 
 from argparse import Namespace
 import numpy as np
-import gymnasium as Gym
+import gymnasium as gym
 import time
 from dataclasses import dataclass
 import torch

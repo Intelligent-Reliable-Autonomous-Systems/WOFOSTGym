@@ -7,6 +7,7 @@ Modified by: Will Solow, 2024
 import time
 import wandb
 from dataclasses import dataclass
+from argparse import Namespace
 
 import numpy as np
 import torch

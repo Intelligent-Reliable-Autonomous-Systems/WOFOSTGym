@@ -401,7 +401,7 @@ class Limited_W_Env(NPK_Env, LW):
         Args:
             action
         """
-        irrig_amount = action
+        irrig_amount = 0
         # Null action
         if action == 0:
             return (0, 0, 0, i_amount)

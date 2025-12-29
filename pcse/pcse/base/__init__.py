@@ -9,7 +9,7 @@ Modified by Will Solow, 2024
 
 from pcse.base.variablekiosk import VariableKiosk
 from pcse.base.engine import BaseEngine
-from pcse.base.parameter_providers import ParameterProvider, MultiCropDataProvider, MultiSiteDataProvider
+from pcse.base.parameter_providers import ParameterProvider, MultiCropDataProvider, MultiSoilDataProvider
 from pcse.base.simulationobject import SimulationObject, AncillaryObject
 from pcse.base.states_rates import StatesTemplate, RatesTemplate, StatesWithImplicitRatesTemplate, ParamTemplate
 from pcse.base.dispatcher import DispatcherObject

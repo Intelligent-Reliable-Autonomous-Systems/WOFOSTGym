@@ -1,4 +1,4 @@
-# README_site_params.md
+# README_soil_params.md
 # An overview of all the available soil 
 # State and Rate values for output to the simulation model
 

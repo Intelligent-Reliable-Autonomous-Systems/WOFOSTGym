@@ -462,8 +462,8 @@ class RewardWrapper(gym.Wrapper, ABC):
             if output[-1]["FIN"] is None:
                 observation = np.nan_to_num(observation)
 
-        # Truncate based on site end date
-        truncation = self.env.unwrapped.date >= self.env.unwrapped.site_end_date
+        # Truncate based on soil end date
+        truncation = self.env.unwrapped.date >= self.env.unwrapped.soil_end_date
 
         if isinstance(self.env.unwrapped, Multi_NPK_Env):
             self.env.unwrapped._log(

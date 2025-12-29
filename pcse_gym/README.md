@@ -39,12 +39,12 @@ the crop engine (WOFOST8) and soil manager (SoilWrapper_LNPKW). We have provided
 that do not need to be modified. However, see the following section for how to create
 a new environment if needed. 
 
-For specifying which crop to grow at a given site, and creating a new crop please 
+For specifying which crop to grow at a given soil, and creating a new crop please 
 see the /../env_config/ folder and utils.py file. 
 
-Upon intialization, the agromangement data, crop data, and site data are loaded from
+Upon intialization, the agromangement data, crop data, and soil data are loaded from
 the ../env_config/ folder. The Agromanagement file specifies the 
-crop to grow, site and soil dynamics, and the location and year which control the 
+crop to grow, soil dynamics, and the location and year which control the 
 weather. The intervention interval can be specified as daily, weekly, monthly, etc. 
 
 The observation space contains the weather variables for the next intervention period

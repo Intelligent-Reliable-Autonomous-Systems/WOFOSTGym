@@ -1,4 +1,4 @@
-# Site/Soil parameter file for use with the PCSE/WISS implementations of the WOFOST
+# Soil parameter file for use with the PCSE/WISS implementations of the WOFOST
 # crop simulation model
 #
 # Creation date: 2024-08-26
@@ -19,8 +19,8 @@ Metadata: &meta
    Date: 2024-09-06
    Language: EN
    Format: YAML
-   Subject: WOFOST parameters for China Jujube Site
-   Description: This file provides parameters for one or more China Jujube Site variations
+   Subject: WOFOST parameters for China Jujube Soil
+   Description: This file provides parameters for one or more China Jujube Soil variations
    Identifier:
    Relation:
    Source: 
@@ -29,7 +29,7 @@ Metadata: &meta
      Region:
    Rights: 
    Keyword:
-SiteParameters:
+SoilParameters:
    EcoTypes:
       china: &china
          RNPKRUNOFF:

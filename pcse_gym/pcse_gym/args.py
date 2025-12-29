@@ -437,14 +437,14 @@ class Agro_Args:
     longitude: Optional[float] = None
     """Year for Weather Data"""
     year: Optional[int] = None
-    """Site Name"""
-    site_name: Optional[str] = None
-    """Site Variation Name"""
-    site_variation: Optional[str] = None
-    "Site Start Date in YYYY-MM-DD"
-    site_start_date: Optional[str] = None
-    """Site End Date in YYYY-MM-DD"""
-    site_end_date: Optional[str] = None
+    """Soil Name"""
+    soil_name: Optional[str] = None
+    """Soil Variation Name"""
+    soil_variation: Optional[str] = None
+    "Soil Start Date in YYYY-MM-DD"
+    soil_start_date: Optional[str] = None
+    """Soil End Date in YYYY-MM-DD"""
+    soil_end_date: Optional[str] = None
     """Crop Name"""
     crop_name: Optional[str] = None
     "Crop Variety Name"

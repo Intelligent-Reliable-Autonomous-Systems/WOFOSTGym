@@ -1027,19 +1027,19 @@ def set_agro_params(agromanagement: dict, args: Agro_Args):
         args - Agro_Args dataclass
     """
     if args.latitude is not None:
-        agromanagement["SiteCalendar"]["latitude"] = args.latitude
+        agromanagement["Site"]["latitude"] = args.latitude
     if args.longitude is not None:
-        agromanagement["SiteCalendar"]["longitude"] = args.longitude
+        agromanagement["Site"]["longitude"] = args.longitude
     if args.year is not None:
-        agromanagement["SiteCalendar"]["year"] = args.year
-    if args.site_name is not None:
-        agromanagement["SiteCalendar"]["site_name"] = args.site_name
-    if args.site_variation is not None:
-        agromanagement["SiteCalendar"]["site_variation"] = args.site_variation
-    if args.site_start_date is not None:
-        agromanagement["SiteCalendar"]["site_start_date"] = datetime.strptime(args.site_start_date, "%Y-%m-%d").date()
-    if args.site_end_date is not None:
-        agromanagement["SiteCalendar"]["site_end_date"] = datetime.strptime(args.site_end_date, "%Y-%m-%d").date()
+        agromanagement["Site"]["year"] = args.year
+    if args.soil_name is not None:
+        agromanagement["SoilCalendar"]["soil_name"] = args.soil_name
+    if args.soil_variation is not None:
+        agromanagement["SoilCalendar"]["soil_variation"] = args.soil_variation
+    if args.soil_start_date is not None:
+        agromanagement["SoilCalendar"]["soil_start_date"] = datetime.strptime(args.soil_start_date, "%Y-%m-%d").date()
+    if args.soil_end_date is not None:
+        agromanagement["SoilCalendar"]["soil_end_date"] = datetime.strptime(args.soil_end_date, "%Y-%m-%d").date()
     if args.crop_name is not None:
         agromanagement["CropCalendar"]["crop_name"] = args.crop_name
     if args.crop_variety is not None:

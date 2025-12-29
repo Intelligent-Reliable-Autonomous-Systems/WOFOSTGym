@@ -319,7 +319,7 @@ class WaterBalanceLayered(SimulationObject):
 
         assert (
             "SoilProfileDescription" in parvalues
-        ), "`SoilProfileDescription` is not in parvalues, ensure that you are using a site configuration with multilayer water balance parameters"
+        ), "`SoilProfileDescription` is not in parvalues, ensure that you are using a soil configuration with multilayer water balance parameters"
         self.soil_profile = SoilProfile(parvalues)
         parvalues._soildata["soil_profile"] = self.soil_profile
 

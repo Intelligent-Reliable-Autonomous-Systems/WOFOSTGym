@@ -106,14 +106,14 @@ Also, register it in the __init__.py file in /crop/
 
 3. Create a new soil water model in the /soil/classic_waterbalance.py file. If is uses
 different parameters than the default ones used in WaterBalanceFD, be sure to 
-create the appropriate .yaml file in the ../env_config/site_config/ folder 
-and register it in the sites.yaml file. Also, register it in the __init__.py file
+create the appropriate .yaml file in the ../env_config/soil_config/ folder 
+and register it in the soils.yaml file. Also, register it in the __init__.py file
 in /soil/
 
 4. Create a new NPK soil model in the /soil/npk_soil_dynamics.py file. If is uses
 different parameters than the default ones used in NPK_Soil_Dynamics, be sure to 
-create the appropriate .yaml file in the ../env_config/site_config/ folder 
-and register it in the sites.yaml file. Also, register it in the __init__.py file
+create the appropriate .yaml file in the ../env_config/soil_config/ folder 
+and register it in the soils.yaml file. Also, register it in the __init__.py file
 in /soil/
 
 5. Create a new soil wrapper in the /soil/soil_wrappers.py file. Register this

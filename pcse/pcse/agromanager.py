@@ -44,8 +44,8 @@ def take_first(iterator: Iterable) -> object:
         return item
 
 
-class BaseSiteCalendar(HasTraits, DispatcherObject):
-    """Placeholder class for the site calendar. All SiteCalendar objects inherit
+class BaseSoilCalendar(HasTraits, DispatcherObject):
+    """Placeholder class for the soil calendar. All SoilCalendar objects inherit
     from this class
     """
 
@@ -55,55 +55,43 @@ class BaseSiteCalendar(HasTraits, DispatcherObject):
     mconf = Instance(ConfigurationLoader)
     logger = Instance(logging.Logger)
 
-    # Characteristics of the site cycle
-    latitude = Float()
-    longitude = Float()
-    year = Int()
-    site_name = Unicode()
-    site_variation = Unicode()
-    site_start_date = Instance(date)
-    site_end_date = Instance(date)
+    # Characteristics of the soil cycle
+    soil_name = Unicode()
+    soil_variation = Unicode()
+    soil_start_date = Instance(date)
+    soil_end_date = Instance(date)
 
-    # Counter for duration of the site cycle
+    # Counter for duration of the soil cycle
     duration = Int(0)
-    in_site_cycle = Bool(False)
+    in_soil_cycle = Bool(False)
 
     def __init__(
         self,
         kiosk: VariableKiosk,
-        site_name: str = None,
-        site_variation: str = None,
-        site_start_date: date = None,
-        site_end_date: date = None,
-        latitude: float = None,
-        longitude: float = None,
-        year: int = None,
+        soil_name: str = None,
+        soil_variation: str = None,
+        soil_start_date: date = None,
+        soil_end_date: date = None,
     ) -> None:
-        """Initialize the SiteCalendar Instance
+        """Initialize the SoilCalendar Instance
 
         Args:
-            param: latitude        - longitude of site to draw weather from
-            param: longitude       - latitude of site to draw weather from
-            param: year            - year to draw weather from
-            param: site_name       - string identifying the site
-            param: site_variation  - string identifying the site variation
-            param: site_start_date - date identifying site start
-            param: site_end_date   - date identifying site end
+            param: soil_name       - string identifying the soil
+            param: soil_variation  - string identifying the soil variation
+            param: soil_start_date - date identifying soil start
+            param: soil_end_date   - date identifying soil end
         """
         # set up logging
         loggername = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
 
         self.logger = logging.getLogger(loggername)
         self.kiosk = kiosk
-        self.site_name = site_name
-        self.site_variation = site_variation
-        self.site_start_date = site_start_date
-        self.site_end_date = site_end_date
-        self.latitude = latitude
-        self.longitude = longitude
-        self.year = year
+        self.soil_name = soil_name
+        self.soil_variation = soil_variation
+        self.soil_start_date = soil_start_date
+        self.soil_end_date = soil_end_date
 
-        self._connect_signal(self._on_SITE_FINISH, signal=signals.site_finish)
+        self._connect_signal(self._on_SOIL_FINISH, signal=signals.soil_finish)
 
     def reset(self) -> None:
         """
@@ -112,27 +100,27 @@ class BaseSiteCalendar(HasTraits, DispatcherObject):
         self.duration = 0
 
     def __call__(self, day: date) -> None:
-        """Runs the site calendar to determine if any actions are needed.
+        """Runs the soil calendar to determine if any actions are needed.
 
         :param day:  a date object for the current simulation day
         :param drv: the driving variables at this day
         :return: None
         """
 
-        if self.in_site_cycle:
+        if self.in_soil_cycle:
             self.duration += 1
 
-        # Start of the site cycle
-        if day == self.site_start_date:
-            msg = "Starting site (%s) with variation (%s) on day %s" % (self.site_name, self.site_variation, day)
+        # Start of the soil cycle
+        if day == self.soil_start_date:
+            msg = "Starting soil (%s) with variation (%s) on day %s" % (self.soil_name, self.soil_variation, day)
             # print(msg)
             self.logger.info(msg)
             self._send_signal(
-                signal=signals.site_start, day=day, site_name=self.site_name, site_variation=self.site_variation
+                signal=signals.soil_start, day=day, soil_name=self.soil_name, soil_variation=self.soil_variation
             )
 
-        if day == self.site_end_date:
-            self._send_signal(signal=signals.site_finish, day=day, site_delete=True)
+        if day == self.soil_end_date:
+            self._send_signal(signal=signals.soil_finish, day=day, soil_delete=True)
 
     def validate(self):
         """Validate the crop calendar internally and against the interval for
@@ -143,63 +131,57 @@ class BaseSiteCalendar(HasTraits, DispatcherObject):
         """
 
         # Check that crop_start_date is before crop_end_date
-        if self.site_start_date >= self.site_end_date:
-            msg = "site_end_date before or equal to site_start_date for crop '%s'!"
-            raise exc.PCSEError(msg % (self.sitestart_date, self.site_end_date))
+        if self.soil_start_date >= self.soil_end_date:
+            msg = "soil_end_date before or equal to soil_start_date for crop '%s'!"
+            raise exc.PCSEError(msg % (self.soil_start_date, self.soil_end_date))
 
-    def _on_SITE_FINISH(self) -> None:
+    def _on_SOIL_FINISH(self) -> None:
         """Register that crop has reached the end of its cycle."""
-        self.in_site_cycle = False
+        self.in_soil_cycle = False
 
 
-class SiteCalendar(BaseSiteCalendar):
-    """A site calendar for managing the site cycle.
+class SoilCalendar(BaseSoilCalendar):
+    """A soil calendar for managing the soil cycle.
 
-    A `SiteCalendar` object is responsible for storing, checking, starting and ending
-    the soil cycle. The site calendar is initialized by providing the parameters needed
-    for defining the site cycle. At each time step the instance of `SiteCalendar` is called
+    A `SoilCalendar` object is responsible for storing, checking, starting and ending
+    the soil cycle. The soil calendar is initialized by providing the parameters needed
+    for defining the soil cycle. At each time step the instance of `SoilCalendar` is called
     and at dates defined by its parameters it initiates the appropriate actions:
 
-    :return: A SiteCalendar Instance
+    :return: A SoilCalendar Instance
     """
 
     def __init__(
         self,
         kiosk: VariableKiosk,
-        site_name: str = None,
-        site_variation: str = None,
-        site_start_date: date = None,
-        site_end_date: date = None,
-        latitude: float = None,
-        longitude: float = None,
-        year: int = None,
+        soil_name: str = None,
+        soil_variation: str = None,
+        soil_start_date: date = None,
+        soil_end_date: date = None,
     ):
-        super().__init__(kiosk, site_name, site_variation, site_start_date, site_end_date, latitude, longitude, year)
+        super().__init__(kiosk, soil_name, soil_variation, soil_start_date, soil_end_date)
 
 
-class PerennialSiteCalendar(BaseSiteCalendar):
-    """A site calendar for managing the site cycle.
+class PerennialSoilCalendar(BaseSoilCalendar):
+    """A soil calendar for managing the soil cycle.
 
-    A `SiteCalendar` object is responsible for storing, checking, starting and ending
-    the soil cycle. The site calendar is initialized by providing the parameters needed
-    for defining the site cycle. At each time step the instance of `SiteCalendar` is called
+    A `SoilCalendar` object is responsible for storing, checking, starting and ending
+    the soil cycle. The soil calendar is initialized by providing the parameters needed
+    for defining the soil cycle. At each time step the instance of `SoilCalendar` is called
     and at dates defined by its parameters it initiates the appropriate actions:
 
-    :return: A SiteCalendar Instance
+    :return: A SoilCalendar Instance
     """
 
     def __init__(
         self,
         kiosk: VariableKiosk,
-        site_name: str = None,
-        site_variation: str = None,
-        site_start_date: date = None,
-        site_end_date: date = None,
-        latitude: float = None,
-        longitude: float = None,
-        year: int = None,
+        soil_name: str = None,
+        soil_variation: str = None,
+        soil_start_date: date = None,
+        soil_end_date: date = None,
     ) -> None:
-        super().__init__(kiosk, site_name, site_variation, site_start_date, site_end_date, latitude, longitude, year)
+        super().__init__(kiosk, soil_name, soil_variation, soil_start_date, soil_end_date)
 
 
 class BaseCropCalendar(HasTraits, DispatcherObject):
@@ -210,7 +192,7 @@ class BaseCropCalendar(HasTraits, DispatcherObject):
     # Characteristics of the crop cycle
     crop_name = Unicode()
     crop_variety = Unicode()
-    site_name = Unicode()
+    soil_name = Unicode()
     variation = Unicode()
     crop_start_date = Instance(date)
     crop_start_type = Enum(["sowing", "emergence"])
@@ -570,7 +552,7 @@ class BaseAgroManager(AncillaryObject):
     """
 
     # Overall engine start date and end date
-    _site_calendar = Instance(BaseSiteCalendar)
+    _soil_calendar = Instance(BaseSoilCalendar)
     _crop_calendar = Instance(BaseCropCalendar)
 
     start_date = Instance(date)
@@ -588,7 +570,7 @@ class BaseAgroManager(AncillaryObject):
         """
         Reset agromanager
         """
-        self._site_calendar.reset()
+        self._soil_calendar.reset()
         self._crop_calendar.reset()
 
     def __call__(self, day: date, drv: WeatherDataContainer) -> None:
@@ -598,14 +580,14 @@ class BaseAgroManager(AncillaryObject):
         :param drv: The driving variables for the current day
         :return: None
         """
-        if self._site_calendar is not None:
-            self._site_calendar(day)
+        if self._soil_calendar is not None:
+            self._soil_calendar(day)
 
         # call handlers for the crop calendar, timed and state events
         if self._crop_calendar is not None:
             self._crop_calendar(day)
 
-    def _on_SITE_FINISH(self, day: date) -> None:
+    def _on_SOIL_FINISH(self, day: date) -> None:
         """Send signal to terminate after the crop cycle finishes.
 
         The simulation will be terminated when the following conditions are met:
@@ -641,28 +623,28 @@ class AgroManagerAnnual(BaseAgroManager):
         self.kiosk = kiosk
 
         # Connect CROP_FINISH signal with handler
-        self._connect_signal(self._on_SITE_FINISH, signals.site_finish)
+        self._connect_signal(self._on_SOIL_FINISH, signals.soil_finish)
 
         # If there is an "AgroManagement" item defined then we first need to get
         # the contents defined within that item
         if "AgroManagement" in agromanagement:
             agromanagement = agromanagement["AgroManagement"]
 
-        # Validate that a site calendar and crop calendar are present
-        sc_def = agromanagement["SiteCalendar"]
+        # Validate that a soil calendar and crop calendar are present
+        sc_def = agromanagement["SoilCalendar"]
         if sc_def is not None:
-            sc = SiteCalendar(kiosk, **sc_def)
+            sc = SoilCalendar(kiosk, **sc_def)
             sc.validate()
-            self._site_calendar = sc
+            self._soil_calendar = sc
 
-            self.start_date = self._site_calendar.site_start_date
-            self.end_date = self._site_calendar.site_end_date
+            self.start_date = self._soil_calendar.soil_start_date
+            self.end_date = self._soil_calendar.soil_end_date
 
         # Get and validate the crop calendar
         cc_def = agromanagement["CropCalendar"]
         if cc_def is not None and sc_def is not None:
             cc = CropCalendar(kiosk, **cc_def)
-            cc.validate(self._site_calendar.site_start_date, self._site_calendar.site_end_date)
+            cc.validate(self._soil_calendar.soil_start_date, self._soil_calendar.soil_end_date)
             self._crop_calendar = cc
 
 
@@ -694,28 +676,28 @@ class AgroManagerPlant(BaseAgroManager):
         self.kiosk = kiosk
 
         # Connect CROP_FINISH signal with handler
-        self._connect_signal(self._on_SITE_FINISH, signals.site_finish)
+        self._connect_signal(self._on_SOIL_FINISH, signals.soil_finish)
 
         # If there is an "AgroManagement" item defined then we first need to get
         # the contents defined within that item
         if "AgroManagement" in agromanagement:
             agromanagement = agromanagement["AgroManagement"]
 
-        # Validate that a site calendar and crop calendar are present
-        sc_def = agromanagement["SiteCalendar"]
+        # Validate that a soil calendar and crop calendar are present
+        sc_def = agromanagement["SoilCalendar"]
         if sc_def is not None:
-            sc = SiteCalendar(kiosk, **sc_def)
+            sc = SoilCalendar(kiosk, **sc_def)
             sc.validate()
-            self._site_calendar = sc
+            self._soil_calendar = sc
 
-            self.start_date = self._site_calendar.site_start_date
-            self.end_date = self._site_calendar.site_end_date
+            self.start_date = self._soil_calendar.soil_start_date
+            self.end_date = self._soil_calendar.soil_end_date
 
         # Get and validate the crop calendar
         cc_def = agromanagement["CropCalendar"]
         if cc_def is not None and sc_def is not None:
             cc = CropCalendarPlant(kiosk, **cc_def)
-            cc.validate(self._site_calendar.site_start_date, self._site_calendar.site_end_date)
+            cc.validate(self._soil_calendar.soil_start_date, self._soil_calendar.soil_end_date)
             self._crop_calendar = cc
 
 
@@ -744,28 +726,28 @@ class AgroManagerHarvest(BaseAgroManager):
         self.kiosk = kiosk
 
         # Connect CROP_FINISH signal with handler
-        self._connect_signal(self._on_SITE_FINISH, signals.site_finish)
+        self._connect_signal(self._on_SOIL_FINISH, signals.soil_finish)
 
         # If there is an "AgroManagement" item defined then we first need to get
         # the contents defined within that item
         if "AgroManagement" in agromanagement:
             agromanagement = agromanagement["AgroManagement"]
 
-        # Validate that a site calendar and crop calendar are present
-        sc_def = agromanagement["SiteCalendar"]
+        # Validate that a soil calendar and crop calendar are present
+        sc_def = agromanagement["SoilCalendar"]
         if sc_def is not None:
-            sc = SiteCalendar(kiosk, **sc_def)
+            sc = SoilCalendar(kiosk, **sc_def)
             sc.validate()
-            self._site_calendar = sc
+            self._soil_calendar = sc
 
-            self.start_date = self._site_calendar.site_start_date
-            self.end_date = self._site_calendar.site_end_date
+            self.start_date = self._soil_calendar.soil_start_date
+            self.end_date = self._soil_calendar.soil_end_date
 
         # Get and validate the crop calendar
         cc_def = agromanagement["CropCalendar"]
         if cc_def is not None and sc_def is not None:
             cc = CropCalendarHarvest(kiosk, **cc_def)
-            cc.validate(self._site_calendar.site_start_date, self._site_calendar.site_end_date)
+            cc.validate(self._soil_calendar.soil_start_date, self._soil_calendar.soil_end_date)
             self._crop_calendar = cc
 
 
@@ -794,28 +776,28 @@ class AgroManagerPerennial(BaseAgroManager):
         self.kiosk = kiosk
 
         # Connect CROP_FINISH signal with handler
-        self._connect_signal(self._on_SITE_FINISH, signals.site_finish)
+        self._connect_signal(self._on_SOIL_FINISH, signals.soil_finish)
 
         # If there is an "AgroManagement" item defined then we first need to get
         # the contents defined within that item
         if "AgroManagement" in agromanagement:
             agromanagement = agromanagement["AgroManagement"]
 
-        # Validate that a site calendar and crop calendar are present
-        sc_def = agromanagement["SiteCalendar"]
+        # Validate that a soil calendar and crop calendar are present
+        sc_def = agromanagement["SoilCalendar"]
         if sc_def is not None:
-            sc = PerennialSiteCalendar(kiosk, **sc_def)
+            sc = PerennialSoilCalendar(kiosk, **sc_def)
             sc.validate()
-            self._site_calendar = sc
+            self._soil_calendar = sc
 
-            self.start_date = self._site_calendar.site_start_date
-            self.end_date = self._site_calendar.site_end_date
+            self.start_date = self._soil_calendar.soil_start_date
+            self.end_date = self._soil_calendar.soil_end_date
 
         # Get and validate the crop calendar
         cc_def = agromanagement["CropCalendar"]
         if cc_def is not None and sc_def is not None:
             cc = PerennialCropCalendar(kiosk, **cc_def)
-            cc.validate(self._site_calendar.site_start_date, self._site_calendar.site_end_date)
+            cc.validate(self._soil_calendar.soil_start_date, self._soil_calendar.soil_end_date)
             self._crop_calendar = cc
 
     def __call__(self, day: date, drv: WeatherDataContainer) -> None:
@@ -825,14 +807,14 @@ class AgroManagerPerennial(BaseAgroManager):
         :param drv: The driving variables for the current day
         :return: None
         """
-        if self._site_calendar is not None:
-            self._site_calendar(day)
+        if self._soil_calendar is not None:
+            self._soil_calendar(day)
 
         # call handlers for the crop calendar, timed and state events
         if self._crop_calendar is not None:
             self._crop_calendar(day)
 
-    def _on_SITE_FINISH(self, day: date) -> None:
+    def _on_SOIL_FINISH(self, day: date) -> None:
         """Send signal to terminate after the crop cycle finishes.
 
         The simulation will be terminated when the following conditions are met:
@@ -871,28 +853,28 @@ class AgroManagerPlantPerennial(BaseAgroManager):
         self.kiosk = kiosk
 
         # Connect CROP_FINISH signal with handler
-        self._connect_signal(self._on_SITE_FINISH, signals.site_finish)
+        self._connect_signal(self._on_SOIL_FINISH, signals.soil_finish)
 
         # If there is an "AgroManagement" item defined then we first need to get
         # the contents defined within that item
         if "AgroManagement" in agromanagement:
             agromanagement = agromanagement["AgroManagement"]
 
-        # Validate that a site calendar and crop calendar are present
-        sc_def = agromanagement["SiteCalendar"]
+        # Validate that a soil calendar and crop calendar are present
+        sc_def = agromanagement["SoilCalendar"]
         if sc_def is not None:
-            sc = SiteCalendar(kiosk, **sc_def)
+            sc = SoilCalendar(kiosk, **sc_def)
             sc.validate()
-            self._site_calendar = sc
+            self._soil_calendar = sc
 
-            self.start_date = self._site_calendar.site_start_date
-            self.end_date = self._site_calendar.site_end_date
+            self.start_date = self._soil_calendar.soil_start_date
+            self.end_date = self._soil_calendar.soil_end_date
 
         # Get and validate the crop calendar
         cc_def = agromanagement["CropCalendar"]
         if cc_def is not None and sc_def is not None:
             cc = CropCalendarPlant(kiosk, **cc_def)
-            cc.validate(self._site_calendar.site_start_date, self._site_calendar.site_end_date)
+            cc.validate(self._soil_calendar.soil_start_date, self._soil_calendar.soil_end_date)
             self._crop_calendar = cc
 
 
@@ -921,26 +903,26 @@ class AgroManagerHarvestPerennial(BaseAgroManager):
         self.kiosk = kiosk
 
         # Connect CROP_FINISH signal with handler
-        self._connect_signal(self._on_SITE_FINISH, signals.site_finish)
+        self._connect_signal(self._on_SOIL_FINISH, signals.soil_finish)
 
         # If there is an "AgroManagement" item defined then we first need to get
         # the contents defined within that item
         if "AgroManagement" in agromanagement:
             agromanagement = agromanagement["AgroManagement"]
 
-        # Validate that a site calendar and crop calendar are present
-        sc_def = agromanagement["SiteCalendar"]
+        # Validate that a soil calendar and crop calendar are present
+        sc_def = agromanagement["SoilCalendar"]
         if sc_def is not None:
-            sc = SiteCalendar(kiosk, **sc_def)
+            sc = SoilCalendar(kiosk, **sc_def)
             sc.validate()
-            self._site_calendar = sc
+            self._soil_calendar = sc
 
-            self.start_date = self._site_calendar.site_start_date
-            self.end_date = self._site_calendar.site_end_date
+            self.start_date = self._soil_calendar.soil_start_date
+            self.end_date = self._soil_calendar.soil_end_date
 
         # Get and validate the crop calendar
         cc_def = agromanagement["CropCalendar"]
         if cc_def is not None and sc_def is not None:
             cc = CropCalendarHarvest(kiosk, **cc_def)
-            cc.validate(self._site_calendar.site_start_date, self._site_calendar.site_end_date)
+            cc.validate(self._soil_calendar.soil_start_date, self._soil_calendar.soil_end_date)
             self._crop_calendar = cc

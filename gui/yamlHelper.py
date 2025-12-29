@@ -19,14 +19,14 @@ def createAgroYaml(agroInfo={}, create=False):
 
     agroYaml = {
         "AgroManagement": {
-            "SiteCalendar": {
+            "SoilCalendar": {
                 "latitude": agroInfo.get("latitude", "N/A"),
                 "longitude": agroInfo.get("longitude", "N/A"),
                 "year": agroInfo.get("year", "N/A"),
-                "site_name": agroInfo.get("site_name", "N/A"),
-                "site_variation": agroInfo.get("site_variation", "N/A"),
-                "site_start_date": agroInfo.get("site_start_date", date(2020, 1, 1)),
-                "site_end_date": agroInfo.get("site_end_date", date(2020, 12, 31)),
+                "soil_name": agroInfo.get("soil_name", "N/A"),
+                "soil_variation": agroInfo.get("soil_variation", "N/A"),
+                "soil_start_date": agroInfo.get("soil_start_date", date(2020, 1, 1)),
+                "soil_end_date": agroInfo.get("soil_end_date", date(2020, 12, 31)),
             },
             "CropCalendar": {
                 "crop_name": crop_name,

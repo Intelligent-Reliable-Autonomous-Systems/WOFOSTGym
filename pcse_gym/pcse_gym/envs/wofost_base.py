@@ -46,7 +46,7 @@ class NPK_Env(gym.Env):
         args: NPK_Args,
         base_fpath: str,
         agro_fpath: str,
-        site_fpath: str,
+        soil_fpath: str,
         crop_fpath: str,
         name_fpath: str,
         unit_fpath: str,
@@ -64,7 +64,7 @@ class NPK_Env(gym.Env):
         self.args = args
         self.base_fpath = base_fpath
         self.agro_fpath = agro_fpath
-        self.site_fpath = site_fpath
+        self.soil_fpath = soil_fpath
         self.crop_fpath = crop_fpath
         self.name_fpath = name_fpath
         self.unit_fpath = unit_fpath
@@ -95,18 +95,18 @@ class NPK_Env(gym.Env):
         self.log = self._init_log()
         # Load all model parameters from .yaml files
         self.crop = pcse.fileinput.YAMLCropDataProvider(fpath=os.path.join(base_fpath, crop_fpath))
-        self.site = pcse.fileinput.YAMLSiteDataProvider(fpath=os.path.join(base_fpath, site_fpath))
-        self.parameterprovider = pcse.base.ParameterProvider(sitedata=self.site, cropdata=self.crop)
+        self.soil = pcse.fileinput.YAMLSoilDataProvider(fpath=os.path.join(base_fpath, soil_fpath))
+        self.parameterprovider = pcse.base.ParameterProvider(soildata=self.soil, cropdata=self.crop)
         self.agromanagement = self._load_agromanagement_data(os.path.join(base_fpath, agro_fpath))
 
         # Get information from the agromanagement file
         self.location, self.year = self._load_site_parameters(self.agromanagement)
         self.crop_start_date = self.agromanagement["CropCalendar"]["crop_start_date"]
         self.crop_end_date = self.agromanagement["CropCalendar"]["crop_end_date"]
-        self.site_start_date = self.agromanagement["SiteCalendar"]["site_start_date"]
-        self.site_end_date = self.agromanagement["SiteCalendar"]["site_end_date"]
-        self.year_difference = self.crop_start_date.year - self.site_start_date.year
-        self.max_site_duration = self.site_end_date - self.site_start_date
+        self.soil_start_date = self.agromanagement["SoilCalendar"]["soil_start_date"]
+        self.soil_end_date = self.agromanagement["SoilCalendar"]["soil_end_date"]
+        self.year_difference = self.crop_start_date.year - self.soil_start_date.year
+        self.max_soil_duration = self.soil_end_date - self.soil_start_date
         self.max_crop_duration = self.crop_end_date - self.crop_start_date
 
         self.weatherdataprovider = NASAPowerWeatherDataProvider(*self.location)
@@ -129,7 +129,7 @@ class NPK_Env(gym.Env):
         # Override parameters - must then call reset
         utils.set_params(self, self.wofost_params)
 
-        self.date = self.site_start_date
+        self.date = self.soil_start_date
 
         # NPK/Irrigation action amounts
         self.num_fert = args.num_fert
@@ -230,18 +230,18 @@ class NPK_Env(gym.Env):
             # Reset weather
             self.weatherdataprovider = NASAPowerWeatherDataProvider(*self.location)
 
-        self.site_start_date = self.site_start_date.replace(year=self.year)
-        self.site_end_date = self.site_start_date + self.max_site_duration
+        self.soil_start_date = self.soil_start_date.replace(year=self.year)
+        self.soil_end_date = self.soil_start_date + self.max_soil_duration
 
         self.crop_start_date = self.crop_start_date.replace(year=self.year + self.year_difference)
         self.crop_end_date = self.crop_start_date + self.max_crop_duration
 
-        self.date = self.site_start_date
+        self.date = self.soil_start_date
 
         self.agromanagement["CropCalendar"]["crop_start_date"] = self.crop_start_date
         self.agromanagement["CropCalendar"]["crop_end_date"] = self.crop_end_date
-        self.agromanagement["SiteCalendar"]["site_start_date"] = self.site_start_date
-        self.agromanagement["SiteCalendar"]["site_end_date"] = self.site_end_date
+        self.agromanagement["SoilCalendar"]["soil_start_date"] = self.soil_start_date
+        self.agromanagement["SoilCalendar"]["soil_end_date"] = self.soil_end_date
 
         # Override parameters
         utils.set_params(self, self.wofost_params)
@@ -263,29 +263,29 @@ class NPK_Env(gym.Env):
 
     def domain_randomization_uniform(self, scale: float = 0.1) -> None:
         """
-        Apply a small uniform randomization to the site and crop parameters
+        Apply a small uniform randomization to the soil and crop parameters
         """
         crop_kv = {k: v for k, v in self.parameterprovider._cropdata.items() if isinstance(v, float)}
-        site_kv = {k: v for k, v in self.parameterprovider._sitedata.items() if isinstance(v, float)}
+        soil_kv = {k: v for k, v in self.parameterprovider._soildata.items() if isinstance(v, float)}
 
         for k, v in crop_kv.items():
             x = 1 if v == 0 else v
             self.parameterprovider.set_override(k, v + np.random.uniform(low=-x * scale, high=x * scale), check=False)
-        for k, v in site_kv.items():
+        for k, v in soil_kv.items():
             x = 1 if v == 0 else v
             self.parameterprovider.set_override(k, v + np.random.uniform(low=-x * scale, high=x * scale), check=False)
 
     def domain_randomization_normal(self, scale: float = 0.1) -> None:
         """
-        Apply a small normal randomization to the site and crop parameters
+        Apply a small normal randomization to the soil and crop parameters
         """
         crop_kv = {k: v for k, v in self.parameterprovider._cropdata.items() if isinstance(v, float)}
-        site_kv = {k: v for k, v in self.parameterprovider._sitedata.items() if isinstance(v, float)}
+        soil_kv = {k: v for k, v in self.parameterprovider._soildata.items() if isinstance(v, float)}
 
         for k, v in crop_kv.items():
             x = 1 if v == 0 else v
             self.parameterprovider.set_override(k, v + x * np.random.normal(scale=scale), check=False)
-        for k, v in site_kv.items():
+        for k, v in soil_kv.items():
             x = 1 if v == 0 else v
             self.parameterprovider.set_override(k, v + x * np.random.normal(scale=scale), check=False)
 
@@ -320,7 +320,7 @@ class NPK_Env(gym.Env):
         if output[-1]["FIN"] is None:
             observation = np.nan_to_num(observation)
 
-        truncation = self.date >= self.site_end_date
+        truncation = self.date >= self.soil_end_date
 
         self._log(output[-1]["WSO"], act_tuple, reward)
 
@@ -383,14 +383,14 @@ class NPK_Env(gym.Env):
         return utils.set_agro_params(agromanagement, self.agro_params)
 
     def _load_site_parameters(self, agromanagement: dict) -> tuple[tuple[float, float], int]:
-        """Load the site parameters from the agromanagement file. This is the
-            SiteCalendar portion of the .yaml file
+        """Load the soil parameters from the agromanagement file. This is the
+            SoilCalendar portion of the .yaml file
 
         Args:
             agromanagement: dictionary - see /env_config/README for information
         """
         try:
-            site_params = agromanagement["SiteCalendar"]
+            site_params = agromanagement["Site"]
 
             fixed_location = (site_params["latitude"], site_params["longitude"])
             fixed_year = site_params["year"]
@@ -459,9 +459,9 @@ class NPK_Env(gym.Env):
         Args:
             date: datetime - day which to get weather information
         """
-        site_start_ind = np.argwhere(self.train_weather_data == self.site_start_date.year).flatten()[0]
+        soil_start_ind = np.argwhere(self.train_weather_data == self.soil_start_date.year).flatten()[0]
         try:
-            weather_year_ind = (site_start_ind + date.year - self.site_start_date.year) % len(self.train_weather_data)
+            weather_year_ind = (soil_start_ind + date.year - self.soil_start_date.year) % len(self.train_weather_data)
             weatherdatacontainer = self.weatherdataprovider(
                 date.replace(year=self.train_weather_data[weather_year_ind])
             )
@@ -485,7 +485,7 @@ class NPK_Env(gym.Env):
 
         weather_observation = self._get_weather(self.date)
 
-        days_elapsed = self.date - self.site_start_date
+        days_elapsed = self.date - self.soil_start_date
 
         observation = np.concatenate([crop_observation, weather_observation.flatten(), [days_elapsed.days]])
         for i in range(len(observation)):
@@ -554,20 +554,20 @@ class NPK_Env(gym.Env):
         self.log["reward"][self.date] = reward
         self.log["day"][self.date] = self.date
 
-    def _get_site_data(self) -> dict:
+    def _get_soil_data(self) -> dict:
         """
-        Get the site data for a specific site and variation
+        Get the soil data for a specific soil and variation
         """
 
-        site_data = copy.deepcopy(self.parameterprovider._sitedata)
+        soil_data = copy.deepcopy(self.parameterprovider._soildata)
         for k, v in self.parameterprovider._override.items():
-            if k in site_data.keys():
-                site_data[k] = v
-        return site_data
+            if k in soil_data.keys():
+                soil_data[k] = v
+        return soil_data
 
     def _get_crop_data(self) -> dict:
         """
-        Get the crop data for a specific site and variation set by the agromanagment file
+        Get the crop data for a specific soil and variation set by the agromanagment file
         """
         crop_data = copy.deepcopy(self.parameterprovider._cropdata)
         for k, v in self.parameterprovider._override.items():
@@ -602,7 +602,7 @@ class Multi_NPK_Env(gym.Env):
         args: NPK_Args,
         base_fpath: str,
         agro_fpath: str,
-        site_fpath: str,
+        soil_fpath: str,
         crop_fpath: str,
         name_fpath: str,
         unit_fpath: str,
@@ -620,7 +620,7 @@ class Multi_NPK_Env(gym.Env):
         self.args = args
         self.base_fpath = base_fpath
         self.agro_fpath = agro_fpath
-        self.site_fpath = site_fpath
+        self.soil_fpath = soil_fpath
         self.crop_fpath = crop_fpath
         self.name_fpath = name_fpath
         self.unit_fpath = unit_fpath
@@ -655,9 +655,9 @@ class Multi_NPK_Env(gym.Env):
         self.log = self._init_log()
         # Load all model parameters from .yaml files
         self.crop = pcse.fileinput.YAMLCropDataProvider(fpath=os.path.join(base_fpath, crop_fpath))
-        self.site = pcse.fileinput.YAMLSiteDataProvider(fpath=os.path.join(base_fpath, site_fpath))
+        self.soil = pcse.fileinput.YAMLSoilDataProvider(fpath=os.path.join(base_fpath, soil_fpath))
         self.parameterproviders = [
-            pcse.base.ParameterProvider(sitedata=self.site, cropdata=self.crop) for _ in range(self.num_farms)
+            pcse.base.ParameterProvider(soildata=self.soil, cropdata=self.crop) for _ in range(self.num_farms)
         ]
         self.agromanagement = self._load_agromanagement_data(os.path.join(base_fpath, agro_fpath))
 
@@ -665,10 +665,10 @@ class Multi_NPK_Env(gym.Env):
         self.location, self.year = self._load_site_parameters(self.agromanagement)
         self.crop_start_date = self.agromanagement["CropCalendar"]["crop_start_date"]
         self.crop_end_date = self.agromanagement["CropCalendar"]["crop_end_date"]
-        self.site_start_date = self.agromanagement["SiteCalendar"]["site_start_date"]
-        self.site_end_date = self.agromanagement["SiteCalendar"]["site_end_date"]
-        self.year_difference = self.crop_start_date.year - self.site_start_date.year
-        self.max_site_duration = self.site_end_date - self.site_start_date
+        self.soil_start_date = self.agromanagement["SoilCalendar"]["soil_start_date"]
+        self.soil_end_date = self.agromanagement["SoilCalendar"]["soil_end_date"]
+        self.year_difference = self.crop_start_date.year - self.soil_start_date.year
+        self.max_soil_duration = self.soil_end_date - self.soil_start_date
         self.max_crop_duration = self.crop_end_date - self.crop_start_date
 
         self.weatherdataprovider = NASAPowerWeatherDataProvider(*self.location)
@@ -692,7 +692,7 @@ class Multi_NPK_Env(gym.Env):
         # Override parameters - must then call reset
         utils.set_params(self, self.wofost_params)
 
-        self.date = self.site_start_date
+        self.date = self.soil_start_date
 
         # NPK/Irrigation action amounts
         self.num_fert = args.num_fert
@@ -800,18 +800,18 @@ class Multi_NPK_Env(gym.Env):
             # Reset weather
             self.weatherdataprovider = NASAPowerWeatherDataProvider(*self.location)
 
-        self.site_start_date = self.site_start_date.replace(year=self.year)
-        self.site_end_date = self.site_start_date + self.max_site_duration
+        self.soil_start_date = self.soil_start_date.replace(year=self.year)
+        self.soil_end_date = self.soil_start_date + self.max_soil_duration
 
         self.crop_start_date = self.crop_start_date.replace(year=self.year + self.year_difference)
         self.crop_end_date = self.crop_start_date + self.max_crop_duration
 
-        self.date = self.site_start_date
+        self.date = self.soil_start_date
 
         self.agromanagement["CropCalendar"]["crop_start_date"] = self.crop_start_date
         self.agromanagement["CropCalendar"]["crop_end_date"] = self.crop_end_date
-        self.agromanagement["SiteCalendar"]["site_start_date"] = self.site_start_date
-        self.agromanagement["SiteCalendar"]["site_end_date"] = self.site_end_date
+        self.agromanagement["SoilCalendar"]["soil_start_date"] = self.soil_start_date
+        self.agromanagement["SoilCalendar"]["soil_end_date"] = self.soil_end_date
 
         # Override parameters
         utils.set_params(self, self.wofost_params)
@@ -833,42 +833,42 @@ class Multi_NPK_Env(gym.Env):
 
     def crop_randomization(self, scale: float = 0.1) -> None:
         """
-        Apply a small randomization to the site and crop parameters
+        Apply a small randomization to the soil and crop parameters
         """
         crop_kv = [
             {k: v for k, v in self.parameterproviders[i]._cropdata.items() if isinstance(v, float)}
             for i in range(self.num_farms)
         ]
-        site_kv = [
-            {k: v for k, v in self.parameterproviders[i]._sitedata.items() if isinstance(v, float)}
+        soil_kv = [
+            {k: v for k, v in self.parameterproviders[i]._soildata.items() if isinstance(v, float)}
             for i in range(self.num_farms)
         ]
 
         self.cropdata = []
-        self.sitedata = []
+        self.soildata = []
 
         for i in range(self.num_farms):
             self.cropdata.append({})
-            self.sitedata.append({})
+            self.soildata.append({})
             for k, v in crop_kv[i].items():
                 x = 1 if v == 0 else v
                 self.cropdata[i][k] = v + np.random.uniform(low=-x * scale, high=x * scale)
                 self.parameterproviders[i].set_override(k, self.cropdata[i][k], check=False)
-            for k, v in site_kv[i].items():
+            for k, v in soil_kv[i].items():
                 x = 1 if v == 0 else v
-                self.sitedata[i][k] = v + np.random.uniform(low=-x * scale, high=x * scale)
-                self.parameterproviders[i].set_override(k, self.sitedata[i][k], check=False)
+                self.soildata[i][k] = v + np.random.uniform(low=-x * scale, high=x * scale)
+                self.parameterproviders[i].set_override(k, self.soildata[i][k], check=False)
 
     def domain_randomization(self, scale: float = 0.1) -> None:
         """
-        Apply a small randomization to the site and crop parameters
+        Apply a small randomization to the soil and crop parameters
         """
 
         for i in range(self.num_farms):
             for k, v in self.cropdata[i].items():
                 x = 1 if v == 0 else v
                 self.parameterproviders[i].set_override(k, v + x * np.random.normal(scale=scale), check=False)
-            for k, v in self.sitedata[i].items():
+            for k, v in self.soildata[i].items():
                 x = 1 if v == 0 else v
                 self.parameterproviders[i].set_override(k, v + x * np.random.normal(scale=scale), check=False)
 
@@ -905,7 +905,7 @@ class Multi_NPK_Env(gym.Env):
         if np.any([output[i][-1]["FIN"] is None for i in range(self.num_farms)]):
             observation = np.nan_to_num(observation)
 
-        truncation = self.date >= self.site_end_date
+        truncation = self.date >= self.soil_end_date
 
         self._log([output[i][-1]["WSO"] for i in range(self.num_farms)], act_tuple, reward)
 
@@ -970,14 +970,14 @@ class Multi_NPK_Env(gym.Env):
         return utils.set_agro_params(agromanagement, self.agro_params)
 
     def _load_site_parameters(self, agromanagement: dict) -> tuple[tuple[float, float], int]:
-        """Load the site parameters from the agromanagement file. This is the
-            SiteCalendar portion of the .yaml file
+        """Load the soil parameters from the agromanagement file. This is the
+            SoilCalendar portion of the .yaml file
 
         Args:
             agromanagement: dictionary - see /env_config/README for information
         """
         try:
-            site_params = agromanagement["SiteCalendar"]
+            site_params = agromanagement["Site"]
 
             fixed_location = (site_params["latitude"], site_params["longitude"])
             fixed_year = site_params["year"]
@@ -1047,8 +1047,8 @@ class Multi_NPK_Env(gym.Env):
             date: datetime - day which to get weather information
         """
 
-        site_start_ind = np.argwhere(self.train_weather_data == self.site_start_date.year).flatten()[0]
-        weather_year_ind = (site_start_ind + date.year - self.site_start_date.year) % len(self.train_weather_data)
+        soil_start_ind = np.argwhere(self.train_weather_data == self.soil_start_date.year).flatten()[0]
+        weather_year_ind = (soil_start_ind + date.year - self.soil_start_date.year) % len(self.train_weather_data)
         weatherdatacontainer = self.weatherdataprovider(date.replace(year=self.train_weather_data[weather_year_ind]))
 
         return [getattr(weatherdatacontainer, attr) for attr in self.weather_vars]
@@ -1071,7 +1071,7 @@ class Multi_NPK_Env(gym.Env):
 
         weather_observation = self._get_weather(self.date)
 
-        days_elapsed = self.date - self.site_start_date
+        days_elapsed = self.date - self.soil_start_date
 
         observation = np.concatenate([crop_observation, weather_observation.flatten(), [days_elapsed.days]])
         for i in range(len(observation)):
@@ -1143,20 +1143,20 @@ class Multi_NPK_Env(gym.Env):
         self.log["reward"][self.date] = reward
         self.log["day"][self.date] = self.date
 
-    def _get_site_data(self, i: int) -> dict:
+    def _get_soil_data(self, i: int) -> dict:
         """
-        Get the site data for a specific site and variation
+        Get the soil data for a specific soil and variation
         """
 
-        site_data = copy.deepcopy(self.parameterproviders[i]._sitedata)
+        soil_data = copy.deepcopy(self.parameterproviders[i]._soildata)
         for k, v in self.parameterproviders[i]._override.items():
-            if k in site_data.keys():
-                site_data[k] = v
-        return site_data
+            if k in soil_data.keys():
+                soil_data[k] = v
+        return soil_data
 
     def _get_crop_data(self, i: int) -> dict:
         """
-        Get the crop data for a specific site and variation set by the agromanagment file
+        Get the crop data for a specific soil and variation set by the agromanagment file
         """
         crop_data = copy.deepcopy(self.parameterproviders[i]._cropdata)
         for k, v in self.parameterproviders[i]._override.items():
@@ -1186,7 +1186,7 @@ class Plant_NPK_Env(NPK_Env):
         args: NPK_Args,
         base_fpath: str,
         agro_fpath: str,
-        site_fpath: str,
+        soil_fpath: str,
         crop_fpath: str,
         name_fpath: str,
         unit_fpath: str,
@@ -1204,7 +1204,7 @@ class Plant_NPK_Env(NPK_Env):
             args,
             base_fpath,
             agro_fpath,
-            site_fpath,
+            soil_fpath,
             crop_fpath,
             name_fpath,
             unit_fpath,
@@ -1278,7 +1278,7 @@ class Harvest_NPK_Env(NPK_Env):
         args: NPK_Args,
         base_fpath: str,
         agro_fpath: str,
-        site_fpath: str,
+        soil_fpath: str,
         crop_fpath: str,
         name_fpath: str,
         unit_fpath: str,
@@ -1296,7 +1296,7 @@ class Harvest_NPK_Env(NPK_Env):
             args,
             base_fpath,
             agro_fpath,
-            site_fpath,
+            soil_fpath,
             crop_fpath,
             name_fpath,
             unit_fpath,

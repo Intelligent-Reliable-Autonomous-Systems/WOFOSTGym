@@ -1,15 +1,15 @@
-### README_site_creation.md 
-# An overview of how to create a new site for use in the WOFOST simulator
+### README_soil_creation.md 
+# An overview of how to create a new soil for use in the WOFOST simulator
 
-## Site Creation
-1. To create a new site, copy the template below into a <site_name>.yaml file
+## Soil Creation
+1. To create a new soil, copy the template below into a <soil_name>.yaml file
 2. Fill out all fields marked with angle brackets < > 
-3. Create at least one desired variety for the site. Make sure it inherits 
-<site_name> in the <<: &<site_name> field
-4. Register the site by adding another line in the sites.yaml file. Doing so will 
-ensure that the site is loaded when the simulator is run
-5. Create an agromanagement file for your site (see ../agro_config/README_agro_creation.md)
-to run your site. Test the rest with python3 test_wofost.py --agro_fpath <agromanagement_file_name>
+3. Create at least one desired variety for the soil. Make sure it inherits 
+<soil_name> in the <<: &<soil_name> field
+4. Register the soil by adding another line in the soils.yaml file. Doing so will 
+ensure that the soil is loaded when the simulator is run
+5. Create an agromanagement file for your soil (see ../agro_config/README_agro_creation.md)
+to run your soil. Test the rest with python3 test_wofost.py --agro_fpath <agromanagement_file_name>
 
 
 Version: 1.0.0
@@ -22,8 +22,8 @@ Metadata: &meta
     Date: 
     Language: 
     Format: YAML
-    Subject: <A Generic Site>
-    Description: <A Generic Site Description>
+    Subject: <A Generic Soil>
+    Description: <A Generic Soil Description>
     Identifier:
     Relation:
     Source: 
@@ -31,10 +31,10 @@ Metadata: &meta
     Coverage:
        Region: <Oregon, Washington, etc> 
     Rights: <License> 
-    Keyword: <Site keyword>
+    Keyword: <Soil keyword>
 
    EcoTypes:
-     <site name>: &<site_name>
+     <soil name>: &<soil_name>
        #
        # NPK SOIL DYNAMICS
        # 
@@ -150,7 +150,7 @@ Metadata: &meta
        - ['ppm']
    Variations:
      <variation name>:
-        <<: *<parent_site_name> 
+        <<: *<parent_soil_name> 
         Metadata:
            <<: *meta
            Description: 

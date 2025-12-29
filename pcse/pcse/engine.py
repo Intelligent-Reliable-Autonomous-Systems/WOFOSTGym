@@ -32,7 +32,7 @@ class Engine(BaseEngine):
 
     :param parameterprovider: A `ParameterProvider` object providing model
         parameters as key/value pairs. The parameterprovider encapsulates
-        the different parameter sets for crop, soil and site parameters.
+        the different parameter sets for crop, soil and agro parameters.
     :param weatherdataprovider: An instance of a WeatherDataProvider that can
         return weather data in a WeatherDataContainer for a given date.
     :param agromanagement: AgroManagement data. The data format is described
@@ -101,9 +101,9 @@ class Engine(BaseEngine):
     flag_crop_finish = Bool(False)
     flag_crop_start = Bool(False)
     flag_crop_delete = Bool(False)
-    flag_site_finish = Bool(False)
-    flag_site_start = Bool(False)
-    flag_site_delete = Bool(False)
+    flag_soil_finish = Bool(False)
+    flag_soil_start = Bool(False)
+    flag_soil_delete = Bool(False)
     flag_output = Bool(False)
     flag_summary_output = Bool(False)
 
@@ -146,8 +146,8 @@ class Engine(BaseEngine):
         self._connect_signal(self._on_CROP_START, signal=signals.crop_start)
         self._connect_signal(self._on_CROP_FINISH, signal=signals.crop_finish)
         self._connect_signal(self._on_CROP_HARVEST, signal=signals.crop_harvest)
-        self._connect_signal(self._on_SITE_START, signal=signals.site_start)
-        self._connect_signal(self._on_SITE_FINISH, signal=signals.site_finish)
+        self._connect_signal(self._on_SOIL_START, signal=signals.soil_start)
+        self._connect_signal(self._on_SOIL_FINISH, signal=signals.soil_finish)
         self._connect_signal(self._on_OUTPUT, signal=signals.output)
         self._connect_signal(self._on_TERMINATE, signal=signals.terminate)
 
@@ -187,9 +187,9 @@ class Engine(BaseEngine):
         self.flag_crop_finish = Bool(False)
         self.flag_crop_start = Bool(False)
         self.flag_crop_delete = Bool(False)
-        self.flag_site_finish = Bool(False)
-        self.flag_site_start = Bool(False)
-        self.flag_site_delete = Bool(False)
+        self.flag_soil_finish = Bool(False)
+        self.flag_soil_start = Bool(False)
+        self.flag_soil_delete = Bool(False)
         self.flag_output = Bool(False)
         self.flag_summary_output = Bool(False)
 
@@ -217,8 +217,8 @@ class Engine(BaseEngine):
         if self.flag_crop_finish:
             self._finish_cropsimulation(day)
 
-        if self.flag_site_delete:
-            self._finish_sitesimulation(day)
+        if self.flag_soil_delete:
+            self._finish_soilsimulation(day)
 
     def integrate(self, day: date, delt: float) -> None:
         """Integrate rates with states based on time change (delta)"""
@@ -308,40 +308,40 @@ class Engine(BaseEngine):
 
         self.crop = self.mconf.CROP(day, self.kiosk, self.parameterprovider)
 
-    def _on_SITE_START(self, day: date, site_name: str = None, site_variation: str = None) -> None:
-        """Starts the site"""
-        self.logger.debug("Received signal 'SITE_START' on day %s" % day)
+    def _on_SOIL_START(self, day: date, soil_name: str = None, soil_variation: str = None) -> None:
+        """Starts the soil"""
+        self.logger.debug("Received signal 'SOIL_START' on day %s" % day)
 
         if self.soil is not None:
             msg = (
-                "A SITE_START signal was received while self.sitesimulation "
-                "still holds a valid sitesimulation object. It looks like "
-                "you forgot to send a SITE_FINISH signal with option "
-                "site_delete=True"
+                "A SOIL_START signal was received while self.soilsimulation "
+                "still holds a valid soilsimulation object. It looks like "
+                "you forgot to send a SOIL_FINISH signal with option "
+                "soil_delete=True"
             )
             raise exc.PCSEError(msg)
 
         # Component for simulation of soil processes
-        self.parameterprovider.set_active_site(site_name, site_variation)
+        self.parameterprovider.set_active_soil(soil_name, soil_variation)
 
         self.soil = self.mconf.SOIL(self.day, self.kiosk, self.parameterprovider)
 
-    def _on_SITE_FINISH(self, day: date, site_delete: bool = False) -> None:
-        """Sets the variable 'flag_site_finish' to True when the signal
+    def _on_SOIL_FINISH(self, day: date, soil_delete: bool = False) -> None:
+        """Sets the variable 'flag_soil_finish' to True when the signal
         SOTE_FINISH is received.
 
-        The flag is needed because finishing the site simulation is deferred to
+        The flag is needed because finishing the soil simulation is deferred to
         the correct place in the processing loop and is done by the routine
-        _finish_sitesimulation().
+        _finish_soilsimulation().
 
-        If site_delete=True the SiteSimulation object will be deleted from the
-        hierarchy in _finish_sitesimulation().
+        If soil_delete=True the SoilSimulation object will be deleted from the
+        hierarchy in _finish_soilsimulation().
 
         Finally, summary output will be generated depending on
         conf.SUMMARY_OUTPUT_VARS
         """
-        self.flag_site_finish = True
-        self.flag_site_delete = site_delete
+        self.flag_soil_finish = True
+        self.flag_soil_delete = soil_delete
 
         if self.crop is not None:
             self._send_signal(signals.crop_finish, day=day, crop_delete=True)
@@ -383,12 +383,12 @@ class Engine(BaseEngine):
 
         self.crop = None
 
-    def _finish_sitesimulation(self, day: date, clear_override: bool = False) -> None:
-        """Finishes the SiteSimulation object when variable 'flag_site_finish'
-        has been set to True based on the signal 'SITE_FINISH' being
+    def _finish_soilsimulation(self, day: date, clear_override: bool = False) -> None:
+        """Finishes the SoilSimulation object when variable 'flag_soil_finish'
+        has been set to True based on the signal 'SOIL_FINISH' being
         received.
         """
-        self.flag_site_finish = False
+        self.flag_soil_finish = False
 
         # Run the finalize section of the cropsimulation and sub-components
         self.soil.finalize(day)
@@ -403,8 +403,8 @@ class Engine(BaseEngine):
 
         # Only remove the crop simulation object from the system when the crop
         # is finished, when explicitly asked to do so.
-        if self.flag_site_delete:
-            self.flag_site_delete = False
+        if self.flag_soil_delete:
+            self.flag_soil_delete = False
 
         self.soil = None
 

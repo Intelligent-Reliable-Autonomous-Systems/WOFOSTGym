@@ -1,12 +1,13 @@
 AgroManagement:
-    SiteCalendar:
+    Site:
         latitude: 40
         longitude: 5
         year: 1984
-        site_name: oregon
-        site_variation: oregon_1
-        site_start_date: 1985-02-01
-        site_end_date: 1985-10-01
+    SoilCalendar:
+        soil_name: oregon
+        soil_variation: oregon_1
+        soil_start_date: 1985-02-01
+        soil_end_date: 1985-10-01
     CropCalendar:
         crop_name: sunflower
         crop_variety: sunflower_1

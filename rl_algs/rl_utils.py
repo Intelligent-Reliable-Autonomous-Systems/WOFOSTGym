@@ -133,7 +133,7 @@ def eval_policy(
         args = eval_env.envs[0].unwrapped.args
         base_fpath = eval_env.envs[0].unwrapped.base_fpath
         agro_fpath = eval_env.envs[0].unwrapped.agro_fpath
-        site_fpath = eval_env.envs[0].unwrapped.site_fpath
+        soil_fpath = eval_env.envs[0].unwrapped.soil_fpath
         crop_fpath = eval_env.envs[0].unwrapped.crop_fpath
         name_fpath = eval_env.envs[0].unwrapped.name_fpath
         unit_fpath = eval_env.envs[0].unwrapped.unit_fpath
@@ -144,7 +144,7 @@ def eval_policy(
         args = eval_env.unwrapped.args
         base_fpath = eval_env.unwrapped.base_fpath
         agro_fpath = eval_env.unwrapped.agro_fpath
-        site_fpath = eval_env.unwrapped.site_fpath
+        soil_fpath = eval_env.unwrapped.soil_fpath
         crop_fpath = eval_env.unwrapped.crop_fpath
         name_fpath = eval_env.unwrapped.name_fpath
         unit_fpath = eval_env.unwrapped.unit_fpath
@@ -159,7 +159,7 @@ def eval_policy(
         new_args,
         base_fpath,
         agro_fpath,
-        site_fpath,
+        soil_fpath,
         crop_fpath,
         name_fpath,
         unit_fpath,
@@ -206,7 +206,7 @@ def eval_policy_lstm(
         args = eval_env.envs[0].unwrapped.args
         base_fpath = eval_env.envs[0].unwrapped.base_fpath
         agro_fpath = eval_env.envs[0].unwrapped.agro_fpath
-        site_fpath = eval_env.envs[0].unwrapped.site_fpath
+        soil_fpath = eval_env.envs[0].unwrapped.soil_fpath
         crop_fpath = eval_env.envs[0].unwrapped.crop_fpath
         name_fpath = eval_env.envs[0].unwrapped.name_fpath
         unit_fpath = eval_env.envs[0].unwrapped.unit_fpath
@@ -218,7 +218,7 @@ def eval_policy_lstm(
         args = eval_env.unwrapped.args
         base_fpath = eval_env.unwrapped.base_fpath
         agro_fpath = eval_env.unwrapped.agro_fpath
-        site_fpath = eval_env.unwrapped.site_fpath
+        soil_fpath = eval_env.unwrapped.soil_fpath
         crop_fpath = eval_env.unwrapped.crop_fpath
         name_fpath = eval_env.unwrapped.name_fpath
         unit_fpath = eval_env.unwrapped.unit_fpath
@@ -234,7 +234,7 @@ def eval_policy_lstm(
         new_args,
         base_fpath,
         agro_fpath,
-        site_fpath,
+        soil_fpath,
         crop_fpath,
         name_fpath,
         unit_fpath,

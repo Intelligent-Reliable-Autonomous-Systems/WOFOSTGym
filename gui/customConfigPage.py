@@ -20,7 +20,7 @@ from PySide6.QtCore import QSize, QDate
 
 AGRO_FOLDER_PATH = "env_config/agro"
 CROP_FOLDER_PATH = "env_config/crop"
-SITE_FOLDER_PATH = "env_config/site"
+SOIL_FOLDER_PATH = "env_config/soil"
 
 class CustomConfigurationPage(QWidget):
     def __init__(self, pages, env_selections, file_selections):
@@ -118,98 +118,98 @@ class CustomConfigurationPage(QWidget):
         crops.setLayout(crops_layout)    
 
         # *************************
-        #       SITE INPUTS
+        #       soil INPUTS
         # *************************
-        sites = QGroupBox("")
-        sites_layout = QVBoxLayout()
+        soils = QGroupBox("")
+        soils_layout = QVBoxLayout()
 
-        # Site Name
-        self.sites_label = QLabel("Available Sites:")
-        self.sites_label.setFixedSize(QSize(125, 30))
-        self.sites_dropdown = QComboBox()
-        self.sites_dropdown.setFixedSize(QSize(200, 30))
+        # soil Name
+        self.soils_label = QLabel("Available Soils:")
+        self.soils_label.setFixedSize(QSize(125, 30))
+        self.soils_dropdown = QComboBox()
+        self.soils_dropdown.setFixedSize(QSize(200, 30))
 
-        site_layout = QHBoxLayout()
-        site_layout.addWidget(self.sites_label)
-        site_layout.addWidget(self.sites_dropdown)
-        site_layout.addStretch()
+        soil_layout = QHBoxLayout()
+        soil_layout.addWidget(self.soils_label)
+        soil_layout.addWidget(self.soils_dropdown)
+        soil_layout.addStretch()
 
-        # Site Variation
-        self.site_variations_label = QLabel("Site Variations:")
-        self.site_variations_label.setFixedSize(QSize(125, 30))
-        self.site_variations_dropdown = QComboBox()
-        self.site_variations_dropdown.setFixedSize(QSize(200, 30))
+        # soil Variation
+        self.soil_variations_label = QLabel("soil Variations:")
+        self.soil_variations_label.setFixedSize(QSize(125, 30))
+        self.soil_variations_dropdown = QComboBox()
+        self.soil_variations_dropdown.setFixedSize(QSize(200, 30))
 
-        site_variations_layout = QHBoxLayout()
-        site_variations_layout.addWidget(self.site_variations_label)
-        site_variations_layout.addWidget(self.site_variations_dropdown)
-        site_variations_layout.addStretch()
+        soil_variations_layout = QHBoxLayout()
+        soil_variations_layout.addWidget(self.soil_variations_label)
+        soil_variations_layout.addWidget(self.soil_variations_dropdown)
+        soil_variations_layout.addStretch()
 
-        # Site Latitude
-        self.site_latitude_label = QLabel("Site Latitude:")
-        self.site_latitude_label.setFixedSize(QSize(125, 30))
-        self.site_latitude_input = QLineEdit()
+        # soil Latitude
+        self.soil_latitude_label = QLabel("soil Latitude:")
+        self.soil_latitude_label.setFixedSize(QSize(125, 30))
+        self.soil_latitude_input = QLineEdit()
         
-        site_latitude_layout = QHBoxLayout()
-        site_latitude_layout.addWidget(self.site_latitude_label)
-        site_latitude_layout.addWidget(self.site_latitude_input)
-        site_latitude_layout.addStretch()
+        soil_latitude_layout = QHBoxLayout()
+        soil_latitude_layout.addWidget(self.soil_latitude_label)
+        soil_latitude_layout.addWidget(self.soil_latitude_input)
+        soil_latitude_layout.addStretch()
 
-        # Site Longitude
-        self.site_longitude_label = QLabel("Site Longitude:")
-        self.site_longitude_label.setFixedSize(QSize(125, 30))
-        self.site_longitude_input = QLineEdit()
+        # soil Longitude
+        self.soil_longitude_label = QLabel("soil Longitude:")
+        self.soil_longitude_label.setFixedSize(QSize(125, 30))
+        self.soil_longitude_input = QLineEdit()
 
-        site_longitude_layout = QHBoxLayout()
-        site_longitude_layout.addWidget(self.site_longitude_label)
-        site_longitude_layout.addWidget(self.site_longitude_input)
-        site_longitude_layout.addStretch()
+        soil_longitude_layout = QHBoxLayout()
+        soil_longitude_layout.addWidget(self.soil_longitude_label)
+        soil_longitude_layout.addWidget(self.soil_longitude_input)
+        soil_longitude_layout.addStretch()
 
-        # Site Year
-        self.site_year_label = QLabel("Site Year:")
-        self.site_year_label.setFixedSize(QSize(125, 30))
-        self.site_year_input = QLineEdit()
+        # soil Year
+        self.soil_year_label = QLabel("soil Year:")
+        self.soil_year_label.setFixedSize(QSize(125, 30))
+        self.soil_year_input = QLineEdit()
         
-        site_year_layout = QHBoxLayout()
-        site_year_layout.addWidget(self.site_year_label)
-        site_year_layout.addWidget(self.site_year_input)
-        site_year_layout.addStretch()
+        soil_year_layout = QHBoxLayout()
+        soil_year_layout.addWidget(self.soil_year_label)
+        soil_year_layout.addWidget(self.soil_year_input)
+        soil_year_layout.addStretch()
 
-        # Site Start Date
-        self.site_start_date_label = QLabel("Site Start Date:")
-        self.site_start_date_label.setFixedSize(QSize(125, 30))
-        self.site_start_date_input = QDateEdit()
-        self.site_start_date_input.setDate(QDate(2020, 1, 1))
-        self.site_start_date_input.setCalendarPopup(True)
-        self.site_start_date_input.setDisplayFormat("yyyy-MM-dd")
+        # soil Start Date
+        self.soil_start_date_label = QLabel("soil Start Date:")
+        self.soil_start_date_label.setFixedSize(QSize(125, 30))
+        self.soil_start_date_input = QDateEdit()
+        self.soil_start_date_input.setDate(QDate(2020, 1, 1))
+        self.soil_start_date_input.setCalendarPopup(True)
+        self.soil_start_date_input.setDisplayFormat("yyyy-MM-dd")
 
-        site_start_date_layout = QHBoxLayout()
-        site_start_date_layout.addWidget(self.site_start_date_label)
-        site_start_date_layout.addWidget(self.site_start_date_input)
-        site_start_date_layout.addStretch()
+        soil_start_date_layout = QHBoxLayout()
+        soil_start_date_layout.addWidget(self.soil_start_date_label)
+        soil_start_date_layout.addWidget(self.soil_start_date_input)
+        soil_start_date_layout.addStretch()
 
-        # Site End Date
-        self.site_end_date_label = QLabel("Site End Date:")
-        self.site_end_date_label.setFixedSize(QSize(125, 30))
-        self.site_end_date_input = QDateEdit()
-        self.site_end_date_input.setDate(QDate(2020, 12, 31))
-        self.site_end_date_input.setCalendarPopup(True)
-        self.site_end_date_input.setDisplayFormat("yyyy-MM-dd")
+        # soil End Date
+        self.soil_end_date_label = QLabel("soil End Date:")
+        self.soil_end_date_label.setFixedSize(QSize(125, 30))
+        self.soil_end_date_input = QDateEdit()
+        self.soil_end_date_input.setDate(QDate(2020, 12, 31))
+        self.soil_end_date_input.setCalendarPopup(True)
+        self.soil_end_date_input.setDisplayFormat("yyyy-MM-dd")
 
-        site_end_date_layout = QHBoxLayout()
-        site_end_date_layout.addWidget(self.site_end_date_label)
-        site_end_date_layout.addWidget(self.site_end_date_input)
-        site_end_date_layout.addStretch()
+        soil_end_date_layout = QHBoxLayout()
+        soil_end_date_layout.addWidget(self.soil_end_date_label)
+        soil_end_date_layout.addWidget(self.soil_end_date_input)
+        soil_end_date_layout.addStretch()
 
-        # Main Site Layout
-        sites_layout.addLayout(site_layout)
-        sites_layout.addLayout(site_variations_layout)
-        sites_layout.addLayout(site_latitude_layout)
-        sites_layout.addLayout(site_longitude_layout)
-        sites_layout.addLayout(site_year_layout)
-        sites_layout.addLayout(site_start_date_layout)
-        sites_layout.addLayout(site_end_date_layout)
-        sites.setLayout(sites_layout)
+        # Main soil Layout
+        soils_layout.addLayout(soil_layout)
+        soils_layout.addLayout(soil_variations_layout)
+        soils_layout.addLayout(soil_latitude_layout)
+        soils_layout.addLayout(soil_longitude_layout)
+        soils_layout.addLayout(soil_year_layout)
+        soils_layout.addLayout(soil_start_date_layout)
+        soils_layout.addLayout(soil_end_date_layout)
+        soils.setLayout(soils_layout)
 
         # *************************
         #         BUTTONS
@@ -236,7 +236,7 @@ class CustomConfigurationPage(QWidget):
         # Sub
         dropdown_layout = QHBoxLayout()
         dropdown_layout.addWidget(crops)
-        dropdown_layout.addWidget(sites)
+        dropdown_layout.addWidget(soils)
 
         self.agro_man_info = QTextEdit()
         self.agro_man_info.setReadOnly(True)
@@ -283,13 +283,13 @@ class CustomConfigurationPage(QWidget):
         #      INITIALIZATION
         # *************************
         self.load_crop_yaml_files()
-        self.load_site_yaml_files()
+        self.load_soil_yaml_files()
 
         self.crops_dropdown.setCurrentIndex(-1)
         self.crop_varieties_dropdown.setCurrentIndex(-1)
         self.crop_end_type_dropdown.setCurrentIndex(-1)
-        self.sites_dropdown.setCurrentIndex(-1)
-        self.site_variations_dropdown.setCurrentIndex(-1)
+        self.soils_dropdown.setCurrentIndex(-1)
+        self.soil_variations_dropdown.setCurrentIndex(-1)
 
         self.agro_file_inputs = {}
         self.refresh_agro_info()
@@ -307,35 +307,35 @@ class CustomConfigurationPage(QWidget):
         self.crop_start_date_input.dateChanged.connect(self.refresh_agro_info)
         self.crop_end_date_input.dateChanged.connect(self.refresh_agro_info)
 
-        # Sites
-        self.sites_dropdown.currentIndexChanged.connect(self.load_site_variations)
-        self.sites_dropdown.currentIndexChanged.connect(self.refresh_agro_info)
-        self.site_variations_dropdown.currentIndexChanged.connect(self.refresh_agro_info)
-        self.site_latitude_input.textChanged.connect(self.refresh_agro_info)
-        self.site_longitude_input.textChanged.connect(self.refresh_agro_info)
-        self.site_year_input.textChanged.connect(self.refresh_agro_info)
-        self.site_start_date_input.dateChanged.connect(self.refresh_agro_info)
-        self.site_end_date_input.dateChanged.connect(self.refresh_agro_info)
+        # soils
+        self.soils_dropdown.currentIndexChanged.connect(self.load_soil_variations)
+        self.soils_dropdown.currentIndexChanged.connect(self.refresh_agro_info)
+        self.soil_variations_dropdown.currentIndexChanged.connect(self.refresh_agro_info)
+        self.soil_latitude_input.textChanged.connect(self.refresh_agro_info)
+        self.soil_longitude_input.textChanged.connect(self.refresh_agro_info)
+        self.soil_year_input.textChanged.connect(self.refresh_agro_info)
+        self.soil_start_date_input.dateChanged.connect(self.refresh_agro_info)
+        self.soil_end_date_input.dateChanged.connect(self.refresh_agro_info)
 
     # *************************
     #       FUNCTIONS
     # *************************
     def checkInputs(self, agro_info):
-        site_info = agro_info.get("AgroManagement", {}).get("SiteCalendar", {})
+        soil_info = agro_info.get("AgroManagement", {}).get("SoilCalendar", {})
         crop_info = agro_info.get("AgroManagement", {}).get("CropCalendar", {})
         for key in crop_info:
             if crop_info[key] is None or crop_info[key] == "N/A" or crop_info[key] == "":
                 self.notif = Notif(f"Please fill in all fields.")
                 self.notif.show()
                 return False
-        for key in site_info:
-            if site_info[key] is None or site_info[key] == "N/A" or site_info[key] == "":
+        for key in soil_info:
+            if soil_info[key] is None or soil_info[key] == "N/A" or soil_info[key] == "":
                 self.notif = Notif(f"Please fill in all fields.")
                 self.notif.show()
                 return False
             
-        if site_info.get("site_start_date") > site_info.get("site_end_date"):
-            self.notif = Notif("Site start date cannot be after site end date.")
+        if soil_info.get("soil_start_date") > soil_info.get("soil_end_date"):
+            self.notif = Notif("soil start date cannot be after soil end date.")
             self.notif.show()
             return False
         if crop_info.get("crop_start_date") > crop_info.get("crop_end_date"):
@@ -385,50 +385,50 @@ class CustomConfigurationPage(QWidget):
                 self.crop_max_duration_input.clear()
                 return
 
-        # Site
-        site_name = self.sites_dropdown.currentText()
-        site_variation = self.site_variations_dropdown.currentText()
-        site_longitude = self.site_longitude_input.text()
-        site_latitude = self.site_latitude_input.text()
-        site_year = self.site_year_input.text()
-        site_start_date = self.site_start_date_input.date().toPython()
-        site_end_date = self.site_end_date_input.date().toPython()
+        # soil
+        soil_name = self.soils_dropdown.currentText()
+        soil_variation = self.soil_variations_dropdown.currentText()
+        soil_longitude = self.soil_longitude_input.text()
+        soil_latitude = self.soil_latitude_input.text()
+        soil_year = self.soil_year_input.text()
+        soil_start_date = self.soil_start_date_input.date().toPython()
+        soil_end_date = self.soil_end_date_input.date().toPython()
 
-        if site_name and site_name != "":
-            self.agro_file_inputs["site_name"] = site_name
-        if site_variation and site_variation != "":
-            self.agro_file_inputs["site_variation"] = site_variation
-        if site_longitude and site_longitude != "":
+        if soil_name and soil_name != "":
+            self.agro_file_inputs["soil_name"] = soil_name
+        if soil_variation and soil_variation != "":
+            self.agro_file_inputs["soil_variation"] = soil_variation
+        if soil_longitude and soil_longitude != "":
             try:
-                self.agro_file_inputs["longitude"] = float(site_longitude)
+                self.agro_file_inputs["longitude"] = float(soil_longitude)
             except ValueError:
-                self.notif = Notif("Invalid site longitude. Please enter a number.")
+                self.notif = Notif("Invalid soil longitude. Please enter a number.")
                 self.notif.show()
                 self.agro_file_inputs.pop("longitude", None)
-                self.site_longitude_input.clear()
+                self.soil_longitude_input.clear()
                 return
-        if site_latitude and site_latitude != "":
+        if soil_latitude and soil_latitude != "":
             try:
-                self.agro_file_inputs["latitude"] = float(site_latitude)
+                self.agro_file_inputs["latitude"] = float(soil_latitude)
             except ValueError:
-                self.notif = Notif("Invalid site latitude. Please enter a number.")
+                self.notif = Notif("Invalid soil latitude. Please enter a number.")
                 self.notif.show()
                 self.agro_file_inputs.pop("latitude", None)
-                self.site_latitude_input.clear()
+                self.soil_latitude_input.clear()
                 return
-        if site_year and site_year != "":
+        if soil_year and soil_year != "":
             try:
-                self.agro_file_inputs["year"] = int(site_year)
+                self.agro_file_inputs["year"] = int(soil_year)
             except ValueError:
-                self.notif = Notif("Invalid site year. Please enter a number.")
+                self.notif = Notif("Invalid soil year. Please enter a number.")
                 self.notif.show()
                 self.agro_file_inputs.pop("year", None)
-                self.site_year_input.clear()
+                self.soil_year_input.clear()
                 return
-        if site_start_date and site_start_date != "":
-            self.agro_file_inputs["site_start_date"] = site_start_date
-        if site_end_date and site_end_date != "":
-            self.agro_file_inputs["site_end_date"] = site_end_date
+        if soil_start_date and soil_start_date != "":
+            self.agro_file_inputs["soil_start_date"] = soil_start_date
+        if soil_end_date and soil_end_date != "":
+            self.agro_file_inputs["soil_end_date"] = soil_end_date
 
         self.handle_create_agro()
 
@@ -473,46 +473,46 @@ class CustomConfigurationPage(QWidget):
         else:
             self.crop_varieties_dropdown.addItem("No varieties available")
 
-    def load_site_yaml_files(self):
-        if not os.path.isdir(SITE_FOLDER_PATH):
-            print("Invalid site folder path during YAML loading")
+    def load_soil_yaml_files(self):
+        if not os.path.isdir(SOIL_FOLDER_PATH):
+            print("Invalid soil folder path during YAML loading")
             return
 
-        file_path = os.path.join(SITE_FOLDER_PATH, "sites.yaml")
+        file_path = os.path.join(SOIL_FOLDER_PATH, "soils.yaml")
         try:
             with open(file_path, 'r') as f:
                 data = yaml.safe_load(f)
-            self.site_yaml_files = [site for site in data.get('available_sites', [])]
+            self.soil_yaml_files = [soil for soil in data.get('available_soils', [])]
         except Exception as e:
-            print(f"Error reading site YAML file during load: {e}")
-            self.site_yaml_files = []
+            print(f"Error reading soil YAML file during load: {e}")
+            self.soil_yaml_files = []
 
-        if not self.site_yaml_files:
-            print("No site YAML files found")
+        if not self.soil_yaml_files:
+            print("No soil YAML files found")
         else:
-            self.sites_dropdown.addItems(self.site_yaml_files)
+            self.soils_dropdown.addItems(self.soil_yaml_files)
 
-    def load_site_variations(self):
-        site_name = self.sites_dropdown.currentText()
-        if not site_name or site_name == "":
-            self.site_variations = []
+    def load_soil_variations(self):
+        soil_name = self.soils_dropdown.currentText()
+        if not soil_name or soil_name == "":
+            self.soil_variations = []
             return
 
-        file_path = os.path.join(SITE_FOLDER_PATH, f"{site_name}.yaml")
+        file_path = os.path.join(SOIL_FOLDER_PATH, f"{soil_name}.yaml")
         try:
             with open(file_path, 'r') as f:
                 data = yaml.safe_load(f)
-            self.site_variations = data.get('SiteParameters', {}).get('Variations', {}).keys()
+            self.soil_variations = data.get('soilParameters', {}).get('Variations', {}).keys()
 
         except Exception as e:
-            print(f"Error reading site variations: {e}")
-            self.site_variations = []
+            print(f"Error reading soil variations: {e}")
+            self.soil_variations = []
 
-        self.site_variations_dropdown.clear()
-        if self.site_variations:
-            self.site_variations_dropdown.addItems(self.site_variations)
+        self.soil_variations_dropdown.clear()
+        if self.soil_variations:
+            self.soil_variations_dropdown.addItems(self.soil_variations)
         else:
-            self.site_variations_dropdown.addItem("No variations available")
+            self.soil_variations_dropdown.addItem("No variations available")
 
     # NOT CURRENTLY USED
     # def check_save(self):
@@ -522,27 +522,27 @@ class CustomConfigurationPage(QWidget):
     #             print("-WOFOST- Agro file removed -- save option is unchecked")
         
 
-    # Run Simulation -- Uses individual agrs for crop and site variables (Depricated)
+    # Run Simulation -- Uses individual agrs for crop and soil variables (Depricated)
     # def run_simulation_1(self):
     #     crop_name = self.crops_dropdown.currentText()
     #     crop_variety = self.crop_varieties_dropdown.currentText()
-    #     site_name = self.sites_dropdown.currentText()
-    #     site_variation = self.site_variations_dropdown.currentText()
+    #     soil_name = self.soils_dropdown.currentText()
+    #     soil_variation = self.soil_variations_dropdown.currentText()
 
-    #     if not crop_name or not crop_variety or not site_name or not site_variation:
+    #     if not crop_name or not crop_variety or not soil_name or not soil_variation:
     #         self.notif = Notif("Please select all options.")
     #         self.notif.show()
     #         return
         
     #     print("-WOFOST- Running custom agro simulation...")
-    #     print("-WOFOST- Command: python3 test_wofost.py --save-folder {} --data-file {} --env-id {} --npk.ag.crop-name {} --npk.ag.crop-variety {} --npk.ag.site-name {} --npk.ag.site-variation {}".format(
+    #     print("-WOFOST- Command: python3 test_wofost.py --save-folder {} --data-file {} --env-id {} --npk.ag.crop-name {} --npk.ag.crop-variety {} --npk.ag.soil-name {} --npk.ag.soil-variation {}".format(
     #         self.file_selections["save_folder"],
     #         self.file_selections["data_file"],
     #         self.env_selections["env_id"],
     #         crop_name,
     #         crop_variety,
-    #         site_name,
-    #         site_variation
+    #         soil_name,
+    #         soil_variation
     #     ))
 
     #     subprocess.run([
@@ -552,8 +552,8 @@ class CustomConfigurationPage(QWidget):
     #         "--env-id", self.env_selections["env_id"],
     #         "--npk.ag.crop-name", crop_name,
     #         "--npk.ag.crop-variety", crop_variety,
-    #         "--npk.ag.site-name", site_name,
-    #         "--npk.ag.site-variation", site_variation,
+    #         "--npk.ag.soil-name", soil_name,
+    #         "--npk.ag.soil-variation", soil_variation,
     #     ])
 
     # Run Simulation -- Uses agro file inputs to create a YAML file and run the simulation

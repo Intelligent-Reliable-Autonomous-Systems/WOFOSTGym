@@ -107,11 +107,11 @@ please see the following READMEs:
 
     * env_config/README_agro.md - overview of how to configure a crop simulation.
 
-    * env_config/site_config/README_add_site.md - overview of how to add a new site
+    * env_config/soil_config/README_add_soil.md - overview of how to add a new soil
         with all required parameters.
-    * env_config/site_config/README_site_paramters.md - an overview of all configurable site 
+    * env_config/soil_config/README_soil_paramters.md - an overview of all configurable soil 
         parameters
-    * env_config/site_config/README_site_states.md - an overview of all site state and rate
+    * env_config/soil_config/README_soil_states.md - an overview of all soil state and rate
         variables available for output with corresponding units.
 
     * env_config/crop_config/README_add_crop.md - overview of how to add a new crop

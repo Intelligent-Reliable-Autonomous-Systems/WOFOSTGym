@@ -28,29 +28,29 @@ class MultiCropDataProvider(dict):
         raise NotImplementedError(msg)
 
 
-class MultiSiteDataProvider(dict):
-    """Provides base class for Site Data loading from .yaml files"""
+class MultiSoilDataProvider(dict):
+    """Provides base class for Soil Data loading from .yaml files"""
 
     def __init__(self) -> None:
-        """Initialize class `MultiSiteDataProvider"""
+        """Initialize class `MultiSoilDataProvider"""
         dict.__init__(self)
         self._store = {}
 
-    def set_active_crop(self, site_name: str, site_variation: str) -> None:
-        """Sets the crop parameters for the crop identified by site_name and site_variation.
+    def set_active_crop(self, soil_name: str, soil_variation: str) -> None:
+        """Sets the crop parameters for the crop identified by soil_name and soil_variation.
 
-        Needs to be implemented by each subclass of MultiSiteDataProvider
+        Needs to be implemented by each subclass of MultiSoilDataProvider
         """
-        msg = "'set_crop_type' method should be implemented specifically for each" "subclass of MultiSiteDataProvider."
+        msg = "'set_crop_type' method should be implemented specifically for each" "subclass of MultiSoilDataProvider."
         raise NotImplementedError(msg)
 
 
 class ParameterProvider(MutableMapping):
-    """Class providing a dictionary-like interface over all parameter sets (crop, soil, site).
+    """Class providing a dictionary-like interface over all parameter sets (crop, soil, soil).
     It acts very much like a ChainMap with some additional features.
 
     The idea behind this class is threefold. First of all by encapsulating the
-    different parameter sets (sitedata, cropdata, soildata) into a single object,
+    different parameter sets (agrodata, cropdata, soildata) into a single object,
     the signature of the `initialize()` method of each `SimulationObject` can be
     harmonized across all SimulationObjects. Second, the ParameterProvider itself
     can be easily adapted when different sets of parameter values are needed. For
@@ -60,48 +60,41 @@ class ParameterProvider(MutableMapping):
     CROP_START signal. Finally, specific parameter values can be easily changed
     by setting an `override` on that parameter.
 
-    See also the `MultiCropDataProvider` and the `MultieSiteDataProvider`
+    See also the `MultiCropDataProvider` and the `MultieSoilDataProvider`
     """
 
     _maps = list()
-    _sitedata = dict()
     _soildata = dict()
     _cropdata = dict()
     _timerdata = dict()
     _override = dict()
     _iter = 0  # Counter for iterator
     _ncrops_activated = 0  # Counts the number of times `set_crop_type()` has been called.
-    _nsites_activated = 0  # Counts the number of times `set_site_type()` has been called.
+    _nsoils_activated = 0  # Counts the number of times `set_soil_type()` has been called.
 
     def __init__(
         self,
-        sitedata: MultiSiteDataProvider = None,
+        soildata: MultiSoilDataProvider = None,
         timerdata: dict = None,
-        soildata: dict = None,
         cropdata: MultiCropDataProvider = None,
         override: dict = None,
     ) -> None:
         """Initializes class `ParameterProvider
 
         Args:
-            sitedata  - data for site
+            soildata  - data for soil
             timerdata - data for timer
-            soildata  - data for soil (generally unused, wrapped into site data
             cropdata  - data for crop
             override  - parameter overrides (useful for setting not .yaml configurations)
         """
-        if sitedata is not None:
-            self._sitedata = sitedata
-        else:
-            self._sitedata = {}
-        if cropdata is not None:
-            self._cropdata = cropdata
-        else:
-            self._cropdata = {}
         if soildata is not None:
             self._soildata = soildata
         else:
             self._soildata = {}
+        if cropdata is not None:
+            self._cropdata = cropdata
+        else:
+            self._cropdata = {}
         if timerdata is not None:
             self._timerdata = timerdata
         else:
@@ -111,7 +104,7 @@ class ParameterProvider(MutableMapping):
         else:
             self._override = {}
 
-        self._maps = [self._override, self._sitedata, self._timerdata, self._soildata, self._cropdata]
+        self._maps = [self._override, self._soildata, self._timerdata, self._cropdata]
         self._test_uniqueness()
 
     def set_active_crop(
@@ -142,22 +135,22 @@ class ParameterProvider(MutableMapping):
         self._ncrops_activated += 1
         self._test_uniqueness()
 
-    def set_active_site(self, site_name: str = None, site_variation: str = None) -> None:
-        """Activate the site parameters for the given site_name and site_variation.
+    def set_active_soil(self, soil_name: str = None, soil_variation: str = None) -> None:
+        """Activate the soil parameters for the given soil_name and soil_variation.
 
-        :param site_name: string identifying the site name, is ignored as only
-               one site is assumed to be here.
-        :param site_variation: string identifying the variety name, is ignored as only
+        :param soil_name: string identifying the soil name, is ignored as only
+               one soil is assumed to be here.
+        :param soil_variation: string identifying the variety name, is ignored as only
                one variation is assumed to be here.
         """
-        if isinstance(self._sitedata, MultiSiteDataProvider):
+        if isinstance(self._soildata, MultiSoilDataProvider):
             # we have a MultiCropDataProvider, so set the active crop and variety
-            self._sitedata.set_active_site(site_name, site_variation)
+            self._soildata.set_active_soil(soil_name, soil_variation)
         else:
-            msg = f"Site data provider {self._sitedata} is not of type {type(MultiSiteDataProvider)}"
+            msg = f"Soil data provider {self._soildata} is not of type {type(MultiSoilDataProvider)}"
             raise exc.PCSEError(msg)
 
-        self._nsites_activated += 1
+        self._nsoils_activated += 1
         self._test_uniqueness()
 
     @property
@@ -172,7 +165,7 @@ class ParameterProvider(MutableMapping):
         when running for different sets of parameters or for calibration
         purposes.
 
-        Note that if check=True (default) varname should already exist in one of site, timer,
+        Note that if check=True (default) varname should already exist in one of soil, timer,
         soil or cropdata.
         """
 
@@ -207,7 +200,7 @@ class ParameterProvider(MutableMapping):
         is specifically meant for overriding parameters.
         """
         parnames = []
-        for mapping in [self._sitedata, self._timerdata, self._soildata, self._cropdata]:
+        for mapping in [self._soildata, self._timerdata, self._cropdata]:
             parnames.extend(mapping.keys())
         unique = Counter(parnames)
         for parname, count in unique.items():

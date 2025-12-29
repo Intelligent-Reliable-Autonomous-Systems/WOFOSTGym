@@ -78,8 +78,8 @@ class Args:
     agro_fpath: str = "env_config/agro/"
     """Relative path to crop configuration folder"""
     crop_fpath: str = "env_config/crop/"
-    """Relative path to site configuration foloder"""
-    site_fpath: str = "env_config/site/"
+    """Relative path to soil configuration foloder"""
+    soil_fpath: str = "env_config/soil/"
     """Relative path to the state units """
     unit_fpath: str = "env_config/state_units.yaml"
     """Relative path to the state names"""
@@ -178,7 +178,7 @@ def make_gym_env(args: Namespace, run_name: str = None) -> gym.Env:
 
         if isinstance(env, Multi_NPK_Env):
             for i in range(env.num_farms):
-                wf_i = {**env._get_site_data(i), **env._get_crop_data(i)}
+                wf_i = {**env._get_soil_data(i), **env._get_crop_data(i)}
                 ag_i = copy.deepcopy(env.agromanagement)
 
                 # Reconcile and merge configurations
@@ -195,7 +195,7 @@ def make_gym_env(args: Namespace, run_name: str = None) -> gym.Env:
                     OmegaConf.save(config=config_i, f=fp.name)
         else:
             # Make configurations
-            wf = {**env._get_site_data(), **env._get_crop_data()}
+            wf = {**env._get_soil_data(), **env._get_crop_data()}
             ag = copy.deepcopy(env.agromanagement)
 
             # Reconcile and merge configurations
@@ -263,7 +263,7 @@ def get_gym_args(args: Args) -> tuple[str, dict]:
         "args": correct_commandline_lists(args.npk),
         "base_fpath": args.base_fpath,
         "agro_fpath": f"{args.agro_fpath}{args.agro_file}",
-        "site_fpath": args.site_fpath,
+        "soil_fpath": args.soil_fpath,
         "crop_fpath": args.crop_fpath,
         "unit_fpath": args.unit_fpath,
         "name_fpath": args.name_fpath,

@@ -1,4 +1,4 @@
-"""YAML File reader for the Site Data file (also includes soil data parameters by default)
+"""YAML File reader for the Soil Data file (also includes soil data parameters by default)
 
 Written by: Allard de Wit (allard.dewit@wur.nl), April 2014
 Modified by Will Solow, 2024
@@ -9,36 +9,36 @@ import os
 import pickle
 import yaml
 
-from pcse.base import MultiSiteDataProvider
+from pcse.base import MultiSoilDataProvider
 from pcse.utils import exceptions as exc
 from pcse.util import version_tuple, get_working_directory
 
 
-class YAMLSiteDataProvider(MultiSiteDataProvider):
-    """A site data provider for reading site and soil parameter sets stored in the YAML format.
-       This directly extends the site format by allowing multiple sites to be created
+class YAMLSoilDataProvider(MultiSoilDataProvider):
+    """A soil data provider for reading soil and soil parameter sets stored in the YAML format.
+       This directly extends the soil format by allowing multiple soils to be created
        with different parameters
 
         :param fpath: full path to directory containing YAML files
         :param force_reload: If set to True, the cache file is ignored and al
          parameters are reloaded (default False).
 
-    This site data provider can read and store the parameter sets for multiple
-    sites which is different from most other site data providers that only can
-    hold data for a single site/soil type.
+    This soil data provider can read and store the parameter sets for multiple
+    soils which is different from most other soil data providers that only can
+    hold data for a single soil/soil type.
     """
 
-    current_site_name = None
-    current_site_variation = None
+    current_soil_name = None
+    current_soil_variation = None
 
     # Compatibility of data provider with YAML parameter file version
     compatible_version = "1.0.0"
 
     def __init__(self, fpath: str = None, force_reload: bool = False) -> None:
-        """Initialize the YAMLSiteDataProivder class by first inheriting from the
-        MultiSiteDataProvider class
+        """Initialize the YAMLSoilDataProivder class by first inheriting from the
+        MultiSoilDataProvider class
         """
-        MultiSiteDataProvider.__init__(self)
+        MultiSoilDataProvider.__init__(self)
 
         # either force a reload or load cache fails
         if force_reload is True or self._load_cache(fpath) is False:
@@ -50,7 +50,7 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
                 self.read_local_repository(fpath)
 
             else:
-                msg = f"No path or specified where to find YAML site parameter files "
+                msg = f"No path or specified where to find YAML soil parameter files "
                 self.logger.info(msg)
                 exc.PCSEError(msg)
 
@@ -58,19 +58,19 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
                 pickle.dump((self.compatible_version, self._store), fp, pickle.HIGHEST_PROTOCOL)
 
     def read_local_repository(self, fpath: str) -> None:
-        """Reads the site YAML files on the local file system
+        """Reads the soil YAML files on the local file system
 
         :param fpath: the location of the YAML files on the filesystem
         """
         yaml_file_names = self._get_yaml_files(fpath)
-        for site_name, yaml_fname in yaml_file_names.items():
+        for soil_name, yaml_fname in yaml_file_names.items():
             with open(yaml_fname) as fp:
                 parameters = yaml.safe_load(fp)
-            self._check_version(parameters, site_fname=yaml_fname)
-            self._add_site(site_name, parameters)
+            self._check_version(parameters, soil_fname=yaml_fname)
+            self._add_soil(soil_name, parameters)
 
     def _get_cache_fname(self, fpath: str) -> str:
-        """Returns the name of the cache file for the SiteDataProvider."""
+        """Returns the name of the cache file for the SoilDataProvider."""
         cache_fname = "%s.pkl" % self.__class__.__name__
         if fpath is None:
             PCSE_USER_HOME = os.path.join(get_working_directory(), ".pcse")
@@ -90,7 +90,7 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
                 # This only works for files not for github repos
                 if fpath is not None:
                     yaml_file_names = self._get_yaml_files(fpath)
-                    yaml_file_dates = [os.stat(fn).st_mtime for site, fn in yaml_file_names.items()]
+                    yaml_file_dates = [os.stat(fn).st_mtime for soil, fn in yaml_file_names.items()]
                     # retrieve modification date of cache file
                     cache_date = os.stat(cache_fname_fp).st_mtime
                     # Ensure cache file is more recent then any of the YAML files
@@ -101,7 +101,7 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
                 with open(cache_fname_fp, "rb") as fp:
                     version, store = pickle.load(fp)
                 if version_tuple(version) != version_tuple(self.compatible_version):
-                    msg = "Cache file is from a different version of YAMLSiteDataProvider"
+                    msg = "Cache file is from a different version of YAMLSoilDataProvider"
                     raise exc.PCSEError(msg)
                 self._store = store
                 return True
@@ -112,7 +112,7 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
 
         return False
 
-    def _check_version(self, parameters: dict, site_fname: str) -> None:
+    def _check_version(self, parameters: dict, soil_fname: str) -> None:
         """Checks the version of the parameter input with the version supported by this data provider.
 
         Raises an exception if the parameter set is incompatible.
@@ -125,93 +125,93 @@ class YAMLSiteDataProvider(MultiSiteDataProvider):
                 msg = "Version supported by %s is %s, while parameter set version is %s!"
                 raise exc.PCSEError(msg % (self.__class__.__name__, self.compatible_version, parameters["Version"]))
         except Exception as e:
-            msg = f"Version check failed on site parameter file: {site_fname}"
+            msg = f"Version check failed on soil parameter file: {soil_fname}"
             raise exc.PCSEError(msg)
 
-    def _add_site(self, site_name: str, parameters: dict) -> None:
-        """Store the parameter sets for the different varieties for the given site."""
-        variation_sets = parameters["SiteParameters"]["Variations"]
-        self._store[site_name] = variation_sets
+    def _add_soil(self, soil_name: str, parameters: dict) -> None:
+        """Store the parameter sets for the different varieties for the given soil."""
+        variation_sets = parameters["SoilParameters"]["Variations"]
+        self._store[soil_name] = variation_sets
 
     def _get_yaml_files(self, fpath: str) -> list[str]:
         """Returns all the files ending on *.yaml in the given path."""
-        fname = os.path.join(fpath, "sites.yaml")
+        fname = os.path.join(fpath, "soils.yaml")
         if not os.path.exists(fname):
-            msg = "Cannot find 'sites.yaml' at {f}".format(f=fname)
+            msg = "Cannot find 'soils.yaml' at {f}".format(f=fname)
             raise exc.PCSEError(msg)
-        site_names = yaml.safe_load(open(fname))["available_sites"]
-        site_yaml_fnames = {site: os.path.join(fpath, site + ".yaml") for site in site_names}
-        for site, fname in site_yaml_fnames.items():
+        soil_names = yaml.safe_load(open(fname))["available_soils"]
+        soil_yaml_fnames = {soil: os.path.join(fpath, soil + ".yaml") for soil in soil_names}
+        for soil, fname in soil_yaml_fnames.items():
             if not os.path.exists(fname):
-                msg = f"Cannot find yaml file for site '{site}': {fname}"
+                msg = f"Cannot find yaml file for soil '{soil}': {fname}"
                 raise RuntimeError(msg)
-        return site_yaml_fnames
+        return soil_yaml_fnames
 
-    def set_active_site(self, site_name: str, site_variation: str) -> None:
-        """Sets the parameters in the internal dict for given site_name and site_variation
+    def set_active_soil(self, soil_name: str, soil_variation: str) -> None:
+        """Sets the parameters in the internal dict for given soil_name and soil_variation
 
-        It first clears the active set of site/soil parameters in the internal dict.
+        It first clears the active set of soil/soil parameters in the internal dict.
 
-        :param site_name: the name of the site
-        :param site_variation: the variation for the given site
+        :param soil_name: the name of the soil
+        :param soil_variation: the variation for the given soil
         """
         self.clear()
-        if site_name not in self._store:
-            msg = "Site name '%s' not available in %s " % (site_name, self.__class__.__name__)
+        if soil_name not in self._store:
+            msg = "Soil name '%s' not available in %s " % (soil_name, self.__class__.__name__)
             raise exc.PCSEError(msg)
-        variation_sets = self._store[site_name]
-        if site_variation not in variation_sets:
-            msg = "Variation name '%s' not available for site '%s' in " "%s " % (
-                site_variation,
-                site_name,
+        variation_sets = self._store[soil_name]
+        if soil_variation not in variation_sets:
+            msg = "Variation name '%s' not available for soil '%s' in " "%s " % (
+                soil_variation,
+                soil_name,
                 self.__class__.__name__,
             )
             raise exc.PCSEError(msg)
 
-        self.current_site_name = site_name
-        self.current_site_variation = site_variation
+        self.current_soil_name = soil_name
+        self.current_soil_variation = soil_variation
 
         # Retrieve parameter name/values from input (ignore description and units)
-        parameters = {k: v[0] for k, v in variation_sets[site_variation].items() if k != "Metadata"}
+        parameters = {k: v[0] for k, v in variation_sets[soil_variation].items() if k != "Metadata"}
         # update internal dict with parameter values for this variety
         self.update(parameters)
 
-    def get_default_data(self, site_name: str, site_variation: str) -> dict:
+    def get_default_data(self, soil_name: str, soil_variation: str) -> dict:
         """
-        Gets the default site set by the agromanagement file
+        Gets the default soil set by the agromanagement file
         """
-        variation_sets = self._store[site_name]
+        variation_sets = self._store[soil_name]
 
-        return {k: v[0] for k, v in variation_sets[site_variation].items() if k != "Metadata"}
+        return {k: v[0] for k, v in variation_sets[soil_variation].items() if k != "Metadata"}
 
-    def get_site_variations(self) -> dict[str, str]:
-        """Return the names of available sites and variations per site.
+    def get_soil_variations(self) -> dict[str, str]:
+        """Return the names of available soils and variations per soil.
 
-        :return: a dict of type {'site_name1': ['site_variation1', 'site_variation1', ...],
-                                 'site_name2': [...]}
+        :return: a dict of type {'soil_name1': ['soil_variation1', 'soil_variation1', ...],
+                                 'soil_name2': [...]}
         """
         return {k: v.keys() for k, v in self._store.items()}
 
-    def print_site_variations(self) -> None:
-        """Gives a printed list of sites and variations on screen."""
+    def print_soil_variations(self) -> None:
+        """Gives a printed list of soils and variations on screen."""
         msg = ""
-        for site, variation in self.get_site_variations().items():
-            msg += "site '%s', available varieties:\n" % site
+        for soil, variation in self.get_soil_variations().items():
+            msg += "soil '%s', available varieties:\n" % soil
             for var in variation:
                 msg += " - '%s'\n" % var
         print(msg)
 
     def __str__(self) -> str:
         if not self:
-            msg = "%s - site and variation not set: no active site parameter set!\n" % self.__class__.__name__
+            msg = "%s - soil and variation not set: no active soil parameter set!\n" % self.__class__.__name__
             return msg
         else:
-            msg = "%s - current active site '%s' with variation '%s'\n" % (
+            msg = "%s - current active soil '%s' with variation '%s'\n" % (
                 self.__class__.__name__,
-                self.current_site_name,
-                self.current_site_variation,
+                self.current_soil_name,
+                self.current_soil_variation,
             )
-            msg += "Available site parameters:\n %s" % str(dict.__str__(self))
+            msg += "Available soil parameters:\n %s" % str(dict.__str__(self))
             return msg
 
     @property

@@ -1,4 +1,4 @@
-# Site/Soil parameter file for use with the PCSE/WISS implementations of the WOFOST
+# Soil/Soil parameter file for use with the PCSE/WISS implementations of the WOFOST
 # crop simulation model
 #
 # Creation date: 2024-08-26
@@ -22,8 +22,8 @@ Metadata: &meta
    Date: 2024-08-26
    Language: EN
    Format: YAML
-   Subject: WOFOST parameters for Oregon Site
-   Description: This file provides parameters for one or more Oregon Site variations
+   Subject: WOFOST parameters for Oregon Soil
+   Description: This file provides parameters for one or more Oregon Soil variations
    Identifier:
    Relation:
    Source: 
@@ -32,7 +32,7 @@ Metadata: &meta
      Region:
    Rights: 
    Keyword:
-SiteParameters:
+SoilParameters:
    EcoTypes:
      washington: &washington
        #

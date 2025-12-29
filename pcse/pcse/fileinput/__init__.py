@@ -6,4 +6,4 @@ Modified by Will Solow, 2024
 
 from pcse.fileinput.yaml_agro_loader import YAMLAgroManagementReader
 from pcse.fileinput.yaml_cropdataprovider import YAMLCropDataProvider
-from pcse.fileinput.yaml_sitedataprovider import YAMLSiteDataProvider
+from pcse.fileinput.yaml_soildataprovider import YAMLSoilDataProvider

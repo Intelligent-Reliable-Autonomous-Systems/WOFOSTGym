@@ -193,7 +193,7 @@ class WaterbalanceFD(SimulationObject):
         KSUB = Float(-99.0)
         RDMSOL = Float(-99.0)
         SMLIM = Float(-99.0)
-        # Site parameters
+        # Soil parameters
         IFUNRN = Float(-99.0)
         SSMAX = Float(-99.0)
         SSI = Float(-99.0)
@@ -803,7 +803,7 @@ class WaterbalancePP(SimulationObject):
         KSUB = Float(-99.0)
         RDMSOL = Float(-99.0)
         SMLIM = Float(-99.0)
-        # Site parameters
+        # Soil parameters
         IFUNRN = Float(-99.0)
         SSMAX = Float(-99.0)
         SSI = Float(-99.0)

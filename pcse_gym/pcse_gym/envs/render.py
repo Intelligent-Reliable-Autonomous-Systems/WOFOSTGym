@@ -40,7 +40,7 @@ def render(env: gym.Env) -> None | np.ndarray:
     env.screen.blit(title_surface, title_rect)
 
     """Day text"""
-    date = env.agromanagement["SiteCalendar"]["site_start_date"] + timedelta(obs_dict["DAYS"])
+    date = env.agromanagement["SoilCalendar"]["soil_start_date"] + timedelta(obs_dict["DAYS"])
     date_font = pygame.font.Font(None, 40)
     date_surface = date_font.render(f"Date: {date}", True, (0, 0, 0))
     date_rect = date_surface.get_rect(center=(env.screen_width // 2, 18.5 * env.screen_height / 20))

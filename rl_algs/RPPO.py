@@ -152,7 +152,7 @@ def train(kwargs: Namespace) -> None:
     RPPO Training Function
     """
 
-    args = kwargs.RPPO
+    args = kwargs.alg
     run_name = f"RPPO/{kwargs.env_id}__{args.exp_name}__{args.seed}__{int(time.time())}"
     args.batch_size = int(args.num_envs * args.num_steps)
     args.minibatch_size = int(args.batch_size // args.num_minibatches)

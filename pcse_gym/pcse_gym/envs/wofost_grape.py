@@ -48,7 +48,7 @@ class Grape_Limited_NPKW_Env(NPK_Env, LNPKW):
         unit_fpath: str,
         range_fpath: str,
         render_mode: str = None,
-        config: dict = None,
+        
     ) -> None:
         """Initialize the :class:`Limited_NPKW_Env`.
 
@@ -127,7 +127,7 @@ class Grape_PP_Env(NPK_Env, PP):
         unit_fpath: str,
         range_fpath: str,
         render_mode: str = None,
-        config: dict = None,
+        
     ) -> None:
         """Initialize the :class:`PP_Env`.
 
@@ -179,7 +179,7 @@ class Grape_Limited_NPK_Env(NPK_Env, LNPK):
         unit_fpath: str,
         range_fpath: str,
         render_mode: str = None,
-        config: dict = None,
+        
     ) -> None:
         """Initialize the :class:`Limited_NPK_Env`.
 
@@ -248,7 +248,7 @@ class Grape_Limited_N_Env(NPK_Env, LN):
         unit_fpath: str,
         range_fpath: str,
         render_mode: str = None,
-        config: dict = None,
+        
     ) -> None:
         """Initialize the :class:`Limited_N_Env`.
 
@@ -309,7 +309,7 @@ class Grape_Limited_NW_Env(NPK_Env, LNW):
         unit_fpath: str,
         range_fpath: str,
         render_mode: str = None,
-        config: dict = None,
+        
     ) -> None:
         """Initialize the :class:`Limited_NW_Env`.
 
@@ -378,7 +378,7 @@ class Grape_Limited_W_Env(NPK_Env, LW):
         unit_fpath: str,
         range_fpath: str,
         render_mode: str = None,
-        config: dict = None,
+        
     ) -> None:
         """Initialize the :class:`Limited_W_Env`.
 
@@ -439,7 +439,7 @@ class Grape_Limited_Layered_NPKW_Env(NPK_Env, LNPKW):
         unit_fpath: str,
         range_fpath: str,
         render_mode: str = None,
-        config: dict = None,
+        
     ) -> None:
         """Initialize the :class:`Limited_NPKW_Env`.
 
@@ -518,7 +518,7 @@ class Grape_Layered_PP_Env(NPK_Env, PP):
         unit_fpath: str,
         range_fpath: str,
         render_mode: str = None,
-        config: dict = None,
+        
     ) -> None:
         """Initialize the :class:`PP_Env`.
 
@@ -570,7 +570,7 @@ class Grape_Limited_Layered_NPK_Env(NPK_Env, LNPK):
         unit_fpath: str,
         range_fpath: str,
         render_mode: str = None,
-        config: dict = None,
+        
     ) -> None:
         """Initialize the :class:`Limited_NPK_Env`.
 
@@ -639,7 +639,7 @@ class Grape_Limited_Layered_N_Env(NPK_Env, LN):
         unit_fpath: str,
         range_fpath: str,
         render_mode: str = None,
-        config: dict = None,
+        
     ) -> None:
         """Initialize the :class:`Limited_N_Env`.
 
@@ -700,7 +700,7 @@ class Grape_Limited_Layered_NW_Env(NPK_Env, LNW):
         unit_fpath: str,
         range_fpath: str,
         render_mode: str = None,
-        config: dict = None,
+        
     ) -> None:
         """Initialize the :class:`Limited_NW_Env`.
 
@@ -769,7 +769,7 @@ class Grape_Limited_Layered_W_Env(NPK_Env, LW):
         unit_fpath: str,
         range_fpath: str,
         render_mode: str = None,
-        config: dict = None,
+        
     ) -> None:
         """Initialize the :class:`Limited_W_Env`.
 

@@ -119,7 +119,7 @@ def train(kwargs: Namespace) -> None:
     AIRL Training Function
     """
 
-    args = kwargs.AIRL
+    args = kwargs.alg
     run_name = f"AIRL/{kwargs.env_id}__{args.exp_name}__{args.seed}__{int(time.time())}"
 
     writer, device, envs = setup(kwargs, args, run_name)

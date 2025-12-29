@@ -476,12 +476,17 @@ def get_valid_trainers() -> dict[str, object]:
     modules = {k: v for k, v in modules.items() if isinstance(v, type(__import__("sys")))}
 
     trainer = {}
+    args = {}
     for m in modules.values():
         classes = {
             m.__name__.removeprefix("rl_algs."): obj for name, obj in getmembers(m, isfunction) if name == "train"
         }
+        alg_args = {
+            m.__name__.removeprefix("rl_algs."): obj for name, obj in getmembers(m, isclass) if name == "Args"
+        }
         trainer = dict(trainer, **classes)
-    return trainer
+        args = dict(args, **alg_args)
+    return trainer, args
 
 
 def get_functions(file: str) -> dict[str, FunctionType]:
@@ -534,7 +539,7 @@ def obs_to_numpy(obs: dict | torch.Tensor | np.ndarray) -> np.ndarray:
 def action_to_numpy(env: gym.Env, act: float | torch.Tensor | np.ndarray | dict) -> np.ndarray:
     """
     Converts the dicionary action to an integer to be pased to the base
-    environment.
+    environment when a ActionWrapper is not available
 
     Args:
         action
@@ -561,16 +566,16 @@ def action_to_numpy(env: gym.Env, act: float | torch.Tensor | np.ndarray | dict)
         raise Exception(msg)
 
     if not "n" in act.keys():
-        msg = "Nitrogen action 'n' not included in action dictionary keys"
+        msg = "Nitrogen action 'n' is not included in action dictionary keys"
         raise Exception(msg)
     if not "p" in act.keys():
-        msg = "Phosphorous action 'p' not included in action dictionary keys"
+        msg = "Phosphorous action 'p' is not included in action dictionary keys"
         raise Exception(msg)
     if not "k" in act.keys():
-        msg = "Potassium action 'k' not included in action dictionary keys"
+        msg = "Potassium action 'k' is not included in action dictionary keys"
         raise Exception(msg)
     if not "irrig" in act.keys():
-        msg = "Irrigation action 'irrig' not included in action dictionary keys"
+        msg = "Irrigation action 'irrig' isnot included in action dictionary keys"
         raise Exception(msg)
 
     # Planting Single Year environments

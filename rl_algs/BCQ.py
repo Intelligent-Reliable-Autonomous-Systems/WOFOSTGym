@@ -142,7 +142,7 @@ def train(kwargs: Namespace) -> None:
     """
     BCQ Training function
     """
-    args = kwargs.BCQ
+    args = kwargs.alg
 
     assert args.num_envs == 1, "vectorized envs are not supported at the moment"
     run_name = f"BCQ/{kwargs.env_id}__{args.exp_name}__{args.seed}__{int(time.time())}"

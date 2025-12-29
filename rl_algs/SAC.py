@@ -120,7 +120,7 @@ class SAC(nn.Module, Agent):
 
 
 def train(kwargs: Namespace) -> None:
-    args = kwargs.SAC
+    args = kwargs.alg
 
     assert args.num_envs == 1, "vectorized envs are not supported at the moment"
     run_name = f"SAC/{kwargs.env_id}__{args.exp_name}__{args.seed}__{int(time.time())}"

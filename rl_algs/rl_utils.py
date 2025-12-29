@@ -139,7 +139,6 @@ def eval_policy(
         unit_fpath = eval_env.envs[0].unwrapped.unit_fpath
         range_fpath = eval_env.envs[0].unwrapped.range_fpath
         render_mode = eval_env.envs[0].unwrapped.render_mode
-        config = eval_env.envs[0].unwrapped.config
     else:
         env_constr = type(eval_env.unwrapped)
         args = eval_env.unwrapped.args
@@ -151,7 +150,6 @@ def eval_policy(
         unit_fpath = eval_env.unwrapped.unit_fpath
         range_fpath = eval_env.unwrapped.range_fpath
         render_mode = eval_env.unwrapped.render_mode
-        config = eval_env.unwrapped.config
 
     new_args = copy.deepcopy(args)
     new_args.random_reset = True
@@ -167,7 +165,6 @@ def eval_policy(
         unit_fpath,
         range_fpath,
         render_mode,
-        config,
     )
 
     env = utils.wrap_env_reward(env, kwargs)

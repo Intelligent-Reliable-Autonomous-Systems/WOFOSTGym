@@ -103,7 +103,7 @@ def train(kwargs: Namespace) -> None:
     BC Trainer function
     """
 
-    args = kwargs.BC
+    args = kwargs.alg
     run_name = f"BC/{kwargs.env_id}__{args.exp_name}__{args.seed}__{int(time.time())}"
 
     writer, device, envs = setup(kwargs, args, run_name)

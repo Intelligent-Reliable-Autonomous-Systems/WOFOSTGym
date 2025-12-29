@@ -48,18 +48,18 @@ class DataArgs(utils.Args):
 
     """Parameters for generating data"""
     """Year range, incremented by 1"""
-    year_low: int = 1984
-    year_high: int = 2019
+    year_low: Optional[int] = None # 1984
+    year_high: Optional[int] = None # 2019
     """Latitude range, incremented by .5"""
-    lat_low: float = 50
-    lat_high: float = 50
+    lat_low: Optional[int] = None
+    lat_high: Optional[int] = None
 
     """Latitude range, incremented by .5"""
-    lon_low: float = 5
-    lon_high: float = 5
+    lon_low: Optional[int] = None
+    lon_high: Optional[int] = None
 
     """Cuda setting for RL agents"""
-    cuda = True
+    cuda: bool = True
 
 
 def csv(env, args, pol):

@@ -117,7 +117,7 @@ def train(kwargs: Namespace) -> None:
     """
     GAIL Training Function
     """
-    args = kwargs.GAIL
+    args = kwargs.alg
     run_name = f"GAIL/{kwargs.env_id}__{args.exp_name}__{args.seed}__{int(time.time())}"
 
     writer, device, envs = setup(kwargs, args, run_name)

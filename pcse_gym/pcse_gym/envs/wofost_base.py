@@ -303,6 +303,13 @@ class NPK_Env(gym.Env):
             msg = f"Action must be of type `int` but is of type `dict`. Wrap environment in `pcse_gym.wrappers.NPKDictActionWrapper` before proceeding."
             raise Exception(msg)
 
+        if isinstance(action, np.ndarray):
+            if action.ndim == 1 and action.shape[0] == 1:
+                action = action[0]
+            else:
+                msg = f"Action can be a 1-dimensional, 1-item NDArray, but is of shape {action.shape}"
+                raise Exception(msg) 
+            
         act_tuple = self._take_action(action)
         output = self._run_simulation()
         observation = self._process_output(output)
@@ -878,6 +885,13 @@ class Multi_NPK_Env(gym.Env):
         if isinstance(action, dict):
             msg = f"Action must be of type `int` but is of type `dict`. Wrap environment in `pcse_gym.wrappers.NPKDictActionWrapper` before proceeding."
             raise Exception(msg)
+        
+        if isinstance(action, np.ndarray):
+            if action.ndim == 1 and action.shape[0] == 1:
+                action = action[0]
+            else:
+                msg = f"Action can be a 1-dimensional, 1-item NDArray, but is of shape {action.shape}"
+                raise Exception(msg) 
 
         act_tuple = self._take_action(action)
         output = self._run_simulation()

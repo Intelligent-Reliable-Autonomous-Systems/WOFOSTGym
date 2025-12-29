@@ -131,7 +131,7 @@ def train(kwargs: Namespace) -> None:
     PPO Training Function
     """
 
-    args = kwargs.PPO
+    args = kwargs.alg
     run_name = f"PPO/{kwargs.env_id}__{args.exp_name}__{args.seed}__{int(time.time())}"
     args.batch_size = int(args.num_envs * args.num_steps)
     args.minibatch_size = int(args.batch_size // args.num_minibatches)

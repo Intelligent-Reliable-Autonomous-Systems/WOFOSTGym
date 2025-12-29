@@ -4,7 +4,7 @@ with a few simple plots for output
 
 Written by: Will Solow, 2024
 
-To run: python3 test_wofost.py --save-folder <folder>
+To run: python3 test_wofost.py --save-folder <folder> --data-file <name>
 """
 
 import numpy as np

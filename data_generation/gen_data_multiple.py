@@ -54,16 +54,15 @@ class DataArgs(utils.Args):
 
     """Parameters for generating data"""
     """Year range, incremented by 1"""
-    year_low: int = 2000
-    year_high: int = 2010
+    year_low: Optional[int] = None
+    year_high: Optional[int] = None
     """Latitude range, incremented by .5"""
-    lat_low: float = 50
-    lat_high: float = 50
+    lat_low: Optional[int] = None
+    lat_high: Optional[int] = None
 
     """Latitude range, incremented by .5"""
-    lon_low: float = 5
-    lon_high: float = 5
-
+    lon_low: Optional[int] = None
+    lon_high: Optional[int] = None
 
 def npz_multiple(envs: gym.Env, args: DataArgs, pols: list[Agent], pols_kwargs: dict[str, str]) -> None:
     """
